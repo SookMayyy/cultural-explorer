@@ -1,0 +1,10 @@
+/* css/map.css */
+.map-region-labels { display: flex; gap: 8px; flex-wrap: wrap; }
+.region-badge {
+  border-radius: var(--radius-full);
+  padding: 3px 12px;
+  font-size: var(--text-xs);
+  font-weight: 700;
+}
+.region-badge--west { background: #D5F5E3; color: var(--color-green); }
+.region-badge--east { background: var(--color-blue-light); color: var(--color-blue); }

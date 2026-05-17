@@ -1,0 +1,19 @@
+{
+  "name": "cultural-explorer-malaysia",
+  "version": "1.0.0",
+  "description": "A Game-Based Learning Platform for Teaching Malaysia Cultures to Elementary Students",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve . -p 3000",
+    "dev": "npx live-server --port=3000 --open=index.html"
+  },
+  "keywords": [
+    "malaysia",
+    "culture",
+    "education",
+    "game",
+    "learning"
+  ],
+  "author": "Sook May",
+  "license": "MIT"
+}
