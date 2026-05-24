@@ -15,6 +15,29 @@ No build step, no bundler, no transpilation — the app runs directly from sourc
 
 This is a **vanilla JS SPA** (no frameworks, no modules system). All scripts are loaded globally; every JS file exposes a single `const` in the global scope.
 
+# Cultural Explorer
+
+A mobile educational game application developed for Final Year Project (FYP).
+
+The app helps users explore and learn about different cultures through:
+- mini games
+- quizzes
+- interactive exploration
+- cultural stories and information
+
+Tech Stack:
+- Figma for UI/UX design
+
+# Documentation
+
+Project-related documents are stored inside the `/docs` folder.
+Important files may include:
+- FYP proposal
+- Figma prototype (in pdf form)
+- Rubric
+- Claude md file 
+- Project reference (changable)
+
 ### Screen system
 
 `Router` (`js/router.js`) is the central controller. It maps screen IDs to view objects and calls `view.render(screenEl, params)` when navigating. Navigation is triggered by `data-nav` attributes on buttons — the router wires these automatically after each render.
@@ -68,6 +91,29 @@ Branch: `master`
 
 Commit after every meaningful change with a descriptive message. The `gh` CLI is installed at `C:\Program Files\GitHub CLI\gh.exe` and must be called with its full path in PowerShell (or PATH must be refreshed first).
 
+- Commit after every meaningful change with a descriptive commit message.
+- Keep commits focused and small when possible.
+- Ensure the project still builds/runs before committing.
+
+## Branch Strategy
+
+### Use `main` for:
+- Stable working code
+- Small documentation-only updates
+- Minor safe changes
+
+### Create a new branch for:
+- New features
+- UI redesigns
+- Refactors
+- Bug fixes
+- Experimental work
+- Anything that may break existing functionality
+
 ## Prototype scope
 
 Currently implements 7 of Malaysia's 13 states (Penang, Melaka, Selangor, Johor, Kelantan, Sabah, Sarawak). The `assets/images/states/` folder is reserved for state-specific images (currently empty).
+
+## Invoke Emil Kowalski's philosophy on UI polish and design
+
+use /emil-design-eng
