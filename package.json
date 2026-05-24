@@ -1,19 +1,28 @@
 {
   "name": "cultural-explorer-malaysia",
-  "version": "1.0.0",
-  "description": "A Game-Based Learning Platform for Teaching Malaysia Cultures to Elementary Students",
-  "main": "index.html",
+  "version": "2.0.0",
+  "description": "Game-Based Learning Platform for Malaysian Cultural Education — Primary School Students",
+  "main": "server.js",
   "scripts": {
-    "start": "npx serve . -p 3000",
-    "dev": "npx live-server --port=3000 --open=index.html"
+    "dev": "npx live-server public --port=3000 --open=home.html",
+    "start": "node server.js",
+    "server": "nodemon server.js",
+    "serve": "npx serve public -p 3000"
   },
-  "keywords": [
-    "malaysia",
-    "culture",
-    "education",
-    "game",
-    "learning"
-  ],
-  "author": "Sook May",
-  "license": "MIT"
+  "keywords": ["malaysia", "culture", "education", "game", "learning", "primary-school"],
+  "author": "Phang Sook May (22074090) — Sunway University",
+  "license": "MIT",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.3.1",
+    "express-session": "^1.18.0",
+    "express-validator": "^7.1.0",
+    "mysql2": "^3.9.8"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.3"
+  }
 }

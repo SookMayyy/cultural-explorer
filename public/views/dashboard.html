@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>My Progress — Cultural Explorer MY</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Fredoka+One&family=Ribeye&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+<body>
+
+  <!-- Topbar -->
+  <header id="topbar" class="topbar"></header>
+
+  <main class="dashboard-screen has-navbar">
+
+    <!-- Hero: avatar + name + level -->
+    <div class="dashboard-hero">
+      <!-- 📸 IMAGE NEEDED: assets/images/ui/batik-pattern.png as hero bg overlay
+           Already in: assets/images/ui/batik-pattern.png -->
+      <img src="../assets/images/ui/top-left.png"  class="dash-deco dash-deco--tl" alt="">
+      <img src="../assets/images/ui/top-right.png" class="dash-deco dash-deco--tr" alt="">
+
+      <!-- Avatar emoji (set by dashboard.js from selected avatar index) -->
+      <div class="dashboard-avatar" id="dash-avatar">🦁</div>
+      <h2 class="dashboard-name" id="dash-name">Explorer</h2>
+      <p class="dashboard-level" id="dash-level">🌱 Beginner Explorer</p>
+    </div>
+
+    <!-- Stats row -->
+    <div class="dashboard-stats">
+      <div class="stat-card">
+        <span class="stat-value" id="stat-states">0</span>
+        <span class="stat-label">States</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value" id="stat-stamps">0</span>
+        <span class="stat-label">Stamps</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value" id="stat-points">0</span>
+        <span class="stat-label">Points ⭐</span>
+      </div>
+    </div>
+
+    <!-- Mini stamp preview -->
+    <div class="dashboard-section">
+      <h3 class="section-heading">My Stamps</h3>
+      <div class="mini-stamp-grid" id="mini-stamps">
+        <!-- Rendered by dashboard.js -->
+      </div>
+      <a href="../stampbook.html" class="btn-ghost">View full stamp book ›</a>
+    </div>
+
+    <!-- Per-state progress bars -->
+    <div class="dashboard-section">
+      <h3 class="section-heading">State Progress</h3>
+      <div class="state-score-list" id="state-progress-list">
+        <!-- Rendered by dashboard.js -->
+      </div>
+    </div>
+
+    <!-- Recommended next -->
+    <div class="dashboard-section" id="section-recommended">
+      <h3 class="section-heading">Recommended Next</h3>
+      <a class="recommended-card" id="dash-recommended" href="../narrative.html">
+        <span class="rec-emoji" id="rec-emoji">🏝️</span>
+        <div>
+          <p class="rec-name" id="rec-name">Loading…</p>
+          <p class="rec-desc" id="rec-desc">—</p>
+        </div>
+        <span class="rec-arrow">›</span>
+      </a>
+    </div>
+
+    <!-- Best score + logout -->
+    <div class="dashboard-section">
+      <div class="best-score-row">
+        <span>🏆 Best quiz score:</span>
+        <strong id="dash-best-score">0 pts</strong>
+      </div>
+      <button class="btn-ghost dash-logout" id="dash-logout">Log out</button>
+    </div>
+
+  </main>
+
+  <!-- Bottom navbar -->
+  <nav id="navbar" class="navbar"></nav>
+
+  <script type="module" src="../js/dashboard.js"></script>
+</body>
+</html>

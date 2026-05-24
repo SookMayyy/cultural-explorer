@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Quiz Time!</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Fredoka+One&family=Ribeye&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/quiz.css">
+</head>
+<body>
+
+<div class="app-container">
+
+  <header class="topbar topbar--orange">
+    <div class="topbar-left">
+      <img src='../assets/images/ui/quiz-icon.png'><span class="topbar-title">Quiz Time!</span>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-points">⭐ 150 pts</div>
+      <div class="topbar-avatar">P</div>
+    </div>
+  </header>
+
+  <!-- Progress strip -->
+  <div class="quiz-strip">
+    <span class="quiz-strip-label">Q 1 of 12</span>
+    <div class="quiz-strip-track">
+      <div class="quiz-strip-fill" style="width:8%"></div>
+    </div>
+    <span class="quiz-strip-score">0 pts earned</span>
+  </div>
+
+  <main class="quiz-main">
+
+    <!-- Left: question card -->
+    <div class="question-card">
+      <div class="q-badge">Q 1</div>
+
+      <img src="../assets/flags/penang-flag.png" alt="State flag" class="q-flag">
+
+      <p class="q-state">Penang</p>
+      <p class="q-text">What is Penang famous for?</p>
+    </div>
+
+    <!-- Right: answer buttons -->
+    <div class="answers-panel">
+
+      <button class="answer-btn">
+        <span class="answer-letter">A</span>
+        <span class="answer-text">🍜 Street Food</span>
+      </button>
+
+      <button class="answer-btn">
+        <span class="answer-letter">B</span>
+        <span class="answer-text">🥇 Gold Mining</span>
+      </button>
+
+      <button class="answer-btn">
+        <span class="answer-letter">C</span>
+        <span class="answer-text">🌿 Pepper Farming</span>
+      </button>
+
+      <button class="answer-btn">
+        <span class="answer-letter">D</span>
+        <span class="answer-text">🛢️ Oil Production</span>
+      </button>
+
+    </div>
+
+  </main>
+
+  <nav class="bottom-nav">
+    <a href="home.html">
+      <img src="../assets/images/ui/home-icon.png"    alt="" class="nav-icon">
+      <span>Home</span>
+    </a>
+    <a href="map.html">
+      <img src="../assets/images/ui/my-map-icon.png"  alt="" class="nav-icon">
+      <span>Map</span>
+    </a>
+    <a href="stampbook.html">
+      <img src="../assets/images/ui/stamp-icon.png"   alt="" class="nav-icon">
+      <span>Stamps</span>
+    </a>
+    <a href="quiz.html" class="active">
+      <img src="../assets/images/ui/quiz-icon.png"    alt="" class="nav-icon">
+      <span>Quiz</span>
+    </a>
+    <a href="settings.html">
+      <img src="../assets/images/ui/setting-icon.png" alt="" class="nav-icon">
+      <span>Me</span>
+    </a>
+  </nav>
+
+</div>
+</body>
+</html>

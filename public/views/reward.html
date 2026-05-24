@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Well Done! — Cultural Explorer MY</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Fredoka+One&family=Ribeye&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/reward.css">
+</head>
+<body>
+
+  <!-- Full-screen reward — no topbar/navbar -->
+  <main class="reward-screen">
+
+    <!-- Animated stars background -->
+    <div class="reward-stars" id="reward-stars" aria-hidden="true"></div>
+
+    <!-- State colour accent bar (colour set by reward.js) -->
+    <div class="reward-accent-bar" id="reward-accent"></div>
+
+    <!-- Mascot celebration -->
+    <!-- 📸 IMAGE NEEDED: assets/images/mascots/rimau-celebrate.png
+         Export from Figma → Characters/Rimau celebrating pose
+         Replace emoji with: <img src="assets/images/mascots/rimau-celebrate.png" alt="Rimau"> -->
+    <div class="reward-mascot" id="reward-mascot">🦁</div>
+
+    <!-- Result heading -->
+    <div class="reward-score-area">
+      <p class="reward-result-label" id="reward-result-label">🎉 Excellent!</p>
+      <p class="reward-score-fraction" id="reward-score">
+        <span id="reward-score-num">0</span><span id="reward-score-denom">/4</span>
+      </p>
+      <p class="reward-score-sub">questions correct</p>
+    </div>
+
+    <!-- Stamp reveal (shown if stamp earned) -->
+    <div class="reward-stamp-container" id="reward-stamp-container">
+      <div class="reward-stamp" id="reward-stamp">
+        <!-- 📸 IMAGE NEEDED: assets/images/stamps/{stateId}.png
+             Export from Figma → Stamps/{StateName} — round/square stamp design
+             reward.js loads the correct stamp image or falls back to emoji -->
+        <div class="reward-stamp-inner">
+          <span class="reward-stamp-emoji" id="stamp-emoji">🏝️</span>
+          <span class="reward-stamp-name" id="stamp-name">State Name</span>
+          <span class="reward-stamp-label">STAMP EARNED!</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- No-stamp message (shown if failed) -->
+    <div class="reward-no-stamp card hidden" id="reward-no-stamp">
+      <p>Score at least 50% to earn a stamp! 💪</p>
+      <p class="text-muted" id="no-stamp-msg">Keep practising!</p>
+    </div>
+
+    <!-- Points card -->
+    <div class="reward-points-card">
+      <span class="reward-pts-label">Points earned this round</span>
+      <span class="reward-pts-value" id="reward-pts-earned">+0 ⭐</span>
+      <span class="reward-pts-total" id="reward-pts-total">Total: 0 pts</span>
+    </div>
+
+    <!-- Next state recommendation -->
+    <a class="reward-next-card" id="reward-next" href="../narrative.html">
+      <span class="reward-next-label">Next Adventure:</span>
+      <span class="reward-next-name" id="reward-next-name">Loading…</span>
+      <span class="reward-next-arrow">›</span>
+    </a>
+
+    <!-- Action buttons -->
+    <div class="reward-actions">
+      <a href="../map.html" class="btn-primary reward-btn-map">
+        🗺️ Back to Map
+      </a>
+      <a href="../stampbook.html" class="btn-secondary reward-btn-stamps">
+        📚 View Stamp Book
+      </a>
+    </div>
+
+  </main>
+
+  <script type="module" src="../js/reward.js"></script>
+</body>
+</html>
