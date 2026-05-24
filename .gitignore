@@ -26,3 +26,7 @@ build/
 # Logs
 logs/
 *.log
+
+# Claude Code project instructions (local only)
+CLAUDE.md
+.claude/
