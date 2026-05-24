@@ -1,0 +1,244 @@
+/* ═══════════════════════════════════════════════════════
+   TEACHER DASHBOARD SCREEN
+   ═══════════════════════════════════════════════════════ */
+
+.teacher-screen {
+  display: flex;
+  flex-direction: column;
+  background: var(--clr-bg);
+  min-height: 100dvh;
+  padding-bottom: var(--sp-xl);
+}
+
+/* ── Hero ── */
+.teacher-hero {
+  background: linear-gradient(135deg, var(--clr-navy) 0%, #0D1B2A 100%);
+  padding: var(--sp-xl) var(--sp-md) var(--sp-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-sm);
+  position: relative;
+}
+
+.teacher-hero-content {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-md);
+}
+.teacher-icon { font-size: 36px; }
+.teacher-class-name {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  color: #fff;
+  margin: 0;
+}
+.teacher-subtitle {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: rgba(255,255,255,0.6);
+  margin: 0;
+}
+
+.demo-warning {
+  background: rgba(252,209,22,0.15);
+  border: 1px solid rgba(252,209,22,0.4);
+  border-radius: var(--r-sm);
+  padding: var(--sp-xs) var(--sp-md);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: var(--clr-yellow);
+}
+
+/* ── Class PIN card ── */
+.class-pin-card {
+  margin: var(--sp-md);
+  padding: var(--sp-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-sm);
+}
+
+.pin-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pin-card-label {
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  color: var(--clr-text);
+}
+
+.pin-copy-btn {
+  background: var(--clr-grey-light);
+  border: none;
+  border-radius: var(--r-sm);
+  padding: 6px 14px;
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.pin-copy-btn:active { background: var(--clr-border); }
+
+.pin-display {
+  font-family: var(--font-title);
+  font-size: 42px;
+  color: var(--clr-navy);
+  letter-spacing: 0.3em;
+  text-align: center;
+  padding: var(--sp-sm) 0;
+}
+
+.pin-hint {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: var(--clr-text-muted);
+  text-align: center;
+}
+
+/* ── Stats row ── */
+.teacher-stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-sm);
+  padding: 0 var(--sp-md) var(--sp-md);
+}
+
+.teacher-stat {
+  background: #fff;
+  border-radius: var(--r-md);
+  padding: var(--sp-md) var(--sp-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  box-shadow: var(--shadow-sm);
+}
+
+.tstat-val {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  color: var(--clr-navy);
+  line-height: 1;
+}
+
+.tstat-label {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: var(--clr-text-muted);
+  text-align: center;
+}
+
+/* ── Sections ── */
+.teacher-section {
+  padding: 0 var(--sp-md) var(--sp-md);
+}
+
+.teacher-section-heading {
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  color: var(--clr-text);
+  margin-bottom: var(--sp-sm);
+}
+
+/* ── Roster table ── */
+.roster-table {
+  background: #fff;
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.roster-header {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: var(--sp-sm);
+  padding: var(--sp-sm) var(--sp-md);
+  background: var(--clr-navy);
+  color: rgba(255,255,255,0.7);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.roster-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: var(--sp-sm);
+  align-items: center;
+  padding: var(--sp-sm) var(--sp-md);
+  border-bottom: 1px solid var(--clr-border);
+}
+.roster-row:last-child { border-bottom: none; }
+
+.roster-name {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--clr-text);
+}
+
+.roster-stamps {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+}
+
+.roster-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--clr-grey-light);
+  border: 1px solid var(--clr-border);
+}
+.roster-dot.done {
+  background: var(--clr-green);
+  border-color: transparent;
+}
+
+.roster-points {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  color: var(--clr-red);
+  white-space: nowrap;
+}
+
+/* ── State aggregate bars ── */
+.state-agg-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  margin-bottom: var(--sp-sm);
+}
+
+.state-agg-emoji { font-size: 20px; flex-shrink: 0; }
+
+.state-agg-name {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--clr-text);
+  width: 80px;
+  flex-shrink: 0;
+}
+
+.state-agg-bar {
+  flex: 1;
+  height: 8px;
+}
+
+.state-agg-pct {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: var(--clr-text-muted);
+  font-weight: 700;
+  width: 32px;
+  text-align: right;
+}
+
+/* ── Export button ── */
+.teacher-export-btn {
+  margin-bottom: var(--sp-sm);
+}

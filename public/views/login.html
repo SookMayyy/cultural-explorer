@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Login — Cultural Explorer MY</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/../css2?family=Baloo+2:wght@400;500;600;700;800&family=Fredoka+One&family=Ribeye&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/login.css">
+</head>
+<body>
+
+  <div class="login-wrapper">
+
+    <!-- Header -->
+    <div class="login-header">
+      <img src="../assets/images/ui/top-left.png"  class="login-deco login-deco--tl" alt="">
+      <img src="../assets/images/ui/top-right.png" class="login-deco login-deco--tr" alt="">
+
+      <div class="login-mascot">
+        <!-- 📸 IMAGE NEEDED: assets/images/mascots/rimau-welcome.png
+             Export from Figma → Login/Rimau welcoming pose
+             Replace emoji with: <img src="assets/images/mascots/rimau-welcome.png" class="login-mascot-img" alt="Rimau"> -->
+        <div class="mascot-figure">🦁</div>
+        <div class="login-mascot-bubble">
+          <p id="mascot-bubble-text">Hello! I'm Rimau. Let's explore Malaysia together!</p>
+        </div>
+      </div>
+
+      <h1 class="login-title">Cultural Explorer</h1>
+      <p class="login-subtitle">Malaysia Adventure</p>
+    </div>
+
+    <!-- ── VIEW 1: Path selection (default) ── -->
+    <div id="view-paths" class="login-body">
+      <p class="login-prompt">How do you want to play?</p>
+
+      <div class="login-path-cards">
+        <button class="login-path-card" id="btn-moe">
+          <span class="path-icon">🎓</span>
+          <div>
+            <span class="path-label">Student Login</span>
+            <span class="path-desc">Use your school ID (IC number)</span>
+          </div>
+        </button>
+
+        <button class="login-path-card" id="btn-class">
+          <span class="path-icon">🏫</span>
+          <div>
+            <span class="path-label">Class PIN</span>
+            <span class="path-desc">Enter the PIN from your teacher</span>
+          </div>
+        </button>
+      </div>
+
+      <button class="login-guest-btn" id="btn-guest">
+        👤 Play as Guest (no account needed)
+      </button>
+      <button class="login-teacher-link" id="btn-teacher-link">
+        🔑 Teacher Login
+      </button>
+    </div>
+
+    <!-- ── VIEW 2: MOE / Student ID form ── -->
+    <div id="view-moe" class="login-body hidden">
+      <button class="login-back-btn" data-back="view-paths">‹ Back</button>
+      <h2 class="login-form-title">Student Login</h2>
+      <p class="login-form-desc">Enter your 12-digit IC number (no dashes)</p>
+
+      <div class="login-form">
+        <div class="input-group">
+          <label class="input-label" for="moe-ic">IC Number</label>
+          <input type="tel" id="moe-ic" class="login-input"
+                 placeholder="e.g. 120101010001" maxlength="12" inputmode="numeric">
+          <span class="input-hint">12 digits, no dashes</span>
+        </div>
+        <div class="input-group">
+          <label class="input-label" for="moe-name">Display Name</label>
+          <input type="text" id="moe-name" class="login-input"
+                 placeholder="What should we call you?" maxlength="20">
+        </div>
+        <p class="input-error hidden" id="moe-error"></p>
+        <button class="btn-primary" id="btn-moe-submit">Let's Go! 🚀</button>
+      </div>
+    </div>
+
+    <!-- ── VIEW 3: Class PIN — Step 1: Enter PIN ── -->
+    <div id="view-class" class="login-body hidden">
+      <button class="login-back-btn" data-back="view-paths">‹ Back</button>
+
+      <div id="step-pin" class="login-step">
+        <h2 class="login-form-title">Class PIN</h2>
+        <p class="login-form-desc">Enter the 6-digit PIN from your teacher</p>
+
+        <div class="pin-input-row">
+          <input type="tel" class="pin-digit" maxlength="1" inputmode="numeric" data-pos="0">
+          <input type="tel" class="pin-digit" maxlength="1" inputmode="numeric" data-pos="1">
+          <input type="tel" class="pin-digit" maxlength="1" inputmode="numeric" data-pos="2">
+          <input type="tel" class="pin-digit" maxlength="1" inputmode="numeric" data-pos="3">
+          <input type="tel" class="pin-digit" maxlength="1" inputmode="numeric" data-pos="4">
+          <input type="tel" class="pin-digit" maxlength="1" inputmode="numeric" data-pos="5">
+        </div>
+        <p class="input-error hidden" id="pin-error"></p>
+        <button class="btn-primary" id="btn-pin-next">Next ›</button>
+      </div>
+
+      <!-- Step 2: Choose avatar -->
+      <div id="step-avatar" class="login-step hidden">
+        <h2 class="login-form-title">Pick Your Animal!</h2>
+        <p class="login-form-desc">This is your character in the game</p>
+
+        <div class="avatar-grid" id="avatar-grid">
+          <!-- Filled by login.js -->
+        </div>
+
+        <button class="btn-primary" id="btn-avatar-next">Next ›</button>
+      </div>
+
+      <!-- Step 3: Enter name -->
+      <div id="step-name" class="login-step hidden">
+        <h2 class="login-form-title">What's Your Name?</h2>
+        <p class="login-form-desc">This is how other players will see you</p>
+
+        <div class="name-preview">
+          <span class="name-avatar-preview" id="name-avatar">🦁</span>
+          <span class="name-label-preview" id="name-label">Explorer</span>
+        </div>
+
+        <div class="input-group">
+          <input type="text" id="class-name" class="login-input"
+                 placeholder="Your nickname" maxlength="20" autocomplete="off">
+        </div>
+
+        <div class="step-dots">
+          <span class="step-dot done"></span>
+          <span class="step-dot done"></span>
+          <span class="step-dot active"></span>
+        </div>
+
+        <button class="btn-primary" id="btn-name-submit">Start Exploring! 🗺️</button>
+      </div>
+    </div>
+
+    <!-- ── VIEW 4: Teacher login ── -->
+    <div id="view-teacher" class="login-body hidden">
+      <button class="login-back-btn" data-back="view-paths">‹ Back</button>
+      <h2 class="login-form-title">🏫 Teacher Login</h2>
+
+      <div class="login-form">
+        <div class="input-group">
+          <label class="input-label" for="teacher-email">Email</label>
+          <input type="email" id="teacher-email" class="login-input"
+                 placeholder="teacher@school.edu.my">
+        </div>
+        <div class="input-group">
+          <label class="input-label" for="teacher-pass">Password</label>
+          <input type="password" id="teacher-pass" class="login-input"
+                 placeholder="Password">
+        </div>
+        <p class="input-error hidden" id="teacher-error"></p>
+        <button class="btn-primary" id="btn-teacher-submit">Login</button>
+      </div>
+
+      <p class="login-register-link">No account? Contact your school admin.</p>
+    </div>
+
+  </div><!-- end login-wrapper -->
+
+  <script type="module" src="../js/login.js"></script>
+</body>
+</html>

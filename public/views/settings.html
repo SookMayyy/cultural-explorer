@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>My Profile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Fredoka+One&family=Ribeye&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/settings.css">
+</head>
+<body>
+
+<div class="app-container">
+
+  <header class="topbar topbar--purple">
+    <div class="topbar-left">
+      <img src='../assets/images/ui/setting-icon.png'><span class="topbar-title">My Profile</span>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-points">⭐ 150 pts</div>
+      <div class="topbar-avatar">P</div>
+    </div>
+  </header>
+
+  <main class="settings-main">
+
+    <!-- Nature scene background overlay -->
+    <div class="settings-overlay"></div>
+
+    <div class="settings-layout">
+
+      <!-- Left: Profile card -->
+      <div class="profile-card">
+        <div class="profile-avatar">P</div>
+        <h2 class="profile-name">Explorer <span class="edit-btn">✏️</span></h2>
+        <p class="profile-level">🌟 Junior Explorer</p>
+
+        <div class="profile-stats">
+          <div class="stat-item">
+            <span class="stat-val">3</span>
+            <span class="stat-key">Stamps</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <span class="stat-val">7</span>
+            <span class="stat-key">Quizzes</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <span class="stat-val">14%</span>
+            <span class="stat-key">Complete</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Menu cards 2×2 -->
+      <div class="menu-grid">
+
+        <button class="menu-card">
+          <img src="../assets/images/ui/setting_name.png"     alt="" class="menu-icon">
+          <span class="menu-label">My Profile</span>
+          <span class="menu-arrow">›</span>
+        </button>
+
+        <button class="menu-card">
+          <img src="../assets/images/ui/setting_progress.png" alt="" class="menu-icon">
+          <span class="menu-label">My Progress</span>
+          <span class="menu-arrow">›</span>
+        </button>
+
+        <button class="menu-card">
+          <img src="../assets/images/ui/setting_guide.png"    alt="" class="menu-icon">
+          <span class="menu-label">Game Guide</span>
+          <span class="menu-arrow">›</span>
+        </button>
+
+        <button class="menu-card">
+          <img src="../assets/images/ui/setting_safety.png"   alt="" class="menu-icon">
+          <span class="menu-label">Student Safety</span>
+          <span class="menu-arrow">›</span>
+        </button>
+
+      </div>
+
+    </div>
+  </main>
+
+  <nav class="bottom-nav">
+    <a href="home.html">
+      <img src="../assets/images/ui/home-icon.png"    alt="" class="nav-icon">
+      <span>Home</span>
+    </a>
+    <a href="map.html">
+      <img src="../assets/images/ui/my-map-icon.png"  alt="" class="nav-icon">
+      <span>Map</span>
+    </a>
+    <a href="stampbook.html">
+      <img src="../assets/images/ui/stamp-icon.png"   alt="" class="nav-icon">
+      <span>Stamps</span>
+    </a>
+    <a href="quiz.html">
+      <img src="../assets/images/ui/quiz-icon.png"    alt="" class="nav-icon">
+      <span>Quiz</span>
+    </a>
+    <a href="settings.html" class="active">
+      <img src="../assets/images/ui/setting-icon.png" alt="" class="nav-icon">
+      <span>Me</span>
+    </a>
+  </nav>
+
+</div>
+</body>
+</html>

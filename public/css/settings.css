@@ -1,0 +1,192 @@
+/* settings.css — My Profile page */
+
+.app-container {
+  background: #f0f7e6;
+}
+
+.topbar--purple {
+  background: linear-gradient(to right, #7b4dff, #5a7dff);
+}
+
+/* ── Main content with nature background ── */
+.settings-main {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  background-image: url('../assets/images/ui/setting_background.png');
+  background-size: cover;
+  background-position: center;
+}
+
+/* Soft overlay so cards are readable against the scene */
+.settings-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(230, 248, 220, 0.45);
+  z-index: 0;
+}
+
+/* ── Two-column layout ── */
+.settings-layout {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  gap: var(--sp-xl);
+  padding: var(--sp-xl) var(--sp-xl) calc(var(--navbar-h) + var(--sp-xl));
+  align-items: center;
+}
+
+/* ── Profile card (left) ── */
+.profile-card {
+  flex-shrink: 0;
+  width: 340px;
+  background: rgba(255, 255, 255, 0.93);
+  border-radius: var(--r-lg);
+  padding: var(--sp-lg);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-sm);
+  border-top: 6px solid #4caf50;
+}
+
+.profile-avatar {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #66bb6a, #2e7d32);
+  border: 5px solid #fff;
+  box-shadow: 0 4px 16px rgba(76, 175, 80, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  color: #fff;
+  margin-bottom: var(--sp-xs);
+}
+
+.profile-name {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  color: var(--clr-text);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-xs);
+}
+
+.edit-btn {
+  font-size: var(--text-base);
+  cursor: pointer;
+}
+
+.profile-level {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: #388e3c;
+  font-weight: 600;
+}
+
+/* Stats strip */
+.profile-stats {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-md);
+  background: #f1f8e9;
+  border-radius: var(--r-md);
+  padding: var(--sp-sm) var(--sp-md);
+  margin-top: var(--sp-sm);
+  width: 100%;
+  justify-content: center;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.stat-val {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  color: #2e7d32;
+}
+
+.stat-key {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: var(--clr-text-muted);
+  font-weight: 600;
+}
+
+.stat-divider {
+  width: 1px;
+  height: 36px;
+  background: #c8e6c9;
+}
+
+/* ── Menu grid (right) ── */
+.menu-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-md);
+  align-content: center;
+}
+
+.menu-card {
+  background: rgba(255, 255, 255, 0.93);
+  border-radius: var(--r-lg);
+  padding: var(--sp-md) var(--sp-lg);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-md);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  border: none;
+  text-align: left;
+  border-left: 5px solid #66bb6a;
+}
+
+.menu-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+.menu-card:active {
+  transform: translateY(0);
+}
+
+.menu-icon {
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.menu-label {
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  color: var(--clr-text);
+  flex: 1;
+}
+
+.menu-arrow {
+  font-size: var(--text-xl);
+  color: #aaa;
+  font-weight: 300;
+  line-height: 1;
+}
+
+/* ── Bottom nav image icons ── */
+.nav-icon {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
