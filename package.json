@@ -4,7 +4,7 @@
   "description": "Game-Based Learning Platform for Malaysian Cultural Education — Primary School Students",
   "main": "server.js",
   "scripts": {
-    "dev": "npx live-server public --port=3000 --open=home.html",
+    "dev": "npx live-server public --port=3000 --open=index.html",
     "start": "node server.js",
     "server": "nodemon server.js",
     "serve": "npx serve public -p 3000"

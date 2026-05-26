@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Guess My State! — Cultural Explorer MY</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Fredoka+One&family=Ribeye&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/guess.css">
+</head>
+<body>
+
+<div class="app-container">
+
+  <!-- Topbar: JS fills this via renderTopbar() -->
+  <header class="topbar" id="topbar"></header>
+
+  <!-- Progress strip: round counter + track bar + running score -->
+  <div class="guess-strip">
+    <span class="guess-strip-label" id="guess-round-label">Round 1 of 7</span>
+    <div class="guess-strip-track">
+      <div class="guess-strip-fill" id="guess-strip-fill" style="width: 14%"></div>
+    </div>
+    <span class="guess-strip-score" id="guess-score-display">0 pts earned</span>
+  </div>
+
+  <!-- Main game area: two-panel layout (stacks on mobile, side-by-side on wide) -->
+  <main class="guess-main">
+
+    <!-- Left panel: clue hints + reveal button -->
+    <div class="hints-panel">
+
+      <div class="hints-header">
+        <h2 class="hints-title">Who am I?</h2>
+        <!-- Updates as hints are revealed: "Worth 30 pts" → "20 pts" → "10 pts" -->
+        <span class="hints-points" id="hints-points">Worth 30 pts</span>
+      </div>
+
+      <!-- Three hints — only hint-0 is visible at start; others have .hidden -->
+      <ul class="hints-list" id="hints-list" aria-live="polite">
+
+        <li class="hint-item" id="hint-0">
+          <span class="hint-number" aria-hidden="true">1</span>
+          <span class="hint-text" id="hint-text-0">Loading…</span>
+        </li>
+
+        <li class="hint-item hidden" id="hint-1">
+          <span class="hint-number" aria-hidden="true">2</span>
+          <span class="hint-text" id="hint-text-1"></span>
+        </li>
+
+        <li class="hint-item hidden" id="hint-2">
+          <span class="hint-number" aria-hidden="true">3</span>
+          <span class="hint-text" id="hint-text-2"></span>
+        </li>
+
+      </ul>
+
+      <!-- Clicking this reveals the next hint at the cost of max points -->
+      <button class="reveal-btn" id="reveal-btn" type="button">
+        Reveal next hint (−10 pts)
+      </button>
+
+    </div>
+
+    <!-- Right panel: answer options + feedback -->
+    <div class="options-panel">
+
+      <p class="options-label">Which state am I?</p>
+
+      <!-- JS renders three <button> elements here, one per option -->
+      <div class="guess-options" id="guess-options" role="group" aria-label="State options"></div>
+
+      <!-- Shown after a guess is made; hidden until then -->
+      <div class="guess-feedback hidden" id="guess-feedback">
+        <span class="feedback-result" id="feedback-result"></span>
+        <button class="next-btn" id="next-btn" type="button">
+          Next Round →
+        </button>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Bottom navigation: JS fills this via renderNavbar() -->
+  <nav class="bottom-nav" id="navbar"></nav>
+
+</div>
+
+<script type="module" src="../js/guess.js"></script>
+</body>
+</html>

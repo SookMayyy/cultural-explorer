@@ -205,39 +205,3 @@
   flex-shrink: 0;
 }
 
-/* ── Bottom nav — purple + yellow active ── */
-.bottom-nav.map-nav {
-  background: #6b50ce;
-  border-top: none;
-  box-shadow: 0 -2px 12px rgba(107, 80, 206, 0.25);
-}
-
-/* Override style.css link defaults for all nav items */
-.bottom-nav.map-nav a {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  text-decoration: none;
-  color: rgba(255, 255, 255, 0.85);
-  font-family: 'Fredoka One', cursive;
-  font-size: 13px;
-  padding: 8px 12px;
-  border-radius: 12px;
-  transition: background 0.15s;
-  margin: 4px 2px;
-}
-
-/* Active item: yellow pill */
-.bottom-nav.map-nav a.active {
-  background: #fde15a;
-  color: #1a1a1a;
-  border-radius: 12px;
-}
-
-.nav-icon {
-  width: 30px;
-  height: 30px;
-  object-fit: contain;
-}

@@ -7,71 +7,202 @@
   <title>Cultural Explorer MY</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Fredoka+One&family=Ribeye&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Fredoka+One&family=Ribeye&family=Reggae+One&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="../css/home.css">
 </head>
-<body> 
+<body>
 
-  <main class="home">
-    <div class="content">
-        <div class="tag">
-            <img src="../assets/images/ui/Malaysia-flag.png" class="flag">
-            Malaysia Adventure
+  <!-- FEATURE 4: Animated cloud background layer.
+       These are position:fixed divs behind everything (z-index:0).
+       CSS animates them continuously — JS never needs to touch them.
+       Different animation-duration on each cloud = parallax depth. -->
+  <div class="sky-bg" aria-hidden="true">
+    <div class="cloud cloud-1">&#9729;</div>
+    <div class="cloud cloud-2">&#9729;</div>
+    <div class="cloud cloud-3">&#9925;</div>
+    <div class="cloud cloud-4">&#9729;</div>
+    <div class="cloud cloud-5">&#9729;</div>
+  </div>
+
+  <!-- Ground foreground: small swaying plants for a lively scene -->
+  <div class="ground-deco" aria-hidden="true">
+    <span class="grass g1">&#127807;</span>
+    <span class="grass g2">&#127802;</span>
+    <span class="grass g3">&#127807;</span>
+    <span class="grass g4">&#127800;</span>
+    <span class="grass g5">&#127807;</span>
+  </div>
+
+
+  <!-- MAIN HOME SCREEN -->
+  <main class="home" id="home-screen">
+
+    <div class="home-content">
+
+      <!-- Malaysia badge -->
+      <div class="home-tag">
+        <img src="../assets/images/ui/Malaysia-flag.png" class="home-tag-flag" alt="">
+        Malaysia Adventure
+      </div>
+
+      <!-- Title with batik texture fill (CSS background-clip trick) -->
+      <h1 class="home-title">
+        CULTURE
+        <span class="home-title-accent">EXPLORER</span>
+      </h1>
+
+      <p class="home-subtitle">Jelajah Budaya Malaysia!</p>
+
+      <p class="desc">
+        Explore Malaysia’s 13 states, discover traditions, foods<br>
+        and festivals — earn stamps as you go!
+      </p>
+
+      <!-- FEATURE 1: Mascot Scene
+           Each mascot block = [speech bubble] + [emoji] + [name label]
+           The BLOCK slides in from its side on page load.
+           The EMOJI floats (idle animation) independently inside the block.
+           Separating these prevents CSS transform conflicts. -->
+      <div class="home-scene">
+
+        <!-- Rimau: tiger, West Malaysia -->
+        <div class="mascot-block mascot-left" id="block-rimau">
+          <div class="home-bubble" id="bubble-rimau" aria-live="polite">
+            <span class="bubble-text" id="bubble-text-rimau"></span>
+          </div>
+          <!-- Replace the div with an <img> once mascot artwork is ready -->
+          <div class="mascot-emoji rimau-emoji"
+               id="emoji-rimau"
+               role="img"
+               aria-label="Rimau the tiger — tap to hear a message"
+               tabindex="0">&#129409;</div>
+          <span class="mascot-label">Rimau &middot; West MY</span>
         </div>
 
-        <h2 class="title">
-            CULTURE <br>
-            <span class="title2">EXPLORE</span>
-        </h2>
+        <!-- Wak: hornbill, East Malaysia -->
+        <div class="mascot-block mascot-right" id="block-wak">
+          <div class="home-bubble" id="bubble-wak" aria-live="polite">
+            <span class="bubble-text" id="bubble-text-wak"></span>
+          </div>
+          <div class="mascot-emoji wak-emoji"
+               id="emoji-wak"
+               role="img"
+               aria-label="Wak the hornbill — tap to hear a message"
+               tabindex="0">&#129436;</div>
+          <span class="mascot-label">Wak &middot; East MY</span>
+        </div>
 
-        <p class="subtitle">Jelajah Budaya Malaysia!</p>
-
-        <p class="desc">
-            Explore Malaysia’s 13 states, discover traditions, foods<br>
-            and festivals — earn stamps as you go!
-        </p>
-
-    <!-- Speech bubbles -->
-    <div class="home-bubble-row">
-      <div class="home-bubble">Selamat<br>datang! 👋</div>
-      <div class="home-bubble">Let's<br>explore! 🗺️</div>
-    </div>
-
-    <!-- Mascots -->
-    <div class="home-mascots">
-
-      <div class="home-mascot-block">
-        <!-- 📸 IMAGE NEEDED: assets/images/mascots/rimau.png
-             Export from Figma → Characters/Rimau — tiger mascot full body
-             Replace the emoji below with: <img src="assets/images/mascots/rimau.png" class="home-mascot-img" alt="Rimau"> -->
-        <div class="home-mascot-emoji" aria-hidden="true">🦁</div>
-        <span class="home-mascot-name">Rimau</span>
-        <span class="home-mascot-region">West Malaysia</span>
       </div>
 
-      <div class="home-mascot-block">
-        <!-- 📸 IMAGE NEEDED: assets/images/mascots/wak.png
-             Export from Figma → Characters/Wak — hornbill mascot full body
-             Replace the emoji below with: <img src="assets/images/mascots/wak.png" class="home-mascot-img home-mascot-img--wak" alt="Wak"> -->
-        <div class="home-mascot-emoji home-mascot-emoji--wak" aria-hidden="true">🦜</div>
-        <span class="home-mascot-name">Wak</span>
-        <span class="home-mascot-region">East Malaysia</span>
-      </div>
+      <!-- FEATURE 2: "Start Exploring" opens the login modal.
+           It no longer links directly to map.html. -->
+      <button class="home-btn home-btn--primary" id="btn-start">
+        Start Exploring! &#128269;
+      </button>
+      <button class="home-btn home-btn--secondary" id="btn-how-to-play">
+        &#10067; How to Play
+      </button>
 
     </div>
-
-    <button class="btn primary">Start Exploring! 🔍</button>
-   
-      <button class="btn secondary">❓ How to Play</button>
-   
-    </div>
-
-
-    
-
   </main>
 
+
+  <!-- FEATURE 2: LOGIN / REGISTER MODAL
+       Hidden by default (CSS display:none). JS adds .is-open to show it.
+       Using a CSS class instead of the HTML "hidden" attribute means
+       the slide-up animation replays correctly every time it opens. -->
+  <div class="modal-overlay" id="login-modal">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-heading">
+
+      <button class="modal-close" id="btn-modal-close" aria-label="Close">&#10005;</button>
+
+      <!-- Mascot greeting inside the modal -->
+      <div class="modal-mascot-row">
+        <span class="modal-mascot-emoji" aria-hidden="true">&#129409;</span>
+        <div class="modal-speech">
+          <p id="modal-greeting" class="modal-greeting-text"></p>
+        </div>
+      </div>
+
+      <!-- Tab bar: Login or Register -->
+      <div class="modal-tabs" role="tablist" aria-label="Login or Register">
+        <button class="tab-btn active"
+                data-tab="login"
+                role="tab"
+                aria-selected="true"
+                aria-controls="form-login">Login</button>
+        <button class="tab-btn"
+                data-tab="register"
+                role="tab"
+                aria-selected="false"
+                aria-controls="form-register">Register</button>
+      </div>
+
+      <!-- Login form -->
+      <form id="form-login" class="modal-form" novalidate>
+        <input type="text"     id="login-username" class="modal-input"
+               placeholder="Username" autocomplete="username" required>
+        <input type="password" id="login-password" class="modal-input"
+               placeholder="Password" autocomplete="current-password" required>
+        <p class="form-error hidden" id="login-error" role="alert"></p>
+        <button type="submit" class="home-btn home-btn--primary modal-submit-btn">
+          Login &#128640;
+        </button>
+      </form>
+
+      <!-- Register form (hidden until Register tab is clicked) -->
+      <form id="form-register" class="modal-form hidden" novalidate>
+        <input type="text"     id="reg-nickname" class="modal-input"
+               placeholder="Your nickname (e.g. Cikgu Panda)" maxlength="20" required>
+        <input type="text"     id="reg-username" class="modal-input"
+               placeholder="Username (for logging in)" autocomplete="username" required>
+        <input type="password" id="reg-password" class="modal-input"
+               placeholder="Password (at least 4 characters)" autocomplete="new-password" required>
+        <p class="form-error hidden" id="reg-error" role="alert"></p>
+        <button type="submit" class="home-btn home-btn--primary modal-submit-btn">
+          Create Account &#127775;
+        </button>
+      </form>
+
+      <div class="modal-divider"><span>or</span></div>
+
+      <!-- MOE Login placeholder — disabled until backend is ready -->
+      <button class="home-btn home-btn--moe" disabled aria-disabled="true">
+        &#127979; MOE Account Login &middot; Coming Soon
+      </button>
+
+      <!-- Guest play — no account needed -->
+      <button class="home-btn home-btn--ghost" id="btn-guest-modal">
+        &#128100; Play as Guest
+      </button>
+
+    </div>
+  </div>
+
+
+  <!-- FEATURE 3: AVATAR PICKER MODAL
+       Opens after successful login or register if no avatar saved yet.
+       JS populates the grid so it's easy to add more avatars later. -->
+  <div class="modal-overlay" id="avatar-modal">
+    <div class="modal-card modal-card--avatar" role="dialog" aria-modal="true" aria-labelledby="avatar-heading">
+
+      <h2 class="modal-title" id="avatar-heading">Pick Your Explorer! &#127258;</h2>
+      <p class="modal-hint">Tap a character to choose your avatar</p>
+
+      <!-- Avatar grid — built by JS from the AVATARS data array in home.js -->
+      <div class="avatar-grid" id="avatar-grid" role="listbox" aria-label="Choose your avatar"></div>
+
+      <!-- Disabled until the user picks one -->
+      <button class="home-btn home-btn--primary" id="btn-confirm-avatar" disabled>
+        Let&#39;s Go! &#127881;
+      </button>
+
+    </div>
+  </div>
+
+
+  <!-- type="module" enables ES6 imports AND auto-defers until DOM is ready -->
   <script type="module" src="../js/home.js"></script>
 </body>
 </html>

@@ -1,0 +1,383 @@
+/* guess.css — "Guess My State!" page
+   Purple theme: primary #7c3aed / accent #9f67fa
+   Background: #f5f0ff (soft lavender wash)
+   ─────────────────────────────────────────────── */
+
+/* ── Page background ── */
+.app-container {
+  background: #f5f0ff;
+}
+
+/* ── Topbar gradient (purple) ── */
+.topbar--purple {
+  background: linear-gradient(to right, #7c3aed, #9f67fa);
+}
+
+/* ══════════════════════════════════════════
+   PROGRESS STRIP
+   (mirrors .quiz-strip but purple-tinted)
+   ══════════════════════════════════════════ */
+.guess-strip {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-md);
+  padding: var(--sp-sm) var(--sp-lg);
+  /* White strip contrasts with the lavender page */
+  background: #fff;
+  border-bottom: 1px solid #e0d4f7;
+}
+
+.guess-strip-label,
+.guess-strip-score {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+}
+
+.guess-strip-label { color: #7c3aed; }
+.guess-strip-score { color: var(--clr-gold); }
+
+.guess-strip-track {
+  flex: 1;
+  height: 12px;
+  background: #ede0ff;
+  border-radius: var(--r-pill);
+  overflow: hidden;
+}
+
+.guess-strip-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #7c3aed, #9f67fa);
+  border-radius: var(--r-pill);
+  /* Smooth progress bar animation when advancing rounds */
+  transition: width 0.5s ease;
+}
+
+/* ══════════════════════════════════════════
+   MAIN LAYOUT
+   Mobile-first: single column.
+   700 px+: side-by-side panels.
+   ══════════════════════════════════════════ */
+.guess-main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;         /* stack on small screens */
+  gap: var(--sp-lg);
+  padding: var(--sp-lg) var(--sp-lg) calc(var(--navbar-h) + var(--sp-lg));
+  overflow-y: auto;
+}
+
+@media (min-width: 700px) {
+  .guess-main {
+    flex-direction: row;          /* side-by-side on wide screens */
+    overflow: hidden;
+  }
+}
+
+/* ══════════════════════════════════════════
+   HINTS PANEL  (left / top)
+   White card with a purple top accent
+   ══════════════════════════════════════════ */
+.hints-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-md);
+  background: #fff;
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-md);
+  /* Purple accent stripe at the top of the card */
+  border-top: 5px solid #7c3aed;
+  padding: var(--sp-lg);
+}
+
+/* Row: title on the left, points badge on the right */
+.hints-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-sm);
+}
+
+.hints-title {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  color: #7c3aed;
+  margin: 0;
+}
+
+/* Live "Worth X pts" indicator */
+.hints-points {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  color: #fff;
+  background: #7c3aed;
+  padding: 4px 12px;
+  border-radius: var(--r-pill);
+  /* Smooth colour cross-fade when the value drops */
+  transition: background 0.3s ease;
+  white-space: nowrap;
+}
+
+/* ── Hint list ── */
+.hints-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-sm);
+  flex: 1;
+}
+
+/* Each hint row: number bubble + text */
+.hint-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-sm);
+  padding: var(--sp-sm) 0;
+  /* Entry animation plays when .hidden is removed */
+  animation: hint-slide-in 0.35s ease-out both;
+}
+
+/* Number bubble — small purple circle */
+.hint-number {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #7c3aed;
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Sit on the same baseline as the first line of text */
+  margin-top: 1px;
+}
+
+.hint-text {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--clr-text);
+  line-height: 1.5;
+}
+
+/* ── Reveal button ── */
+.reveal-btn {
+  display: block;
+  width: 100%;
+  padding: 12px var(--sp-lg);
+  border: 2px solid #7c3aed;
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: #7c3aed;
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  cursor: pointer;
+  /* Gentle lift on hover makes it feel interactive */
+  transition: background 0.15s, color 0.15s, transform 0.12s, box-shadow 0.12s;
+  margin-top: auto;  /* push to bottom of flex column */
+}
+
+.reveal-btn:hover:not(:disabled) {
+  background: #f3eaff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.20);
+}
+
+.reveal-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* Greyed-out when all 3 hints are visible */
+.reveal-btn:disabled {
+  border-color: var(--clr-border);
+  color: var(--clr-grey);
+  cursor: not-allowed;
+  background: transparent;
+}
+
+/* ══════════════════════════════════════════
+   OPTIONS PANEL  (right / bottom)
+   Flex column: label → buttons → feedback
+   ══════════════════════════════════════════ */
+.options-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-md);
+}
+
+.options-label {
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  color: var(--clr-text);
+  font-weight: 600;
+}
+
+/* ── Guess option buttons ── */
+.guess-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-sm);
+}
+
+/* Each option is a large, full-width tap target */
+.guess-option {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-md);
+  width: 100%;
+  /* Minimum 56 px height satisfies the 44 px tap-target rule with room to spare */
+  min-height: 56px;
+  padding: var(--sp-md) var(--sp-lg);
+  background: #fff;
+  border: 2.5px solid #e0d4f7;
+  border-radius: var(--r-lg);
+  cursor: pointer;
+  font-family: var(--font-body);
+  text-align: left;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.15s, border-color 0.15s, transform 0.12s, box-shadow 0.12s;
+}
+
+.guess-option:hover:not(:disabled) {
+  background: #f3eaff;
+  border-color: #9f67fa;
+  /* Gentle lift mirrors the quiz answer button hover pattern */
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+.guess-option:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Tap-feedback scale on press (accessibility-friendly fast response) */
+.guess-option:active {
+  transform: scale(0.97);
+}
+
+/* ── State icon (emoji) in each option ── */
+.option-icon {
+  font-size: 28px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.option-name {
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  color: var(--clr-text);
+}
+
+/* ── Correct / wrong state highlights ── */
+.guess-option.correct {
+  background: #e8f8ef;
+  border-color: var(--clr-green);
+}
+
+.guess-option.correct .option-name {
+  color: var(--clr-green);
+}
+
+.guess-option.wrong {
+  background: #fde8e8;
+  border-color: var(--clr-red);
+}
+
+.guess-option.wrong .option-name {
+  color: var(--clr-red);
+}
+
+/* Disabled after answer so player can't re-pick */
+.guess-option:disabled {
+  cursor: not-allowed;
+  /* Keep colours as-is; just block further interaction */
+}
+
+/* ══════════════════════════════════════════
+   FEEDBACK ROW
+   Result text + "Next Round" button
+   ══════════════════════════════════════════ */
+.guess-feedback {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-md);
+  margin-top: auto;  /* float to bottom of the options panel */
+  /* Entry animation when revealed after a guess */
+  animation: hint-slide-in 0.3s ease-out both;
+}
+
+.feedback-result {
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  color: var(--clr-text);
+  flex: 1;
+  line-height: 1.4;
+}
+
+/* Solid purple "Next Round →" button */
+.next-btn {
+  flex-shrink: 0;
+  padding: 12px var(--sp-lg);
+  border-radius: var(--r-pill);
+  background: #7c3aed;
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35);
+  transition: transform 0.12s, box-shadow 0.12s;
+  white-space: nowrap;
+}
+
+.next-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(124, 58, 237, 0.40);
+}
+
+.next-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 6px rgba(124, 58, 237, 0.30);
+}
+
+/* ══════════════════════════════════════════
+   ANIMATIONS
+   ══════════════════════════════════════════ */
+
+/* Hint slide-in: each revealed hint slides up from slightly below */
+@keyframes hint-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Respect reduced-motion preference for users who need it */
+@media (prefers-reduced-motion: no-preference) {
+  .hint-item {
+    animation: hint-slide-in 0.35s ease-out both;
+  }
+
+  .guess-feedback {
+    animation: hint-slide-in 0.3s ease-out both;
+  }
+}
+
+/* When motion is reduced, just appear instantly */
+@media (prefers-reduced-motion: reduce) {
+  .hint-item,
+  .guess-feedback {
+    animation: none;
+  }
+}
