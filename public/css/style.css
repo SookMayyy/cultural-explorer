@@ -324,7 +324,7 @@ body {
   }
 }
 
-/* ─── Legacy MPA bottom nav (5-tab bar on prototype pages) ─── */
+/* ─── MPA bottom nav (purple bar + yellow active pill) ─── */
 .bottom-nav {
   position: fixed;
   bottom: 0;
@@ -335,28 +335,41 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-around;
-  background: var(--clr-navy);
-  box-shadow: 0 -2px 12px rgba(0,0,0,0.15);
+  background: #6b50ce;
+  border-top: none;
+  box-shadow: 0 -2px 12px rgba(107, 80, 206, 0.25);
 }
 
 .bottom-nav a {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  color: rgba(255, 255, 255, 0.75);
+  gap: 3px;
   text-decoration: none;
-  font-size: var(--text-xs);
-  font-weight: 600;
-  padding: var(--sp-xs) var(--sp-sm);
+  color: rgba(255, 255, 255, 0.85);
+  font-family: 'Fredoka One', cursive;
+  font-size: 13px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  transition: background 0.15s;
+  margin: 4px 2px;
 }
 
 .bottom-nav a.active {
-  color: var(--clr-yellow);
+  background: #fde15a;
+  color: #1a1a1a;
+  border-radius: 12px;
 }
 
 .bottom-nav a span {
-  font-size: 10px;
+  font-size: 13px;
+}
+
+.bottom-nav .nav-icon {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
 }
 
 /* All other styles left unchanged */

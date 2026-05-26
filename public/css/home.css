@@ -1,180 +1,347 @@
-/* ═══════════════════════════════════════════════════════
-   HOME / SPLASH SCREEN  (SPA screen — replaces old static home)
-   ═══════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════════
+   HOME SCREEN  —  home.css
+   Loaded AFTER style.css, so CSS variables from style.css are
+   available here. We only override what we need to.
+   ═══════════════════════════════════════════════════════════════════ */
+
+
+/* ── Page base ──────────────────────────────────────────────────── */
 body {
-    margin: 0;
-    font-family: 'Georgia', serif;
-    background: url('../assets/images/ui/home-background.png') no-repeat center;
-    background-size: 90% 100%;
-    background-attachment: fixed;
-    min-height: 100vh;
-    min-width: 100vw;
-    width: 100vw;
-    overflow-x: hidden;
+  /* Override style.css body background for this screen only */
+  background: url('../assets/images/ui/home-background.png') no-repeat center center / cover;
+  background-attachment: fixed;
+  min-height: 100vh;
 }
 
-/* === MAIN CONTENT CONTAINER (acts as "everything under body") === */
-#app,
+
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURE 4 — ANIMATED CLOUD BACKGROUND
+
+   How parallax works here:
+     Each cloud div is POSITION: ABSOLUTE inside a FIXED container.
+     They all move left using the same keyframe (cloud-drift).
+     DIFFERENT animation-duration values = different speeds.
+     Negative animation-delay values make clouds start mid-journey,
+     distributing them naturally across the screen on first load.
+
+   Depth perception rule:
+     Faster + bigger  =  feels closer to the viewer
+     Slower + smaller =  feels further away (background)
+   ═══════════════════════════════════════════════════════════════════ */
+
+.sky-bg {
+  position: fixed;
+  inset: 0;                /* shorthand for top:0 right:0 bottom:0 left:0 */
+  z-index: 0;              /* behind everything */
+  pointer-events: none;    /* clicks pass through to content below */
+  overflow: hidden;
+}
+
+.cloud {
+  position: absolute;
+  line-height: 1;
+  animation: cloud-drift linear infinite;
+  user-select: none;
+}
+
+/* Each cloud has a different size, vertical position, speed, and start time */
+.cloud-1 { top:  6%; font-size: 68px; opacity: 0.35; animation-duration: 38s; animation-delay:   0s; }
+.cloud-2 { top: 16%; font-size: 44px; opacity: 0.25; animation-duration: 55s; animation-delay: -22s; }
+.cloud-3 { top:  3%; font-size: 36px; opacity: 0.20; animation-duration: 47s; animation-delay: -35s; }
+.cloud-4 { top: 28%; font-size: 58px; opacity: 0.22; animation-duration: 62s; animation-delay: -48s; }
+.cloud-5 { top: 12%; font-size: 52px; opacity: 0.18; animation-duration: 70s; animation-delay: -15s; }
+
+/* Cloud moves from just off the right edge → just off the left edge */
+@keyframes cloud-drift {
+  from { transform: translateX(110vw); }
+  to   { transform: translateX(-25vw); }
+}
+
+
+/* ── Ground foreground decorations ───────────────────────────────── */
+.ground-deco {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  pointer-events: none;
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  padding: 0 5vw;
+  height: 60px;
+}
+
+.grass {
+  font-size: 28px;
+  line-height: 1;
+  animation: grass-sway 4s ease-in-out infinite;
+}
+
+/* Stagger the sway so plants don't all move together */
+.g1 { animation-delay: 0s;    font-size: 24px; }
+.g2 { animation-delay: -1.1s; font-size: 22px; }
+.g3 { animation-delay: -2.2s; font-size: 26px; }
+.g4 { animation-delay: -0.7s; font-size: 20px; }
+.g5 { animation-delay: -3.0s; font-size: 24px; }
+
+@keyframes grass-sway {
+  0%, 100% { transform: rotate(0deg);   transform-origin: bottom center; }
+  25%       { transform: rotate(5deg);  transform-origin: bottom center; }
+  75%       { transform: rotate(-5deg); transform-origin: bottom center; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   MAIN HOME LAYOUT
+   ═══════════════════════════════════════════════════════════════════ */
+
 .home {
-    position: relative;
-    min-height: 100vh;
-    min-width: 100vw;
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    }
+  position: relative;      /* needed so .deco-corner children position relative to this */
+  z-index: 2;              /* above sky-bg and ground-deco */
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Override the sizes from style.css for the home screen specifically */
+.home .deco-tl,
+.home .deco-tr { width: 220px; }
+.home .deco-bl,
+.home .deco-br { width: 240px; }
 
 
-/* ===== HEADER ===== */
-.top-bar {
-    background: #c0392b;
-    font-family: 'Comic Relief', cursive;
-    color: white;
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 25px 10px 25px;
-    align-items: center;
+/* ── Central content column ──────────────────────────────────────── */
+.home-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding: var(--sp-xl) var(--sp-2xl);
+  /* Whole block fades in as one unit on load */
+  animation: fade-in 0.5s ease both;
 }
 
 
-.top-bar .left {
-    display: flex;
-    align-items: center;
+/* ── Malaysia badge tag ──────────────────────────────────────────── */
+.home-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  background: var(--clr-red);
+  color: var(--clr-yellow);
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  font-weight: 700;
+  padding: 6px 20px;
+  border-radius: var(--r-pill);
+  box-shadow: var(--shadow-sm);
+  animation: fade-in 0.5s 0.1s ease both;
+}
+
+.home-tag-flag {
+  width: 34px;
+  height: 20px;
+  object-fit: cover;
+  border-radius: 3px;
+  display: block;
 }
 
 
-.logo {
-    background: white;
-    color: black;
-    border-radius: 50%;
-    padding: 8px;
-    margin-right: 10px;
-    font-size: 12px;
+/* ── Main title — batik texture fill ─────────────────────────────── */
+/* background-clip: text clips the background image to the text shape.
+   -webkit-text-fill-color: transparent makes the text itself transparent,
+   letting the background image show through. Combined = textured text. */
+.home-title {
+  font-family: 'Ribeye', cursive;
+  font-size: clamp(52px, 6.5vw, 76px);
+  line-height: 0.95;
+  margin: 0;
+  background: url('../assets/images/ui/batik-pattern.png') center / cover;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.12));
+  animation: fade-in 0.5s 0.2s ease both;
+}
+
+/* The second line is larger for visual punch */
+.home-title-accent {
+  display: block;
+  font-size: clamp(62px, 8vw, 96px);
 }
 
 
-.top-bar h1 {
-    font-size: 20px;
-    margin: 0;
-    color: #fcd116;
+/* ── Subtitle ────────────────────────────────────────────────────── */
+.home-subtitle {
+  font-family: 'Reggae One', cursive;
+  font-size: var(--text-md);
+  color: var(--clr-navy);
+  margin: 0;
+  animation: fade-in 0.5s 0.3s ease both;
 }
 
 
-.top-bar h1 span {
-    font-size: 12px;
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURE 1 — MASCOT SCENE
+
+   Layout: two mascot blocks side by side.
+   Each block is a column: [bubble] [emoji] [label]
+
+   The BLOCK slides in from its side (translateX animation).
+   The EMOJI floats independently (translateY animation from style.css).
+   Keeping these on DIFFERENT elements prevents transform conflicts.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.home-scene {
+  display: flex;
+  align-items: flex-end;   /* align mascots at the bottom so they "stand" */
+  justify-content: center;
+  gap: 52px;
+  width: 100%;
+  padding: var(--sp-sm) 0;
+}
+
+.mascot-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-sm);
+  position: relative;
+}
+
+/* Slide in from sides — the cubic-bezier gives a slight overshoot (bounce feel) */
+.mascot-left  { animation: slide-in-left  0.7s 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
+.mascot-right { animation: slide-in-right 0.7s 0.65s cubic-bezier(0.34,1.56,0.64,1) both; }
+
+@keyframes slide-in-left {
+  from { transform: translateX(-100px); opacity: 0; }
+  to   { transform: translateX(0);      opacity: 1; }
+}
+@keyframes slide-in-right {
+  from { transform: translateX(100px);  opacity: 0; }
+  to   { transform: translateX(0);      opacity: 1; }
 }
 
 
-.top-bar .right {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+/* ── Speech bubble ───────────────────────────────────────────────── */
+.home-bubble {
+  background: #fff;
+  border-radius: var(--r-md);
+  padding: 10px 16px;
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  color: var(--clr-navy);
+  text-align: center;
+  box-shadow: var(--shadow-md);
+  max-width: 170px;
+  min-height: 46px;
+  line-height: 1.45;
+  position: relative;
+  /* Gentle entrance after the mascot slides in */
+  animation: fade-in 0.4s 1.1s ease both;
+}
+
+/* The caret / arrow pointing downward toward the mascot */
+.home-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 10px solid transparent;
+  border-top-color: #fff;
+  border-bottom: 0;
+  /* Tiny shadow on the arrow to match the card shadow */
+  filter: drop-shadow(0 2px 1px rgba(0,0,0,0.06));
+}
+
+.bubble-text {
+  /* text is typed by JS typewriter — min-height keeps bubble from collapsing */
+  display: inline-block;
+  min-height: 1em;
 }
 
 
-.profile {
-    background: gold;
-    color: black;
-    border-radius: 50%;
-    padding: 6px 10px;
-    font-weight: bold;
+/* ── Mascot emoji ────────────────────────────────────────────────── */
+.mascot-emoji {
+  font-size: 84px;
+  line-height: 1;
+  filter: drop-shadow(0 8px 20px rgba(0,0,0,0.28));
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.15s ease;
+  /* Focus ring for keyboard users */
+  border-radius: 50%;
+  outline-offset: 6px;
+}
+
+.mascot-emoji:hover,
+.mascot-emoji:focus { transform: scale(1.12); outline: 3px solid var(--clr-yellow); }
+
+/* Float animations — staggered with animation-delay so they don't move in sync */
+/* mascot-float keyframe is defined in style.css */
+.rimau-emoji { animation: mascot-float 3.2s ease-in-out infinite; }
+.wak-emoji   { animation: mascot-float 3.2s ease-in-out infinite; animation-delay: -1.6s; }
+
+
+/* ── Name label ──────────────────────────────────────────────────── */
+.mascot-label {
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  color: #fff;
+  background: rgba(0,0,0,0.32);
+  border-radius: var(--r-pill);
+  padding: 2px 12px;
+  white-space: nowrap;
 }
 
 
-/* ===== HOME ===== */
-.home {
-    position: relative;
-    height: calc(100vh - 60px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
+/* ── Home screen buttons ─────────────────────────────────────────── */
+.home-btn {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  border: none;
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  padding: 14px 44px;
+  text-align: center;
+  text-decoration: none;
+  width: 270px;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  animation: fade-in 0.5s 0.8s ease both;
 }
 
+.home-btn:active { transform: translateY(3px) !important; box-shadow: none !important; }
 
-/* Corner Decorations */
-.corner {
-    position: absolute;
-    width: 160px;
+/* Yellow primary — used for the main CTA */
+.home-btn--primary {
+  background: var(--clr-yellow);
+  color: var(--clr-navy);
+  box-shadow: 0 5px 0 #c8890a;
+}
+.home-btn--primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 #c8890a;
 }
 
-
-.top-left { top: 0; left: 0; width: 250px; height: 250px; }
-.top-right { top: 0; right: 0; width: 250px; height: 250px; }
-.bottom-left { bottom: 0; left: 0; width: 280px; height: 280px; }
-.bottom-right { bottom: 0; right: 0; width: 280px; height: 280px; }
-
-
-.flag {
-    width: 40px;
-    height: 20px;
-    display: block;
+/* White secondary */
+.home-btn--secondary {
+  background: #fff;
+  color: var(--clr-navy);
+  box-shadow: 0 5px 0 rgba(0,0,0,0.14);
 }
-
-
-/* CONTENT */
-.content {
-    text-align: center;
-    z-index: 2;
-    align-items: center;
-    justify-content: center;
+.home-btn--secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 rgba(0,0,0,0.14);
 }
-
-
-/* Tag */
-.tag {
-    font-family: 'Racing Sans One', sans-serif;
-    font-size: 20px;
-    background: #c0392b;
-    color: #fcd116;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 20px;
-    border-radius: 12px;
-    font-weight: medium;
-    margin-bottom: 20px;
-}
-
-
-.tag span {
-    display: inline-flex;
-    align-items: center;
-}
-
-
-/* Title */
-.title {
-    font-family: 'Ribeye', cursive;
-    font-size: 64px;
-    margin: 10px 0;
-    line-height: 1.1;
-    background: url('../assets/images/ui/batik-pattern.png');
-    background-size: cover;
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-
-
-}
-
-
-.title2 {
-    font-size: 74px;
-}
-
-
-/* Subtitle */
-.subtitle {
-    font-family: 'Reggae One', cursive;
-    font-size: 18px;
-    color: #145DA0;
-    font-weight: medium;
-    margin: 10px 0;
-}
-
 
 /* Description */
 .desc {
@@ -185,97 +352,354 @@ body {
 }
 
 
-/* BUTTONS */
-.btn {
-    font-family: 'Reggae One', cursive;
-    display: block;
-    margin: 10px auto;
-    padding: 12px 25px;
-    border-radius: 20px;
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-    width: 220px;
-}
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURES 2 & 3 — MODAL SYSTEM
 
+   Pattern:
+     .modal-overlay  — the full-screen dark backdrop (display:none by default)
+     .modal-overlay.is-open  — JS adds this class to reveal the modal
+     .modal-card     — the white sheet that slides up from the bottom
 
-/* Primary */
-.btn.primary {
-    background: #FBB03B;
-    border: 2px solid #D68356;
-}
+   Why class-toggle instead of HTML "hidden" attribute?
+     When you toggle a CSS class, the animation re-runs every time.
+     The "hidden" attribute removes the element from layout, so when
+     you un-hide it the animation has already "played" in CSS memory
+     and won't replay. Class-toggle avoids this.
+   ═══════════════════════════════════════════════════════════════════ */
 
-
-/* Secondary */
-.btn.secondary {
-    background: #FBB03B;
-    border: 2px solid #D68356;
-}
-
-/* ── Speech bubbles ── */
-.home-bubble-row {
-  display: flex;
-  justify-content: space-around;
-  width: 100%;
-  padding: 0 var(--sp-lg);
-  z-index: 2;
-  gap: var(--sp-md);
-  animation: fade-in 0.6s 0.2s ease both;
-}
-
-.home-bubble {
-  background: #fff;
-  border-radius: var(--r-lg);
-  padding: var(--sp-sm) var(--sp-md);
-  font-family: var(--font-display);
-  font-size: var(--text-sm);
-  color: var(--clr-navy);
-  text-align: center;
-  position: relative;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  max-width: 120px;
-  line-height: 1.3;
-}
-.home-bubble::after {
-  content: '';
-  position: absolute;
-  bottom: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 8px solid transparent;
-  border-top-color: #fff;
-  border-bottom: none;
-}
-
-/* ── Mascots ── */
-.home-mascots {
-  display: flex;
-  align-items: flex-end;
+.modal-overlay {
+  display: none;             /* hidden by default */
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: rgba(10,10,20,0.6);
+  align-items: flex-end;     /* card sticks to bottom edge */
   justify-content: center;
-  gap: var(--sp-xl);
-  flex: 1;
-  padding: var(--sp-md) var(--sp-xl);
-  z-index: 2;
-  animation: fade-in 0.6s 0.35s ease both;
+  backdrop-filter: blur(3px);
 }
 
-.home-mascot-block {
+/* JS adds this class to open the modal */
+.modal-overlay.is-open {
+  display: flex;
+  animation: modal-fade-in 0.2s ease both;
+}
+
+@keyframes modal-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* The actual card slides up from the bottom — cubic-bezier gives spring feel */
+.modal-overlay.is-open .modal-card {
+  animation: modal-slide-up 0.38s cubic-bezier(0.34,1.28,0.64,1) both;
+}
+
+@keyframes modal-slide-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+.modal-card {
+  position: relative;
+  background: var(--clr-bg);
+  width: 100%;
+  max-width: 520px;
+  max-height: 90dvh;           /* dvh = dynamic viewport height — more accurate on mobile */
+  overflow-y: auto;
+  border-radius: 24px 24px 0 0;
+  padding: var(--sp-lg) var(--sp-xl) calc(var(--sp-2xl) + 16px);
+  box-shadow: 0 -10px 50px rgba(0,0,0,0.25);
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: var(--sp-sm);
 }
 
-.home-mascot-emoji {
-  font-size: 72px;
-  line-height: 1;
-  filter: drop-shadow(0 6px 18px rgba(0,0,0,0.35));
-  animation: mascot-float 3s ease-in-out infinite;
-  cursor: default;
-}
-.home-mascot-emoji--wak { animation-delay: -1.5s; }
+/* Scrollbar hidden for clean look on mobile */
+.modal-card::-webkit-scrollbar { display: none; }
+.modal-card { scrollbar-width: none; }
 
-.home-mascot-name {
+/* Close button — absolute positioned in top-right corner */
+.modal-close {
+  position: absolute;
+  top: var(--sp-md);
+  right: var(--sp-md);
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--clr-grey-light);
+  color: var(--clr-text-muted);
+  font-size: 18px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.modal-close:hover { background: var(--clr-border); color: var(--clr-text); }
+
+
+/* ── Mascot row inside modal ─────────────────────────────────────── */
+.modal-mascot-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-md);
+  margin-bottom: var(--sp-xs);
+}
+
+.modal-mascot-emoji {
+  font-size: 56px;
+  flex-shrink: 0;
+  animation: mascot-float 3s ease-in-out infinite;
+}
+
+/* Speech bubble pointing LEFT toward the mascot emoji */
+.modal-speech {
+  background: #fff;
+  border-radius: var(--r-md);
+  padding: var(--sp-sm) var(--sp-md);
+  box-shadow: var(--shadow-sm);
+  border: 2px solid var(--clr-border);
+  position: relative;
+  flex: 1;
+}
+
+/* Left-pointing caret arrow */
+.modal-speech::before,
+.modal-speech::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 10px solid transparent;
+}
+.modal-speech::before {
+  left: -20px;
+  border-right-color: var(--clr-border);
+  border-left: 0;
+}
+.modal-speech::after {
+  left: -16px;
+  border: 8px solid transparent;
+  border-right-color: #fff;
+  border-left: 0;
+}
+
+.modal-greeting-text {
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  color: var(--clr-navy);
+  margin: 0;
+  min-height: 1.5em;
+}
+
+
+/* ── Tab switcher ────────────────────────────────────────────────── */
+.modal-tabs {
+  display: flex;
+  background: var(--clr-grey-light);
+  border-radius: var(--r-pill);
+  padding: 4px;
+  gap: 4px;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 10px var(--sp-md);
+  border-radius: var(--r-pill);
+  border: none;
+  background: none;
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  color: var(--clr-text-muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+}
+
+.tab-btn.active {
+  background: #fff;
+  color: var(--clr-red);
+  box-shadow: var(--shadow-sm);
+}
+
+
+/* ── Forms ───────────────────────────────────────────────────────── */
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-sm);
+}
+
+.modal-input {
+  width: 100%;
+  padding: 14px var(--sp-md);
+  border-radius: var(--r-md);
+  border: 2px solid var(--clr-border);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  background: #fff;
+  color: var(--clr-text);
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.modal-input:focus { border-color: var(--clr-red); }
+.modal-input::placeholder { color: var(--clr-grey); }
+
+.form-error {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--clr-red);
+  margin: 0;
+  padding: 0 var(--sp-xs);
+}
+
+.modal-submit-btn {
+  width: 100%;
+  padding: 14px;
+  margin-top: var(--sp-xs);
+}
+
+
+/* ── Divider ─────────────────────────────────────────────────────── */
+.modal-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-md);
+  color: var(--clr-text-muted);
+  font-size: var(--text-sm);
+  margin: var(--sp-xs) 0;
+}
+.modal-divider::before,
+.modal-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--clr-border);
+}
+
+
+/* ── MOE button (disabled placeholder) ──────────────────────────── */
+.home-btn--moe {
+  width: 100%;
+  padding: 12px var(--sp-md);
+  background: #EBF5FB;
+  color: #1A6FA6;
+  border: 2px solid #B8D8EF;
+  border-radius: var(--r-pill);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  opacity: 0.65;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+
+/* ── Ghost / guest button ────────────────────────────────────────── */
+.home-btn--ghost {
+  width: 100%;
+  background: none;
+  border: none;
+  color: var(--clr-text-muted);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  text-decoration: underline;
+  padding: var(--sp-sm);
+  cursor: pointer;
+  border-radius: var(--r-md);
+  box-shadow: none;
+}
+.home-btn--ghost:hover { color: var(--clr-navy); }
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURE 3 — AVATAR PICKER
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Avatar modal card gets extra centering */
+.modal-card--avatar {
+  align-items: center;
+  text-align: center;
+}
+
+.modal-title {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  color: var(--clr-navy);
+  margin: 0;
+}
+
+.modal-hint {
+  font-size: var(--text-sm);
+  color: var(--clr-text-muted);
+  margin: 0;
+}
+
+/* 4-column grid: 2 rows of 4 avatars */
+.avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-md);
+  width: 100%;
+  padding: var(--sp-xs) 0;
+}
+
+.avatar-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-xs);
+  padding: var(--sp-sm);
+  border-radius: var(--r-md);
+  border: 3px solid transparent;
+  cursor: pointer;
+  background: var(--clr-grey-light);
+  transition: border-color 0.15s, transform 0.15s, background 0.15s;
+  user-select: none;
+  /* Reset button styles */
+  font: inherit;
+  outline: none;
+}
+
+.avatar-item:hover {
+  background: #fff;
+  transform: scale(1.06);
+}
+
+.avatar-item:focus {
+  outline: 3px solid var(--clr-yellow);
+  outline-offset: 2px;
+}
+
+/* Highlight the selected avatar */
+.avatar-item.selected {
+  border-color: var(--clr-yellow);
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(252,209,22,0.25);
+  transform: scale(1.06);
+}
+
+.avatar-emoji { font-size: 42px; line-height: 1; }
+
+.avatar-name {
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  color: var(--clr-navy);
+}
+
+/* Confirm button — disabled until avatar is selected */
+#btn-confirm-avatar {
+  width: 75%;
+  margin-top: var(--sp-sm);
+}
+
+#btn-confirm-avatar:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
   font-family: var(--font-display);
   font-size: var(--text-sm);
   font-weight: 700;

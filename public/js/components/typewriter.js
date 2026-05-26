@@ -1,3 +1,4 @@
+// Vanilla JavaScript (ES6 modules) — typewriter.js
 // js/components/typewriter.js — Character-by-character text reveal
 
 export default class Typewriter {

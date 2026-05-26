@@ -1,3 +1,4 @@
+// Vanilla JavaScript (ES6 modules) — mascot.js
 // js/components/mascot.js — Rimau / Wak mascot with speech bubble
 
 import Typewriter from './typewriter.js';

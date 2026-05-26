@@ -1,3 +1,4 @@
+// Vanilla JavaScript (ES6 modules) — storage.js
 // js/utils/storage.js — localStorage wrapper with typed accessors
 
 const PREFIX = 'ce_';
@@ -8,6 +9,7 @@ const KEY = {
   STAMPS:    PREFIX + 'stamps',
   BEST:      PREFIX + 'best_score',
   STATE:     PREFIX + 'current_state',
+  USERS:     PREFIX + 'users',       // array of registered user objects
 };
 
 const Storage = {
@@ -96,6 +98,63 @@ const Storage = {
   },
   setCurrentState(id) {
     localStorage.setItem(KEY.STATE, id);
+  },
+
+  // ── User Accounts ────────────────────────────────────────────────────
+  // We store users as an array: [{nickname, username, password, avatarId, points}]
+  // This is suitable for a school prototype. A real app would use a backend.
+  getUsers() {
+    try { return JSON.parse(localStorage.getItem(KEY.USERS)) || []; } catch { return []; }
+  },
+  _saveUsers(users) {
+    localStorage.setItem(KEY.USERS, JSON.stringify(users));
+  },
+
+  registerUser(nickname, username, password) {
+    if (!nickname.trim() || !username.trim() || !password) {
+      return { ok: false, error: 'Please fill in all fields.' };
+    }
+    if (password.length < 4) {
+      return { ok: false, error: 'Password must be at least 4 characters.' };
+    }
+    const users = this.getUsers();
+    if (users.find(u => u.username.toLowerCase() === username.toLowerCase())) {
+      return { ok: false, error: 'That username is already taken. Try another!' };
+    }
+    const newUser = { nickname: nickname.trim(), username: username.trim(), password, avatarId: null, points: 0 };
+    users.push(newUser);
+    this._saveUsers(users);
+    // Auto-login immediately after registering
+    this.setSession({ type: 'registered', displayName: newUser.nickname, avatarId: null, points: 0, username: newUser.username });
+    return { ok: true, user: newUser };
+  },
+
+  loginUser(username, password) {
+    if (!username.trim() || !password) {
+      return { ok: false, error: 'Please enter your username and password.' };
+    }
+    const users = this.getUsers();
+    const user = users.find(u =>
+      u.username.toLowerCase() === username.trim().toLowerCase() && u.password === password
+    );
+    if (!user) {
+      return { ok: false, error: 'Wrong username or password. Try again!' };
+    }
+    this.setSession({ type: 'registered', displayName: user.nickname, avatarId: user.avatarId, points: user.points, username: user.username });
+    return { ok: true, user };
+  },
+
+  // Update the avatar in both the session and the user's saved record
+  setSessionAvatar(avatarId) {
+    const session = this.getSession();
+    if (!session) return;
+    session.avatarId = avatarId;
+    this.setSession(session);
+    if (session.username) {
+      const users = this.getUsers();
+      const user = users.find(u => u.username === session.username);
+      if (user) { user.avatarId = avatarId; this._saveUsers(users); }
+    }
   },
 
   // ── Reset ───────────────────────────────────────────────────────────
