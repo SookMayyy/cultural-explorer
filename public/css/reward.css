@@ -4,10 +4,10 @@
    ═══════════════════════════════════════════════════════ */
 
 .reward-screen {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: 100dvh;
   background: linear-gradient(160deg, #0D1B2A 0%, #1A3A5C 60%, #0D1B2A 100%);
   padding: 0 var(--sp-md) calc(var(--sp-xl) + env(safe-area-inset-bottom, 0px));
   position: relative;

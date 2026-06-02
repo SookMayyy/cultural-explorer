@@ -3,10 +3,9 @@
    ═══════════════════════════════════════════════════════ */
 
 .teacher-screen {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  background: var(--clr-bg);
-  min-height: 100dvh;
   padding-bottom: var(--sp-xl);
 }
 
