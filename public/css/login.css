@@ -2,22 +2,18 @@
    LOGIN SCREEN
    ═══════════════════════════════════════════════════════ */
 
-.login-wrapper {
-  display: flex;
-  flex-direction: column;
-  min-height: 100dvh;
-  background: var(--clr-bg);
-}
-
 /* ── Header hero ── */
 .login-header {
   position: relative;
   background: linear-gradient(160deg, var(--clr-red) 0%, #8B1A1A 100%);
-  padding: var(--sp-xl) var(--sp-md) var(--sp-lg);
+  /* Use --sp-lg side padding so deco images sit against the frame edge
+     without crushing the centred mascot / title content */
+  padding: var(--sp-xl) var(--sp-lg) var(--sp-lg);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--sp-sm);
+  /* Clip deco images to the header box, not the full viewport */
   overflow: hidden;
 }
 
@@ -91,10 +87,16 @@
 /* ── Body ── */
 .login-body {
   flex: 1;
-  padding: var(--sp-lg) var(--sp-md) var(--sp-xl);
+  /* --sp-lg sides (24px) match the rhythm used by other screens in the
+     app-container frame. --sp-md (16px) was too tight at the constrained
+     max-width; spacing now scales naturally with the frame. */
+  padding: var(--sp-lg) var(--sp-lg) var(--sp-xl);
   display: flex;
   flex-direction: column;
   gap: var(--sp-md);
+  /* Allow taller views (avatar picker, multi-step class flow) to scroll
+     inside the frame rather than pushing the container taller */
+  overflow-y: auto;
 }
 
 .login-prompt {
@@ -257,12 +259,17 @@
   display: flex;
   gap: var(--sp-sm);
   justify-content: center;
+  /* Wrap the row so it never overflows narrow screens */
+  flex-wrap: wrap;
   margin: var(--sp-sm) 0;
 }
 
 .pin-digit {
-  width: 44px;
-  height: 54px;
+  /* Slightly larger than the old 44 × 54 to feel proportional in the
+     wider constrained frame while remaining comfortable on 375 px phones.
+     6 digits × 52 px + 5 gaps × 8 px = 352 px — well within any frame. */
+  width: 52px;
+  height: 60px;
   text-align: center;
   font-family: var(--font-display);
   font-size: var(--text-xl);
@@ -280,6 +287,12 @@
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: var(--sp-sm);
+  /* Without a max-width, 5 cells across the full ~1179px body would each be
+     ~229px — far too large. Cap the grid and centre it so cells stay at a
+     comfortable size on both small phones and the wide constrained frame. */
+  max-width: 320px;
+  margin: 0 auto;
+  width: 100%;
   max-height: 260px;
   overflow-y: auto;
   padding: var(--sp-xs);
