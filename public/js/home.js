@@ -400,13 +400,19 @@ function init() {
   initTabs();
 
   // ── Button: "Start Exploring!" ──
-  // If already logged in → go to game directly (no modal needed).
-  // If not logged in → open the login modal.
+  // Registered user → skip modal and go straight to the game.
+  // Guest user     → open modal so they can sign in, register, or keep playing as guest.
+  // No session     → open modal (default new-user flow).
   const startBtn = document.getElementById('btn-start');
   if (startBtn) {
-    if (session) {
+    if (session && session.type === 'registered') {
       startBtn.textContent = 'Continue Exploring! 🗺️';
       startBtn.addEventListener('click', enterGame);
+    } else if (session && session.type === 'guest') {
+      // Guest: button text shows they can continue, but modal lets them sign in / register too.
+      // "Play as Guest" inside the modal still lets them bypass login if they prefer.
+      startBtn.textContent = 'Continue Exploring! 🗺️';
+      startBtn.addEventListener('click', openLoginModal);
     } else {
       startBtn.addEventListener('click', openLoginModal);
     }

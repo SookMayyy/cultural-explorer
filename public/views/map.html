@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>My Map</title>
+  <title>My Map — Cultural Explorer MY</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Fredoka+One&family=Ribeye&family=Reggae+One&display=swap" rel="stylesheet">
@@ -14,123 +14,61 @@
 
 <div class="app-container">
 
-  <!-- Topbar -->
-  <header class="topbar map-topbar">
-    <div class="topbar-left">
-      <img src="../assets/images/ui/back-button.png" class="topbar-back-img" alt="">
-      <img src="../assets/images/ui/my-map-icon.png"  class="topbar-page-icon" alt="">
-      <span class="topbar-title">My Map</span>
-    </div>
-    <div class="topbar-right">
-      <div class="topbar-points">⭐ 150 pts</div>
-      <div class="topbar-avatar">P</div>
-    </div>
-  </header>
+  <!-- Topbar: innerHTML injected by renderTopbar() in map.js.
+       class="map-topbar" gives it the purple background override in map.css. -->
+  <header id="topbar" class="topbar map-topbar"></header>
 
-  <!-- Two-column layout -->
+  <!-- Two-column layout: sidebar (state list) + map -->
   <div class="map-layout">
 
-    <!-- Left sidebar: state list -->
+    <!-- Left sidebar: map.js fills #state-list-items with <button> elements -->
     <aside class="state-sidebar">
       <p class="states-label">STATES</p>
-
-      <!-- Penang — active / explored -->
-      <div class="state-item state-active">
-        <div class="state-flag-wrap">
-          <img src="../assets/flags/penang-flag.png" alt="Penang" class="state-flag">
-        </div>
-        <div class="state-info">
-          <p class="state-name">Penang</p>
-          <p class="state-status explored">✓ Explored</p>
-        </div>
-      </div>
-
-      <!-- Kedah -->
-      <div class="state-item">
-        <div class="state-flag-wrap">
-          <img src="../assets/flags/kedah-flag.png" alt="Kedah" class="state-flag">
-        </div>
-        <div class="state-info">
-          <p class="state-name">Kedah</p>
-          <p class="state-status">Not explored</p>
-        </div>
-      </div>
-
-      <!-- Perlis -->
-      <div class="state-item">
-        <div class="state-flag-wrap">
-          <img src="../assets/flags/perlis-flag.png" alt="Perlis" class="state-flag">
-        </div>
-        <div class="state-info">
-          <p class="state-name">Perlis</p>
-          <p class="state-status">Not explored</p>
-        </div>
-      </div>
-
-      <!-- Selangor -->
-      <div class="state-item">
-        <div class="state-flag-wrap">
-          <img src="../assets/flags/selangor-flag.png" alt="Selangor" class="state-flag">
-        </div>
-        <div class="state-info">
-          <p class="state-name">Selangor</p>
-          <p class="state-status">Not explored</p>
-        </div>
-      </div>
-
-      <!-- Perak -->
-      <div class="state-item">
-        <div class="state-flag-wrap">
-          <img src="../assets/flags/perak-flag.png" alt="Perak" class="state-flag">
-        </div>
-        <div class="state-info">
-          <p class="state-name">Perak</p>
-          <p class="state-status">Not explored</p>
-        </div>
-      </div>
-
-      <!-- Sabah — locked -->
-      <div class="state-item state-locked">
-        <div class="state-flag-wrap lock-wrap">
-          <span class="lock-icon">🔒</span>
-        </div>
-        <div class="state-info">
-          <p class="state-name">Sabah</p>
-          <p class="state-status">Locked</p>
-        </div>
-      </div>
-
-      <!-- Sarawak — locked -->
-      <div class="state-item state-locked">
-        <div class="state-flag-wrap lock-wrap">
-          <span class="lock-icon">🔒</span>
-        </div>
-        <div class="state-info">
-          <p class="state-name">Sarawak</p>
-          <p class="state-status">Locked</p>
-        </div>
-      </div>
+      <div id="state-list-items"></div>
     </aside>
 
-    <!-- Right: map display -->
+    <!-- Right: map image + progress info, background set by map.css -->
     <div class="map-content">
       <div class="map-header-row">
-        <p class="map-headline">🧭 Choose a State to Explore!</p>
+        <p class="map-headline">&#129517; Choose a State to Explore!</p>
         <div class="map-progress-pill">
-          <span>1 of 7 explored</span>
+          <span id="map-completed">0/7 explored</span>
           <span class="pill-sep">|</span>
-          <span>14%</span>
+          <span id="map-pts">0%</span>
         </div>
       </div>
-
-      <img src="../assets/images/ui/map.png" alt="Malaysia Map" class="malaysia-map">
-
-      <p class="map-hint">Tap a state on the map or side bar to start exploring!</p>
+      <!-- map.js appends a transparent SVG click overlay as a sibling to the img -->
+      <div class="malaysia-map-wrap" id="malaysia-map-wrap">
+        <img src="../assets/images/ui/map.png" alt="Malaysia Map" class="malaysia-map">
+      </div>
+      <p class="map-hint">Tap a state on the map or sidebar to start exploring!</p>
     </div>
 
   </div>
 
-  <!-- Bottom nav — 4 items (prototype) -->
+  <!-- State detail popup overlay: hidden by default.
+       map.js opens it on state tap, closes it on popup-close or overlay click.
+       popup-explore must be an <a> so map.js can set its href attribute. -->
+  <div id="map-popup" class="map-popup hidden" role="dialog" aria-modal="true" aria-labelledby="popup-name">
+    <div class="map-popup-card">
+      <button class="popup-close-btn" id="popup-close" aria-label="Close">&#10005;</button>
+
+      <div class="popup-header">
+        <span id="popup-emoji" class="popup-state-emoji"></span>
+        <div class="popup-header-text">
+          <p id="popup-name"    class="popup-state-name"></p>
+          <p id="popup-tagline" class="popup-state-tagline"></p>
+        </div>
+      </div>
+
+      <!-- Tab completion badges: map.js injects <span class="popup-badge [done]"> -->
+      <div id="popup-badges" class="popup-badges"></div>
+
+      <a id="popup-explore" class="popup-explore-btn" href="#">Explore Now &#8250;</a>
+    </div>
+  </div>
+
+  <!-- Navbar: innerHTML injected by renderNavbar('map') in map.js -->
   <nav class="bottom-nav">
     <a href="home.html" class="map-nav-item">
       <img src="../assets/images/ui/home-icon.png"   alt="" class="nav-icon">
@@ -148,8 +86,15 @@
       <img src="../assets/images/ui/quiz-icon.png"   alt="" class="nav-icon">
       <span>Quiz</span>
     </a>
+    <a href="settings.html" class="map-nav-item">
+      <img src="../assets/images/ui/setting-icon.png" alt="" class="nav-icon">
+      <span>Me</span>
+    </a>
   </nav>
 
 </div>
+
+<!-- type="module" auto-defers and enables ES6 imports -->
+<script type="module" src="../js/map.js"></script>
 </body>
 </html>
