@@ -1,11 +1,7 @@
 // js/ui.js — shared topbar, navbar, and toast helpers for all MPA pages
 
 import Storage from './utils/storage.js';
-
-const AVATARS = [
-  '🦁','🐘','🦧','🦜','🐯','🦊','🦎','🦀','🐊','🦋',
-  '🦚','🦃','🦤','🦞','🦅','🦩','🐢','🐬','🦈','🦦',
-];
+import { avatarEmoji } from './data/avatars.js';
 
 // ── Topbar ──────────────────────────────────────────────────────────────────
 export function renderTopbar({
@@ -21,7 +17,7 @@ export function renderTopbar({
 
   const session = Storage.getSession() || {};
   const points  = Storage.getPoints();
-  const avatar  = AVATARS[session.avatarId ?? 0] || '👤';
+  const avatar  = avatarEmoji(session.avatarId ?? 0);
 
   el.style.background = color || '';
   el.innerHTML = `

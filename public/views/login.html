@@ -38,14 +38,7 @@
       <p class="login-prompt">How do you want to play?</p>
 
       <div class="login-path-cards">
-        <button class="login-path-card" id="btn-moe">
-          <span class="path-icon">🎓</span>
-          <div>
-            <span class="path-label">Student Login</span>
-            <span class="path-desc">Use your school ID </span>
-          </div>
-        </button>
-
+        <!-- MOE / school-ID login is deferred to future work (CP3). See docs/CLAUDE.md Path B. -->
         <button class="login-path-card" id="btn-class">
           <span class="path-icon">🏫</span>
           <div>
@@ -63,28 +56,7 @@
       </button>
     </div>
 
-    <!-- ── VIEW 2: MOE / Student ID form ── -->
-    <div id="view-moe" class="login-body hidden">
-      <button class="login-back-btn" data-back="view-paths">‹ Back</button>
-      <h2 class="login-form-title">Student Login</h2>
-      <p class="login-form-desc">Enter your 12-digit IC number (no dashes)</p>
-
-      <div class="login-form">
-        <div class="input-group">
-          <label class="input-label" for="moe-ic">IC Number</label>
-          <input type="tel" id="moe-ic" class="login-input"
-                 placeholder="e.g. 120101010001" maxlength="12" inputmode="numeric">
-          <span class="input-hint">12 digits, no dashes</span>
-        </div>
-        <div class="input-group">
-          <label class="input-label" for="moe-name">Display Name</label>
-          <input type="text" id="moe-name" class="login-input"
-                 placeholder="What should we call you?" maxlength="20">
-        </div>
-        <p class="input-error hidden" id="moe-error"></p>
-        <button class="btn-primary" id="btn-moe-submit">Let's Go! 🚀</button>
-      </div>
-    </div>
+    <!-- VIEW 2 (MOE / Student ID form) removed — deferred to future work (CP3). -->
 
     <!-- ── VIEW 3: Class PIN — Step 1: Enter PIN ── -->
     <div id="view-class" class="login-body hidden">
