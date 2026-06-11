@@ -28,7 +28,7 @@ document.getElementById('reward-score-denom').textContent  = `/${total}`;
 
 // ── Stamp / no-stamp ──────────────────────────────────────────────────────────
 if (stampEarned && state) {
-  document.getElementById('stamp-emoji').textContent = state.emoji;
+  document.getElementById('stamp-emoji').innerHTML   = state.emoji;
   document.getElementById('stamp-name').textContent  = state.name;
   const stampEl = document.getElementById('reward-stamp');
   if (stampEl) stampEl.style.borderColor = state.color;

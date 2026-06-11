@@ -104,7 +104,7 @@ function openPopup(stateId) {
   const sp   = Storage.getStateProgress(stateId);
   const tabs = ['story','culture','activity','quiz'];
 
-  document.getElementById('popup-emoji').textContent   = state.emoji;
+  document.getElementById('popup-emoji').innerHTML     = state.emoji;
   document.getElementById('popup-name').textContent    = state.name;
   document.getElementById('popup-tagline').textContent = state.tagline;
   document.getElementById('popup-badges').innerHTML    = tabs.map(t =>

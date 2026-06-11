@@ -36,7 +36,7 @@ if (hero) {
   heroImg.onload = () => { hero.style.backgroundImage = `url(${heroImg.src})`; hero.style.backgroundSize = 'cover'; };
   heroImg.src = `assets/images/states/${stateId}-hero.png`;
 }
-document.getElementById('hero-emoji').textContent   = state.emoji;
+document.getElementById('hero-emoji').innerHTML     = state.emoji;
 document.getElementById('hero-name').textContent    = state.name;
 document.getElementById('hero-tagline').textContent = state.tagline;
 

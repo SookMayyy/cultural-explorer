@@ -166,50 +166,11 @@ router.post('/login', loginLimiter, [
 });
 
 // ── POST /api/auth/moe-login ──────────────────────────────────────────────────
-// MOE government school — IC number as credential
-router.post('/moe-login', loginLimiter, [
-  body('ic_number')
-    .trim()
-    .matches(/^\d{12}$/).withMessage('Please enter a valid 12-digit IC number (numbers only, no dashes).'),
-  body('display_name')
-    .optional()
-    .trim()
-    .matches(/^[a-zA-Z ]{1,20}$/).withMessage('Name must be letters only, max 20 characters.'),
-], async (req, res, next) => {
-  try {
-    if (!validate(req, res)) return;
-
-    const { ic_number, display_name } = req.body;
-
-    // Hash the IC number — never store the plain IC
-    const ic_hash = crypto.createHash('sha256').update(ic_number.trim()).digest('hex');
-
-    const [rows] = await pool.execute(
-      `SELECT * FROM users WHERE ic_hash = ? AND auth_type = 'moe' LIMIT 1`,
-      [ic_hash]
-    );
-
-    let user;
-    if (rows.length) {
-      // Existing account — log in
-      user = rows[0];
-      await pool.execute('UPDATE users SET last_login = NOW() WHERE id = ?', [user.id]);
-    } else {
-      // New account — auto-register with just the IC hash
-      const name = (display_name || 'Explorer').trim();
-      const [result] = await pool.execute(
-        `INSERT INTO users (auth_type, display_name, ic_hash) VALUES ('moe', ?, ?)`,
-        [name, ic_hash]
-      );
-      const [newRows] = await pool.execute('SELECT * FROM users WHERE id = ?', [result.insertId]);
-      user = newRows[0];
-    }
-
-    req.session.user = sessionUser(user);
-    res.json({ ok: true });
-  } catch (err) {
-    next(err);
-  }
+// MOE government-school login (IC number) is DEFERRED to future work (CP3).
+// The original implementation (SHA-256 IC hashing + auto-register) is preserved
+// in git history at the baseline commit if it needs to be restored.
+router.post('/moe-login', (req, res) => {
+  res.status(501).json({ ok: false, error: 'MOE login is not available yet (future work).' });
 });
 
 // ── POST /api/auth/recover ────────────────────────────────────────────────────

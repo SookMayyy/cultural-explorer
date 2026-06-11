@@ -17,6 +17,7 @@
 
 import Storage    from './utils/storage.js';
 import Typewriter from './components/typewriter.js';
+import { AVATARS } from './data/avatars.js';
 
 // ─────────────────────────────────────────────────────────────────
 // SECTION 1 — DIALOGUE DATA
@@ -143,16 +144,9 @@ function initMascots(nickname = null) {
 //   This data could later come from an API with no change to the UI code.
 // ─────────────────────────────────────────────────────────────────
 
-const AVATARS = [
-  { id: 'tiger',     emoji: '🐯', name: 'Tiger Cub'  },
-  { id: 'hornbill',  emoji: '🦜', name: 'Hornbill'   },
-  { id: 'elephant',  emoji: '🐘', name: 'Elephant'   },
-  { id: 'butterfly', emoji: '🦋', name: 'Butterfly'  },
-  { id: 'turtle',    emoji: '🐢', name: 'Turtle'     },
-  { id: 'monkey',    emoji: '🐒', name: 'Monyet'     },
-  { id: 'owl',       emoji: '🦉', name: 'Owl'        },
-  { id: 'panda',     emoji: '🐼', name: 'Panda'      },
-];
+// AVATARS is imported from ./data/avatars.js (shared across all screens).
+// We store the selected avatar as its NUMERIC INDEX so the topbar and
+// dashboard can look it up the same way.
 
 let selectedAvatarId = null;
 
@@ -163,13 +157,13 @@ function buildAvatarGrid() {
 
   grid.innerHTML = '';  // clear any previous render
 
-  AVATARS.forEach(avatar => {
+  AVATARS.forEach((avatar, index) => {
     // We create a <button> so it's keyboard and touch accessible
     const btn = document.createElement('button');
     btn.className = 'avatar-item';
     btn.setAttribute('role', 'option');
     btn.setAttribute('aria-selected', 'false');
-    btn.dataset.id = avatar.id;
+    btn.dataset.id = index;
     btn.innerHTML = `
       <span class="avatar-emoji">${avatar.emoji}</span>
       <span class="avatar-name">${avatar.name}</span>
@@ -183,7 +177,7 @@ function buildAvatarGrid() {
       });
       btn.classList.add('selected');
       btn.setAttribute('aria-selected', 'true');
-      selectedAvatarId = avatar.id;
+      selectedAvatarId = index;
 
       // Enable the confirm button once a selection is made
       const confirmBtn = document.getElementById('btn-confirm-avatar');
@@ -292,8 +286,8 @@ function handleLogin(e) {
   const result = Storage.loginUser(username, password);
 
   if (result.ok) {
-    // If the user never chose an avatar, show the picker
-    if (!result.user.avatarId) {
+    // If the user never chose an avatar, show the picker (index 0 is valid)
+    if (result.user.avatarId == null) {
       openAvatarModal();
     } else {
       enterGame();
@@ -450,7 +444,7 @@ function init() {
   // ── Avatar confirm button ──
   document.getElementById('btn-confirm-avatar')
     ?.addEventListener('click', () => {
-      if (!selectedAvatarId) return;
+      if (selectedAvatarId == null) return;
       Storage.setSessionAvatar(selectedAvatarId);
       enterGame();
     });
