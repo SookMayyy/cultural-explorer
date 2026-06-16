@@ -1,46 +1,55 @@
 /* ═══════════════════════════════════════════════
    Cultural Explorer MY — Global Design System
+   Malaysian-inspired warm palette, Loka Made spirit
    ═══════════════════════════════════════════════ */
 
 /* ─── CSS Custom Properties ─── */
 :root {
-  /* Brand / Malaysia flag colors */
-  --clr-red:    #C0392B;
-  --clr-yellow: #FCD116;
+  /* ── Brand / Malaysia flag colors ── */
+  --clr-red:    #CC2936;   /* Malaysia flag red — slightly warmer than pure #C0392B */
+  --clr-yellow: #FCD116;   /* Malaysia flag yellow */
   --clr-navy:   #1A3A5C;
 
-  /* Game UI colors */
-  --clr-gold:    #F5A623;
-  --clr-green:   #27AE60;
-  --clr-orange:  #E67E22;
-  --clr-purple:  #8E44AD;
-  --clr-teal:    #117A65;
+  /* ── Warm Malaysian palette (Loka Made–inspired) ──
+     Think kopitiam tile warmth, batik oranges, jungle greens, tropical sky blues */
+  --clr-gold:        #F5A623;   /* Warm gold — reward accents, stars */
+  --clr-gold-deep:   #D4880F;   /* Darker gold for button shadows */
+  --clr-orange:      #E8602C;   /* Spice market orange — primary CTA */
+  --clr-orange-deep: #B8431A;   /* 3-D button shadow for orange CTA */
+  --clr-green:       #2A9D5C;   /* Tropical jungle green */
+  --clr-teal:        #0F8B6A;   /* Deep mangrove teal */
+  --clr-purple:      #6B50CE;   /* Cultural heritage purple — topbars, accents */
+  --clr-purple-deep: #4E3AA0;   /* Shadow for purple buttons */
+  --clr-sky:         #4AB8E8;   /* Tropical sky / sea — East Malaysia gate */
+  --clr-coral:       #FF6B6B;   /* Friendly error / warning coral */
 
-  /* State theme colors (mirrored from data) */
-  --state-penang:   #E67E22;
-  --state-melaka:   #8E44AD;
-  --state-selangor: #1A5276;
-  --state-johor:    #1E8449;
-  --state-kelantan: #C0392B;
-  --state-sabah:    #117A65;
-  --state-sarawak:  #1A5276;
+  /* ── State theme colors ── */
+  --state-penang:   #E67E22;   /* Orange — Georgetown spice */
+  --state-melaka:   #8E44AD;   /* Purple — Peranakan heritage */
+  --state-selangor: #1A5276;   /* Deep blue — modern, developed */
+  --state-johor:    #1E8449;   /* Green — southern tropics */
+  --state-kelantan: #C0392B;   /* Red — vibrant Malay arts */
+  --state-sabah:    #0F8B6A;   /* Teal — Borneo rainforest */
+  --state-sarawak:  #2471A3;   /* Steel blue — Hornbill sky */
 
-  /* Neutrals */
-  --clr-bg:         #FEF9EF;
+  /* ── Neutrals / surfaces ── */
+  --clr-bg:         #FEF7E8;   /* Warm cream — aged kopitiam paper */
+  --clr-bg-warm:    #FDF0D4;   /* Deeper cream for map background zones */
   --clr-card:       #FFFFFF;
   --clr-border:     #E8DFC8;
-  --clr-text:       #1A1A2E;
-  --clr-text-muted: #6B7280;
-  --clr-grey:       #9CA3AF;
-  --clr-grey-light: #F3F4F6;
-  --clr-margin-bg:  #F0EAFC;
+  --clr-border-warm:#D4C4A0;   /* Warmer border for path / decorative elements */
+  --clr-text:       #2C1810;   /* Very dark warm brown — more Malaysian than pure black */
+  --clr-text-muted: #7A6856;   /* Warm muted brown */
+  --clr-grey:       #A89880;   /* Warm grey */
+  --clr-grey-light: #F5EFE4;   /* Warm light grey */
+  --clr-margin-bg:  #E8DFC8;   /* Warm parchment — visible on large screens */
 
-  /* Typography */
+  /* ── Typography ── */
   --font-display: 'Fredoka One', 'Baloo 2', cursive;
   --font-title:   'Ribeye', serif;
   --font-body:    'Baloo 2', sans-serif;
 
-  /* Font sizes */
+  /* ── Font sizes ── */
   --text-xs:   11px;
   --text-sm:   13px;
   --text-base: 15px;
@@ -50,7 +59,7 @@
   --text-2xl:  30px;
   --text-3xl:  38px;
 
-  /* Spacing */
+  /* ── Spacing ── */
   --sp-xs:  4px;
   --sp-sm:  8px;
   --sp-md:  16px;
@@ -58,27 +67,26 @@
   --sp-xl:  32px;
   --sp-2xl: 48px;
 
-  /* Radius */
+  /* ── Radius ── */
   --r-sm:   8px;
   --r-md:   16px;
   --r-lg:   24px;
   --r-pill: 50px;
 
-  /* Shadows */
-  --shadow-sm:  0 2px 8px rgba(0,0,0,0.08);
-  --shadow-md:  0 4px 16px rgba(0,0,0,0.12);
-  --shadow-lg:  0 8px 32px rgba(0,0,0,0.18);
-  --shadow-btn: 0 4px 0 rgba(0,0,0,0.18);
-  --shadow-card:0 2px 12px rgba(0,0,0,0.10);
+  /* ── Shadows — 3-D "chunky" style for child-game buttons ── */
+  --shadow-sm:   0 2px 8px rgba(44,24,16,0.08);
+  --shadow-md:   0 4px 16px rgba(44,24,16,0.12);
+  --shadow-lg:   0 8px 32px rgba(44,24,16,0.18);
+  /* Tactile button shadow: colour-matched per button variant in their own rules */
+  --shadow-btn:  0 5px 0 rgba(0,0,0,0.22);
+  --shadow-card: 0 3px 14px rgba(44,24,16,0.10);
 
-  /* Layout — fixed game canvas (all screens) */
-  --game-w:      1227px;
-  --game-h:      650px;
-  --game-max-w:  1227px;
-  --topbar-h:    56px;
-  --navbar-h:    64px;
-  
-  /* Margin gap for sides */
+  /* ── Layout ── */
+  --game-w:          1227px;
+  --game-h:          650px;
+  --game-max-w:      1227px;
+  --topbar-h:        56px;
+  --navbar-h:        64px;
   --screen-side-gap: 20px;
 }
 
@@ -391,35 +399,65 @@ input {
   font-family: var(--font-body);
 }
 
-/* ─── Common Button Styles ─── */
+/* ─── Common Button Styles ─────────────────────────────────────────────────
+   Child-game "chunky" style: bold fill, 3-D bottom shadow, press-down :active.
+   The illusion of depth comes from box-shadow matching the button's dark tone.
+   On :active, translateY(4px) + reduce shadow = "pressed into the floor" feel.  */
+
 .btn-primary {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: var(--sp-sm);
   width: 100%;
-  padding: 14px var(--sp-lg);
+  padding: 15px var(--sp-lg);
   border-radius: var(--r-pill);
-  background: var(--clr-red);
+  background: var(--clr-orange);
   color: #fff;
   font-family: var(--font-display);
   font-size: var(--text-md);
   font-weight: 400;
   border: none;
-  box-shadow: var(--shadow-btn);
+  /* 3-D bottom shadow — colour-matched to orange */
+  box-shadow: 0 5px 0 var(--clr-orange-deep), 0 8px 16px rgba(232,96,44,0.30);
   cursor: pointer;
-  transition: transform 0.1s, box-shadow 0.1s;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  letter-spacing: 0.3px;
 }
 
-.btn-primary:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 rgba(0,0,0,0.18);
+.btn-primary:hover:not(:disabled) {
+  background: #F06A35;
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 var(--clr-orange-deep), 0 2px 8px rgba(232,96,44,0.20);
 }
 
 .btn-primary:disabled {
   background: var(--clr-grey);
-  box-shadow: none;
+  box-shadow: 0 4px 0 #888, none;
   cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Purple variant — used for nav/map CTAs */
+.btn-primary.btn-purple {
+  background: var(--clr-purple);
+  box-shadow: 0 5px 0 var(--clr-purple-deep), 0 8px 16px rgba(107,80,206,0.30);
+}
+.btn-primary.btn-purple:active:not(:disabled) {
+  box-shadow: 0 1px 0 var(--clr-purple-deep), 0 2px 8px rgba(107,80,206,0.20);
+}
+
+/* Gold variant — used for reward/stamp CTAs */
+.btn-primary.btn-gold {
+  background: var(--clr-gold);
+  color: var(--clr-text);
+  box-shadow: 0 5px 0 var(--clr-gold-deep), 0 8px 16px rgba(245,166,35,0.30);
+}
+.btn-primary.btn-gold:active:not(:disabled) {
+  box-shadow: 0 1px 0 var(--clr-gold-deep), 0 2px 8px rgba(245,166,35,0.20);
 }
 
 .btn-secondary {
@@ -431,15 +469,17 @@ input {
   padding: 13px var(--sp-lg);
   border-radius: var(--r-pill);
   background: #fff;
-  color: var(--clr-red);
+  color: var(--clr-orange);
   font-family: var(--font-display);
   font-size: var(--text-md);
-  border: 2px solid var(--clr-red);
+  border: 2.5px solid var(--clr-orange);
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background 0.15s, transform 0.1s;
+  box-shadow: 0 3px 0 rgba(232,96,44,0.20);
 }
 
-.btn-secondary:hover { background: #FEF0EE; }
+.btn-secondary:hover { background: #FEF0E8; }
+.btn-secondary:active { transform: translateY(2px); box-shadow: none; }
 
 .btn-ghost {
   background: none;
@@ -607,6 +647,27 @@ input {
   50%       { box-shadow: 0 0 0 12px rgba(245,166,35,0); }
 }
 
+/* Node pulsing ring — draws the player's eye to the "current" level node.
+   Uses a gold ring that breathes in/out like a heartbeat. */
+@keyframes node-pulse {
+  0%   { box-shadow: 0 0 0 0   rgba(245,166,35, 0.7),  0 6px 0 rgba(0,0,0,0.18); }
+  50%  { box-shadow: 0 0 0 14px rgba(245,166,35, 0),   0 6px 0 rgba(0,0,0,0.18); }
+  100% { box-shadow: 0 0 0 0   rgba(245,166,35, 0.7),  0 6px 0 rgba(0,0,0,0.18); }
+}
+
+/* Gentle float for the "next level" arrow indicator */
+@keyframes bounce-down {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(5px); }
+}
+
+/* Node entrance — nodes pop in staggered on map load */
+@keyframes node-enter {
+  0%   { transform: scale(0.4) translateY(20px); opacity: 0; }
+  70%  { transform: scale(1.12) translateY(-4px); opacity: 1; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
 /* ─── Utility Classes ─── */
 .text-center  { text-align: center; }
 .text-muted   { color: var(--clr-text-muted); }
@@ -684,4 +745,54 @@ input {
   animation: confetti-fall linear forwards;
   pointer-events: none;
   z-index: 9999;
+}
+
+/* ─── Screen / page entry animation ───────────────────────────────────────────
+   Applied automatically to .app-container's main content children via
+   the .screen-enter class. Screens slide up subtly on load for a polished feel.
+   All animations respect prefers-reduced-motion. */
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Animate the main topbar + main content area on every MPA page */
+  .app-container > header.topbar {
+    animation: page-enter 0.25s ease-out both;
+  }
+
+  .app-container > main {
+    animation: page-enter 0.3s 0.05s ease-out both;
+  }
+}
+
+/* ─── Active bottom-nav item: strong yellow pill highlight ─────────────────── */
+/* This ensures the active state is visually clear for young users */
+.bottom-nav a.map-nav-item.active {
+  background: #fde15a;
+  color: #1a1a1a;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(253, 225, 90, 0.4);
+}
+
+/* ─── Input shared styles ─────────────────────────────────────────────────── */
+.login-input,
+.modal-input {
+  width: 100%;
+  padding: 13px var(--sp-md);
+  border: 2px solid var(--clr-border);
+  border-radius: var(--r-md);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--clr-text);
+  background: var(--clr-card);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  outline: none;
+}
+
+.login-input:focus,
+.modal-input:focus {
+  border-color: #6b50ce;
+  box-shadow: 0 0 0 3px rgba(107, 80, 206, 0.15);
 }

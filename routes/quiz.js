@@ -10,7 +10,7 @@ router.get('/state/:id', async (req, res, next) => {
     // Fetch up to 4 questions, mixing difficulties
     const [questions] = await pool.execute(
       `SELECT id, difficulty, question_text, opt_a, opt_b, opt_c, opt_d, correct_opt, explanation
-       FROM quiz_questions WHERE state_id = ? ORDER BY RAND() LIMIT 4`,
+       FROM quiz_questions WHERE state_id = ? ORDER BY RANDOM() LIMIT 4`,
       [stateId]
     );
     res.json({ ok: true, data: questions });

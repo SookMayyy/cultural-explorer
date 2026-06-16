@@ -19,6 +19,17 @@ import Storage    from './utils/storage.js';
 import Typewriter from './components/typewriter.js';
 import { AVATARS } from './data/avatars.js';
 
+// ── Auth config (backend integration) ────────────────────────────
+// The 12 secret icons map to icon_key_1 / icon_key_2 (values 1–12) in the
+// backend `users` table, used for icon-based password recovery.
+const ICONS = ['🌺','🦋','⭐','🌙','🐘','🦜','🍃','🎈','🐠','🌈','🦁','🌻'];
+
+let loginGrade    = null;   // selected grade group on the Login form
+let regGrade      = null;   // selected grade group on the Register form
+let recoverGrade  = null;   // selected grade group on the Recover form
+let selectedIcons = [];     // up to 2 chosen icon ids (1–12) on Register
+let recoverIcons  = [];     // up to 2 chosen icon ids (1–12) on Recover
+
 // ─────────────────────────────────────────────────────────────────
 // SECTION 1 — DIALOGUE DATA
 //
@@ -276,42 +287,203 @@ function clearError(elId) {
   el.classList.add('hidden');
 }
 
-function handleLogin(e) {
+// Login now calls the backend (POST /api/auth/login). The server checks the
+// name + grade + password against the database (Supabase/Postgres) and sets an
+// httpOnly session cookie. We mirror a lightweight session into localStorage so
+// the rest of the MPA (which gates on Storage.getSession()) keeps working.
+async function handleLogin(e) {
   e.preventDefault();  // stop the form from reloading the page
-
-  const username = document.getElementById('login-username').value;
-  const password = document.getElementById('login-password').value;
   clearError('login-error');
 
-  const result = Storage.loginUser(username, password);
+  const name     = document.getElementById('login-name').value.trim();
+  const password = document.getElementById('login-password').value;
 
-  if (result.ok) {
-    // If the user never chose an avatar, show the picker (index 0 is valid)
-    if (result.user.avatarId == null) {
-      openAvatarModal();
-    } else {
-      enterGame();
+  if (!name)       return showError('login-error', '❌ Please enter your name.');
+  if (!loginGrade) return showError('login-error', '❌ Please choose your grade.');
+  if (!password)   return showError('login-error', '❌ Please enter your password.');
+
+  try {
+    const res = await fetch('/api/auth/login', {
+      method:      'POST',
+      headers:     { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ display_name: name, grade_group: loginGrade, password }),
+    });
+    const data = await res.json();
+
+    if (!res.ok || !data.ok) {
+      return showError('login-error', '❌ ' + (data.error || 'Login failed.'));
     }
-  } else {
-    showError('login-error', '❌ ' + result.error);
+
+    // Preserve a previously-picked avatar/points if this browser has one.
+    const prev = Storage.getSession();
+    Storage.setSession({
+      type:        'registered',
+      displayName: name,
+      avatarId:    prev?.avatarId ?? null,
+      points:      prev?.points   ?? 0,
+    });
+
+    if (prev?.avatarId == null) openAvatarModal();
+    else                        enterGame();
+  } catch (err) {
+    showError('login-error', '❌ Could not reach the server. Is it running (npm start)?');
   }
 }
 
-function handleRegister(e) {
+// Register now calls the backend (POST /api/auth/register), which inserts a row
+// into the `users` table. Grade 1–2 accounts get an auto-generated password
+// returned in the response (shown once, like a teacher hand-out).
+async function handleRegister(e) {
   e.preventDefault();
-
-  const nickname = document.getElementById('reg-nickname').value;
-  const username = document.getElementById('reg-username').value;
-  const password = document.getElementById('reg-password').value;
   clearError('reg-error');
 
-  const result = Storage.registerUser(nickname, username, password);
+  const name     = document.getElementById('reg-name').value.trim();
+  const password = document.getElementById('reg-password').value;
 
-  if (result.ok) {
-    // New users always pick an avatar before entering
-    openAvatarModal();
-  } else {
-    showError('reg-error', '❌ ' + result.error);
+  if (!name)                       return showError('reg-error', '❌ Please enter your name.');
+  if (!/^[a-zA-Z ]{1,20}$/.test(name))
+                                   return showError('reg-error', '❌ Name must be letters only (max 20).');
+  if (!regGrade)                   return showError('reg-error', '❌ Please choose your grade.');
+  if (selectedIcons.length !== 2)  return showError('reg-error', '❌ Pick exactly 2 secret icons.');
+  if (regGrade !== '1-2' && password.length < 6)
+                                   return showError('reg-error', '❌ Password must be at least 6 characters.');
+
+  const body = {
+    display_name: name,
+    grade_group:  regGrade,
+    icon_key_1:   selectedIcons[0],
+    icon_key_2:   selectedIcons[1],
+  };
+  if (regGrade !== '1-2') body.password = password;
+
+  try {
+    const res = await fetch('/api/auth/register', {
+      method:      'POST',
+      headers:     { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+
+    if (!res.ok || !data.ok) {
+      return showError('reg-error', '❌ ' + (data.error || 'Registration failed.'));
+    }
+
+    // Grade 1–2: reveal the auto-generated password once.
+    if (data.auto_password) {
+      alert(`Account created! 🎉\n\nYour automatic password is:\n\n   ${data.auto_password}\n\nWrite it down — you'll use it to log in next time!`);
+    }
+
+    Storage.setSession({ type: 'registered', displayName: name, avatarId: null, points: 0 });
+    openAvatarModal();   // new users pick an avatar before entering
+  } catch (err) {
+    showError('reg-error', '❌ Could not reach the server. Is it running (npm start)?');
+  }
+}
+
+// ── Grade selector + secret-icon picker wiring ───────────────────
+function initGradeSelect(groupId, onSelect) {
+  const group = document.getElementById(groupId);
+  if (!group) return;
+  group.querySelectorAll('.grade-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      group.querySelectorAll('.grade-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      onSelect(btn.dataset.grade);
+    });
+  });
+}
+
+// Build a 12-icon picker into `gridId`, recording up to 2 taps (in order)
+// into the passed-in `selectedArr` (mutated in place by reference).
+function buildIconPicker(gridId, selectedArr) {
+  const grid = document.getElementById(gridId);
+  if (!grid) return;
+  grid.innerHTML = ICONS.map((ic, i) =>
+    `<button type="button" class="icon-pick" data-icon="${i + 1}" aria-label="Secret icon ${i + 1}">${ic}</button>`
+  ).join('');
+
+  grid.querySelectorAll('.icon-pick').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const val = parseInt(btn.dataset.icon, 10);
+      const idx = selectedArr.indexOf(val);
+      if (idx >= 0) {
+        selectedArr.splice(idx, 1);
+        btn.classList.remove('selected');
+      } else if (selectedArr.length < 2) {
+        selectedArr.push(val);
+        btn.classList.add('selected');
+      }
+    });
+  });
+}
+
+// ── Forgot-password / icon recovery ──────────────────────────────
+// Switches the modal between the login/register tabs and the recovery
+// form (which lives in the same modal card).
+function showRecoverView() {
+  document.querySelector('.modal-tabs')?.classList.add('hidden');
+  document.getElementById('form-login')?.classList.add('hidden');
+  document.getElementById('form-register')?.classList.add('hidden');
+  document.getElementById('form-recover')?.classList.remove('hidden');
+  clearError('login-error');
+  clearError('recover-error');
+  document.getElementById('recover-success')?.classList.add('hidden');
+}
+
+function showLoginView() {
+  document.querySelector('.modal-tabs')?.classList.remove('hidden');
+  document.getElementById('form-recover')?.classList.add('hidden');
+  document.getElementById('form-register')?.classList.add('hidden');
+  document.getElementById('form-login')?.classList.remove('hidden');
+  clearError('recover-error');
+}
+
+// Recovery: verify name + grade + the 2 secret icons. Grade 1–2 gets their
+// password revealed; Grade 3+ sets a brand-new password.
+async function handleRecover(e) {
+  e.preventDefault();
+  clearError('recover-error');
+  document.getElementById('recover-success')?.classList.add('hidden');
+
+  const name  = document.getElementById('recover-name').value.trim();
+  const newpw = document.getElementById('recover-newpw').value;
+
+  if (!name)                          return showError('recover-error', '❌ Please enter your name.');
+  if (!recoverGrade)                  return showError('recover-error', '❌ Please choose your grade.');
+  if (recoverIcons.length !== 2)      return showError('recover-error', '❌ Tap your 2 secret icons (in order).');
+  if (recoverGrade !== '1-2' && newpw.length < 6)
+                                      return showError('recover-error', '❌ New password must be at least 6 characters.');
+
+  const body = {
+    display_name: name,
+    grade_group:  recoverGrade,
+    icon_key_1:   recoverIcons[0],
+    icon_key_2:   recoverIcons[1],
+  };
+  if (recoverGrade !== '1-2') body.new_password = newpw;
+
+  try {
+    const res = await fetch('/api/auth/recover', {
+      method:      'POST',
+      headers:     { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+
+    if (!res.ok || !data.ok) {
+      return showError('recover-error', '❌ ' + (data.error || 'Recovery failed.'));
+    }
+
+    const ok = document.getElementById('recover-success');
+    ok.textContent = data.revealed_password
+      ? `✅ Your password is: ${data.revealed_password} — write it down!`
+      : '✅ Password updated! You can log in now.';
+    ok.classList.remove('hidden');
+  } catch (err) {
+    showError('recover-error', '❌ Could not reach the server. Is it running (npm start)?');
   }
 }
 
@@ -392,6 +564,31 @@ function init() {
 
   // Tab switching always needs to be wired (modal may still open)
   initTabs();
+
+  // Grade selectors (login + register) and the register secret-icon picker
+  initGradeSelect('login-grade', g => { loginGrade = g; });
+  initGradeSelect('reg-grade', g => {
+    regGrade = g;
+    // Grade 1–2 gets an auto-generated password, so hide the password field.
+    const pw   = document.getElementById('reg-password');
+    const hint = document.getElementById('reg-pw-hint');
+    const isAuto = g === '1-2';
+    pw?.classList.toggle('hidden', isAuto);
+    hint?.classList.toggle('hidden', !isAuto);
+  });
+  initGradeSelect('recover-grade', g => {
+    recoverGrade = g;
+    // Grade 1–2 has its password revealed; Grade 3+ types a new one.
+    const newpw = document.getElementById('recover-newpw');
+    newpw?.classList.toggle('hidden', g === '1-2');
+  });
+  buildIconPicker('reg-icons', selectedIcons);
+  buildIconPicker('recover-icons', recoverIcons);
+
+  // Forgot-password navigation + recover form submit
+  document.getElementById('link-forgot')?.addEventListener('click', showRecoverView);
+  document.getElementById('link-back-login')?.addEventListener('click', showLoginView);
+  document.getElementById('form-recover')?.addEventListener('submit', handleRecover);
 
   // ── Button: "Start Exploring!" ──
   // Registered user → skip modal and go straight to the game.

@@ -1,0 +1,280 @@
+/* ═══════════════════════════════════════════════════════════════════
+   AVATAR SHOP  —  avatar.css
+   Purple theme matching the settings/stamp screens.
+   Mobile-first layout: single column, 4-column grid on wide.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Page background ── */
+.app-container {
+  background: var(--clr-bg);
+}
+
+/* Purple topbar (reuses shared .topbar--purple if defined, or define here) */
+.topbar--purple {
+  background: linear-gradient(to right, #7b4dff, #5a7dff);
+}
+
+/* ── Hero banner ── */
+.av-hero {
+  position: relative;
+  background: linear-gradient(135deg, #6b50ce 0%, #8a72e0 60%, #5a7dff 100%);
+  padding: var(--sp-xl) var(--sp-lg) var(--sp-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-lg);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* Batik corner images pinned to the hero corners */
+.av-deco {
+  position: absolute;
+  width: 90px;
+  pointer-events: none;
+  opacity: 0.55;
+}
+.av-deco--tl { top: 0; left: 0; }
+.av-deco--tr {
+  top: 0; right: 0;
+  transform: scaleX(-1);  /* mirror the same asset for the right side */
+}
+
+/* The big avatar preview that updates on selection */
+.av-hero-preview {
+  font-size: 72px;
+  line-height: 1;
+  z-index: 1;
+  flex-shrink: 0;
+  /* Bounce-in on initial load */
+  animation: av-bounce-in 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  filter: drop-shadow(0 6px 16px rgba(0,0,0,0.35));
+}
+
+/* Re-trigger the animation when JS swaps the avatar */
+.av-hero-preview.swap {
+  animation: av-bounce-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes av-bounce-in {
+  from { transform: scale(0.4) translateY(10px); opacity: 0; }
+  to   { transform: scale(1)   translateY(0);    opacity: 1; }
+}
+
+.av-hero-info {
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.av-hero-name {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  color: #fff;
+  margin: 0;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  line-height: 1.2;
+}
+
+.av-hero-sub {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: rgba(255,255,255,0.75);
+  margin: 0;
+}
+
+/* ── Main content area ── */
+.av-main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-md);
+  padding: var(--sp-lg) var(--sp-lg) calc(var(--navbar-h) + var(--sp-xl));
+  overflow-y: auto;
+}
+
+/* ── Section heading row ── */
+.av-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-sm);
+}
+
+.av-section-title {
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  color: var(--clr-text);
+  margin: 0;
+}
+
+/* "Currently equipped: Tiger" badge */
+.av-equipped-badge {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: #6b50ce;
+  background: #f0eafc;
+  border: 1.5px solid #c4b0f5;
+  border-radius: var(--r-pill);
+  padding: 3px 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* ── Avatar grid ──
+   4 columns on screens > 480px, 3 columns on narrower screens.
+   Each card is a square that shows the emoji + name + equipped badge. */
+.av-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-md);
+}
+
+@media (max-width: 420px) {
+  .av-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ── Individual avatar card ── */
+.av-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-xs);
+  padding: var(--sp-md) var(--sp-sm);
+  background: var(--clr-card);
+  border: 2.5px solid var(--clr-border);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, transform 0.12s, box-shadow 0.12s;
+  box-shadow: var(--shadow-sm);
+  /* Make touch targets a minimum of 64px tall */
+  min-height: 84px;
+}
+
+.av-card:hover {
+  border-color: #9b72fb;
+  background: #f6f0ff;
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+.av-card:active {
+  transform: scale(0.94);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Selected state: purple border + light purple fill */
+.av-card.selected {
+  border-color: #6b50ce;
+  background: #ede5ff;
+  box-shadow: 0 0 0 3px rgba(107, 80, 206, 0.25), var(--shadow-sm);
+}
+
+/* Currently-equipped state: gold border + checkmark overlay */
+.av-card.equipped {
+  border-color: var(--clr-gold);
+  background: #fffbf0;
+  box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.25), var(--shadow-sm);
+}
+
+/* The animal emoji — scales up on hover for delight */
+.av-card-emoji {
+  font-size: 38px;
+  line-height: 1;
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.av-card:hover .av-card-emoji,
+.av-card.selected .av-card-emoji {
+  transform: scale(1.18);
+}
+
+.av-card-name {
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  color: var(--clr-text-muted);
+  text-align: center;
+  line-height: 1.2;
+}
+
+.av-card.selected .av-card-name {
+  color: #6b50ce;
+  font-weight: 700;
+}
+
+/* Small "equipped" tick badge under the name */
+.av-card-equipped-tag {
+  font-size: 10px;
+  font-family: var(--font-body);
+  font-weight: 700;
+  color: #b07c00;
+  background: #fff3cc;
+  border-radius: var(--r-pill);
+  padding: 2px 7px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* ── Confirm button ── */
+.av-confirm-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-sm);
+  width: 100%;
+  padding: 16px var(--sp-lg);
+  border-radius: var(--r-pill);
+  background: #6b50ce;
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  border: none;
+  /* The shadow creates a "3D button" illusion */
+  box-shadow: 0 6px 0 #3d2ea0, 0 8px 20px rgba(107, 80, 206, 0.35);
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s;
+  margin-top: var(--sp-sm);
+}
+
+.av-confirm-btn:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #3d2ea0, 0 4px 10px rgba(107, 80, 206, 0.25);
+}
+
+.av-confirm-btn:disabled {
+  background: #c4b8f5;
+  box-shadow: 0 4px 0 #a89ad4, 0 6px 12px rgba(107, 80, 206, 0.15);
+  cursor: not-allowed;
+  color: rgba(255,255,255,0.7);
+}
+
+/* Success flash when equip completes */
+.av-confirm-btn.success {
+  background: var(--clr-green);
+  box-shadow: 0 4px 0 #1a7a40, 0 6px 16px rgba(39, 174, 96, 0.35);
+}
+
+/* ── Bottom nav image icons ── */
+.nav-icon {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+/* ── Screen entry animation ── */
+@media (prefers-reduced-motion: no-preference) {
+  .av-hero {
+    animation: screen-slide-up 0.3s ease-out both;
+  }
+  .av-main {
+    animation: screen-slide-up 0.35s 0.05s ease-out both;
+  }
+}
+
+@keyframes screen-slide-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

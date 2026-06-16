@@ -1,0 +1,450 @@
+/* ═══════════════════════════════════════════════════════════════════
+   ACTIVITY / MATCH THE CULTURE  —  activity.css
+   Warm orange theme (matches narrative state colour).
+   Layout: topbar → banner → scrollable game area.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Page background ── */
+.app-container {
+  background: #fff9f0;
+}
+
+/* ── Intro banner (mascot + round pill) ── */
+.act-banner {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-md);
+  padding: var(--sp-sm) var(--sp-lg);
+  background: #fff;
+  border-bottom: 1px solid var(--clr-border);
+  animation: screen-slide-in 0.3s ease-out both;
+}
+
+/* Mascot + speech bubble row */
+.act-mascot-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  flex: 1;
+  min-width: 0;
+}
+
+.act-mascot {
+  font-size: 40px;
+  flex-shrink: 0;
+  /* Gentle float animation to keep the mascot feeling alive */
+  animation: mascot-float 3s ease-in-out infinite;
+}
+
+@keyframes mascot-float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-5px); }
+}
+
+.act-bubble {
+  background: var(--clr-bg);
+  border: 1.5px solid var(--clr-border);
+  border-radius: var(--r-md);
+  padding: var(--sp-xs) var(--sp-sm);
+  position: relative;
+  max-width: 280px;
+  min-width: 0;
+}
+
+/* Speech bubble tail pointing left toward the mascot */
+.act-bubble::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 8px solid transparent;
+  border-right-color: var(--clr-border);
+  border-left: none;
+}
+
+.act-bubble::after {
+  content: '';
+  position: absolute;
+  left: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 7px solid transparent;
+  border-right-color: var(--clr-bg);
+  border-left: none;
+}
+
+.act-bubble p {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--clr-text);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* "Activity 1 of 7" pill */
+.act-round-pill {
+  flex-shrink: 0;
+  background: #fff4e6;
+  border: 1.5px solid #fde8c8;
+  border-radius: var(--r-pill);
+  padding: 5px 12px;
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  color: #e67e22;
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+/* ── Main content area ── */
+.act-main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-md);
+  padding: var(--sp-lg) var(--sp-lg) calc(var(--navbar-h) + var(--sp-xl));
+  overflow-y: auto;
+  position: relative;
+}
+
+/* ── Header row inside main ── */
+.act-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-sm);
+  flex-shrink: 0;
+}
+
+.act-title {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  color: var(--clr-text);
+  margin: 0;
+}
+
+/* "3 matched" badge */
+.act-score-badge {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  color: var(--clr-green);
+  background: #e8f8ef;
+  border: 1.5px solid #86efac;
+  border-radius: var(--r-pill);
+  padding: 4px 12px;
+  font-weight: 700;
+  transition: background 0.3s;
+}
+
+/* ── Game area container ── */
+.act-game-area {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Loading placeholder */
+.act-loading {
+  text-align: center;
+  font-family: var(--font-body);
+  color: var(--clr-text-muted);
+  padding: var(--sp-xl);
+  font-size: var(--text-md);
+}
+
+/* ── DragMatch component styles ──
+   The component renders into .dragmatch-wrapper.
+   These styles extend the base component visuals to match this screen's theme. */
+
+.dragmatch-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-lg);
+}
+
+.dragmatch-instruction {
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  color: var(--clr-text-muted);
+  text-align: center;
+  margin: 0;
+}
+
+/* Chips row — scrollable if many chips */
+.drag-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-sm);
+  justify-content: center;
+}
+
+/* Each food chip — large, rounded, tapable */
+.drag-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-sm) var(--sp-md);
+  background: #fff;
+  border: 2.5px solid #fde8c8;
+  border-radius: var(--r-pill);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--clr-text);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.15s, border-color 0.15s, transform 0.12s;
+  /* Minimum tap target height */
+  min-height: 48px;
+  min-width: 100px;
+  text-align: center;
+  user-select: none;
+}
+
+.drag-chip:hover:not(.placed) {
+  background: #fff4e6;
+  border-color: #e67e22;
+  transform: translateY(-2px);
+}
+
+/* Selected state: bold orange border */
+.drag-chip.selected {
+  background: #fff4e6;
+  border-color: #e67e22;
+  box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.25), var(--shadow-sm);
+  transform: scale(1.04);
+}
+
+/* Placed/matched: grey out and show as done */
+.drag-chip.placed {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Drop zones: destination boxes */
+.drag-zones {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-md);
+}
+
+@media (max-width: 360px) {
+  .drag-zones {
+    grid-template-columns: 1fr;
+  }
+}
+
+.drag-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-xs);
+  min-height: 80px;
+  padding: var(--sp-md);
+  background: var(--clr-card);
+  border: 2.5px dashed var(--clr-border);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  text-align: center;
+}
+
+.drag-zone:hover:not(.filled) {
+  background: #fff9f0;
+  border-color: #e67e22;
+}
+
+/* State name label inside the zone */
+.drag-zone-label {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  color: var(--clr-text);
+  font-weight: 700;
+}
+
+/* The chip that lands in the zone when correctly matched */
+.drag-chip-placed {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--clr-green);
+}
+
+/* Correct zone: green fill */
+.drag-zone.correct-zone {
+  background: #e8f8ef;
+  border-color: var(--clr-green);
+  border-style: solid;
+  animation: zone-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Wrong zone: brief red flash */
+.drag-zone.wrong-zone {
+  background: #fde8e8;
+  border-color: var(--clr-red);
+  animation: zone-shake 0.3s ease-out both;
+}
+
+@keyframes zone-pop {
+  from { transform: scale(0.95); }
+  to   { transform: scale(1);    }
+}
+
+@keyframes zone-shake {
+  0%, 100% { transform: translateX(0);  }
+  25%       { transform: translateX(-6px); }
+  75%       { transform: translateX(6px);  }
+}
+
+/* Score display at bottom of the game */
+.dragmatch-score {
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  color: var(--clr-text-muted);
+  padding: var(--sp-sm) 0;
+}
+
+.score-val {
+  color: var(--clr-green);
+  font-weight: 700;
+}
+
+/* ── Completion overlay ──
+   Fades in after all pairs are matched.
+   Uses position:absolute over .act-main so it fills the game area. */
+.act-complete {
+  position: absolute;
+  inset: 0;
+  background: rgba(254, 249, 239, 0.96);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-lg);
+  z-index: 10;
+  animation: fade-in 0.4s ease both;
+}
+
+.act-complete.hidden {
+  display: none;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.act-complete-card {
+  background: var(--clr-card);
+  border-radius: var(--r-lg);
+  padding: var(--sp-xl) var(--sp-lg);
+  box-shadow: var(--shadow-lg);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-md);
+  max-width: 360px;
+  width: 100%;
+  /* Celebratory bounce-in */
+  animation: complete-bounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes complete-bounce {
+  from { transform: scale(0.7) translateY(30px); opacity: 0; }
+  to   { transform: scale(1)   translateY(0);    opacity: 1; }
+}
+
+.act-complete-emoji {
+  font-size: 72px;
+  line-height: 1;
+}
+
+.act-complete-title {
+  font-family: var(--font-title);
+  font-size: var(--text-2xl);
+  color: var(--clr-text);
+  margin: 0;
+}
+
+.act-complete-sub {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--clr-text-muted);
+  margin: 0;
+}
+
+/* Action buttons inside the completion card */
+.act-complete-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-sm);
+  width: 100%;
+  margin-top: var(--sp-sm);
+}
+
+/* Primary: "Take the Quiz" — same pattern as .btn-primary */
+.btn-act-quiz {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-sm);
+  padding: 14px var(--sp-lg);
+  border-radius: var(--r-pill);
+  background: var(--clr-red);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  text-decoration: none;
+  box-shadow: var(--shadow-btn);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.btn-act-quiz:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 rgba(0,0,0,0.18);
+}
+
+/* Secondary: "Back to Map" */
+.btn-act-map {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-sm);
+  padding: 12px var(--sp-lg);
+  border-radius: var(--r-pill);
+  background: none;
+  border: 2px solid var(--clr-border);
+  color: var(--clr-text-muted);
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.btn-act-map:hover {
+  background: var(--clr-grey-light);
+  border-color: #ccc;
+}
+
+/* ── Bottom nav image icons ── */
+.nav-icon {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+/* ── Screen entry animation ── */
+@keyframes screen-slide-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .act-main {
+    animation: screen-slide-in 0.3s 0.1s ease-out both;
+  }
+}

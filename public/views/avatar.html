@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Avatar Shop — Cultural Explorer MY</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Fredoka+One&family=Ribeye&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/avatar.css">
+</head>
+<body>
+
+<div class="app-container">
+
+  <!-- Topbar: points + current avatar displayed here -->
+  <header class="topbar topbar--purple" id="topbar">
+    <div class="topbar-left">
+      <a class="topbar-back" href="settings.html" aria-label="Back">&#8249;</a>
+      <span class="topbar-title">Avatar Shop</span>
+    </div>
+    <div class="topbar-right">
+      <!-- Points pill — filled by avatar.js -->
+      <div class="topbar-points" id="topbar-pts">&#11088; 0 pts</div>
+      <!-- Current avatar display -->
+      <div class="topbar-avatar" id="topbar-avatar">&#128100;</div>
+    </div>
+  </header>
+
+  <!-- ── Hero Banner ── -->
+  <!-- The decorative banner shows the selected avatar large + a welcoming message -->
+  <div class="av-hero">
+    <!-- Batik corner decorations (same pattern as login/stamp screens) -->
+    <img src="../assets/images/ui/top-left.png"  class="av-deco av-deco--tl" alt="">
+    <img src="../assets/images/ui/top-right.png" class="av-deco av-deco--tr" alt="">
+
+    <!-- Current selected avatar — big bounce-in display -->
+    <div class="av-hero-preview" id="av-hero-preview" aria-live="polite">
+      &#129409;
+    </div>
+
+    <div class="av-hero-info">
+      <p class="av-hero-name" id="av-hero-name">Choose Your Explorer!</p>
+      <p class="av-hero-sub">Your avatar appears everywhere you play</p>
+    </div>
+  </div>
+
+  <!-- ── Main content area ── -->
+  <main class="av-main">
+
+    <!-- Section heading row: label + equip status -->
+    <div class="av-section-header">
+      <h2 class="av-section-title">&#127877; Pick Your Character</h2>
+      <span class="av-equipped-badge" id="av-equipped-badge">No avatar equipped</span>
+    </div>
+
+    <!-- Avatar grid — 4 columns on wide, 3 on narrow.
+         Each card: big emoji + animal name + "Equipped" tag.
+         avatar.js renders this dynamically from the AVATARS array. -->
+    <div class="av-grid" id="av-grid" role="listbox" aria-label="Choose your avatar">
+      <!-- Filled by avatar.js -->
+    </div>
+
+    <!-- Confirm button — disabled until a new selection is made -->
+    <button class="av-confirm-btn" id="av-confirm" disabled>
+      &#10003; Equip This Avatar
+    </button>
+
+  </main>
+
+  <!-- Bottom navigation bar (purple, image icons) -->
+  <nav class="bottom-nav">
+    <a href="home.html" class="map-nav-item">
+      <img src="../assets/images/ui/home-icon.png"   alt="" class="nav-icon">
+      <span>Home</span>
+    </a>
+    <a href="map.html" class="map-nav-item">
+      <img src="../assets/images/ui/my-map-icon.png" alt="" class="nav-icon">
+      <span>Map</span>
+    </a>
+    <a href="stampbook.html" class="map-nav-item">
+      <img src="../assets/images/ui/stamp-icon.png"  alt="" class="nav-icon">
+      <span>Stamps</span>
+    </a>
+    <a href="quiz.html" class="map-nav-item">
+      <img src="../assets/images/ui/quiz-icon.png"   alt="" class="nav-icon">
+      <span>Quiz</span>
+    </a>
+    <a href="settings.html" class="map-nav-item active">
+      <img src="../assets/images/ui/setting-icon.png" alt="" class="nav-icon">
+      <span>Me</span>
+    </a>
+  </nav>
+
+</div>
+
+<script type="module" src="../js/avatar.js"></script>
+</body>
+</html>

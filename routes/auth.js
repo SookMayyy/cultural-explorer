@@ -80,15 +80,16 @@ router.post('/register', registerLimiter, [
       password_hash = await bcrypt.hash(password, 10);
     }
 
-    const [result] = await pool.execute(
+    const [inserted] = await pool.execute(
       `INSERT INTO users
          (auth_type, display_name, grade_group, password_hash, auto_password, icon_key_1, icon_key_2)
-       VALUES ('grade_account', ?, ?, ?, ?, ?, ?)`,
+       VALUES ('grade_account', ?, ?, ?, ?, ?, ?)
+       RETURNING id`,
       [display_name.trim(), grade_group, password_hash, auto_password,
        parseInt(icon_key_1), parseInt(icon_key_2)]
     );
 
-    const [rows] = await pool.execute('SELECT * FROM users WHERE id = ?', [result.insertId]);
+    const [rows] = await pool.execute('SELECT * FROM users WHERE id = ?', [inserted[0].id]);
     const user = rows[0];
 
     req.session.user = sessionUser(user);
