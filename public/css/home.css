@@ -556,10 +556,91 @@ body {
   padding: 0 var(--sp-xs);
 }
 
+.form-success {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: #2e7d32;
+  margin: 0;
+  padding: var(--sp-xs);
+  background: #eaf6ea;
+  border-radius: var(--r-sm);
+  text-align: center;
+}
+
+/* Text-style link (Forgot password? / Back to login) */
+.modal-link {
+  display: block;
+  width: 100%;
+  margin-top: var(--sp-xs);
+  padding: 4px;
+  border: none;
+  background: none;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--clr-red);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.modal-link:hover { opacity: 0.8; }
+
 .modal-submit-btn {
   width: 100%;
   padding: 14px;
   margin-top: var(--sp-xs);
+}
+
+/* ── Grade selector (3 buttons) ──────────────────────────────────── */
+.grade-select {
+  display: flex;
+  gap: var(--sp-xs);
+}
+.grade-btn {
+  flex: 1;
+  padding: 12px 4px;
+  border-radius: var(--r-md);
+  border: 2px solid var(--clr-border);
+  background: #fff;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--clr-text);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+}
+.grade-btn:hover   { border-color: var(--clr-red); }
+.grade-btn:active  { transform: scale(0.96); }
+.grade-btn.selected {
+  background: var(--clr-red);
+  border-color: var(--clr-red);
+  color: #fff;
+}
+
+/* ── Secret-icon picker (12-icon grid, pick 2) ───────────────────── */
+.icon-picker {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: var(--sp-xs);
+}
+.icon-pick {
+  aspect-ratio: 1 / 1;
+  border-radius: var(--r-md);
+  border: 2px solid var(--clr-border);
+  background: #fff;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+}
+.icon-pick:hover  { border-color: var(--clr-red); }
+.icon-pick:active { transform: scale(0.92); }
+.icon-pick.selected {
+  background: #fff3cd;
+  border-color: var(--clr-red);
+  box-shadow: 0 0 0 2px var(--clr-red) inset;
 }
 
 

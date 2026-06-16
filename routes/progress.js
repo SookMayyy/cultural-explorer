@@ -29,9 +29,9 @@ router.post('/:stateId/complete', requireLogin, async (req, res, next) => {
     await pool.execute(
       `INSERT INTO user_progress (user_id, state_id, is_completed, stamp_earned, last_quiz_score, completed_at)
        VALUES (?, ?, TRUE, TRUE, ?, NOW())
-       ON DUPLICATE KEY UPDATE
+       ON CONFLICT (user_id, state_id) DO UPDATE SET
          is_completed = TRUE, stamp_earned = TRUE,
-         last_quiz_score = VALUES(last_quiz_score), completed_at = NOW()`,
+         last_quiz_score = EXCLUDED.last_quiz_score, completed_at = NOW()`,
       [userId, stateId, quizScore]
     );
 
@@ -54,8 +54,8 @@ router.get('/costumes', requireLogin, async (req, res, next) => {
     const userId = req.session.user.id;
     const [costumes] = await pool.execute(
       `SELECT c.*,
-              IF(uc.user_id IS NOT NULL, TRUE, FALSE) AS is_unlocked,
-              IF(u.avatar_costume_id = c.id, TRUE, FALSE) AS is_equipped
+              (uc.user_id IS NOT NULL)        AS is_unlocked,
+              (u.avatar_costume_id = c.id)     AS is_equipped
        FROM costumes c
        LEFT JOIN user_costumes uc ON uc.costume_id = c.id AND uc.user_id = ?
        LEFT JOIN users u          ON u.id = ?

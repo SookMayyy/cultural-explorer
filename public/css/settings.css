@@ -84,6 +84,24 @@
   cursor: pointer;
 }
 
+/* ── Log out button (bottom of profile card) ── */
+.logout-btn {
+  margin-top: var(--sp-sm);
+  width: 100%;
+  padding: 12px;
+  border-radius: var(--r-md);
+  border: 2px solid #e74c3c;
+  background: #fff;
+  color: #e74c3c;
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, transform 0.1s;
+}
+.logout-btn:hover  { background: #e74c3c; color: #fff; }
+.logout-btn:active { transform: scale(0.97); }
+.logout-btn:disabled { opacity: 0.6; cursor: default; }
+
 .profile-level {
   font-family: var(--font-body);
   font-size: var(--text-sm);
@@ -182,6 +200,23 @@
   color: #aaa;
   font-weight: 300;
   line-height: 1;
+}
+
+/* Avatar Shop card — purple accent border */
+.menu-card--avatar {
+  border-left-color: #7b4dff;
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Emoji icon variant (for menu cards with no image asset) */
+.menu-icon--emoji {
+  font-size: 36px;
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* ── Bottom nav image icons ── */

@@ -14,87 +14,110 @@
 
 <div class="app-container">
 
-  <!-- Topbar: innerHTML injected by renderTopbar() in map.js.
-       class="map-topbar" gives it the purple background override in map.css. -->
+  <!-- Topbar: map.js fills this with renderTopbar() — gets the purple override
+       via .map-topbar class on the element (colour set in map.css) -->
   <header id="topbar" class="topbar map-topbar"></header>
 
-  <!-- Two-column layout: sidebar (state list) + map -->
-  <div class="map-layout">
+  <!-- ── Main scrollable area containing the journey map ── -->
+  <main class="map-main" id="map-main">
 
-    <!-- Left sidebar: map.js fills #state-list-items with <button> elements -->
-    <aside class="state-sidebar">
-      <p class="states-label">STATES</p>
-      <div id="state-list-items"></div>
-    </aside>
-
-    <!-- Right: map image + progress info, background set by map.css -->
-    <div class="map-content">
-      <div class="map-header-row">
-        <p class="map-headline">&#129517; Choose a State to Explore!</p>
-        <div class="map-progress-pill">
-          <span id="map-completed">0/7 explored</span>
-          <span class="pill-sep">|</span>
-          <span id="map-pts">0%</span>
-        </div>
+    <!-- Progress header: headline + "X/7 explored" pill -->
+    <div class="map-progress-header">
+      <p class="map-headline" id="map-headline">Choose a State!</p>
+      <div class="map-progress-pill">
+        <span id="map-completed">0/7</span>
+        <span class="pill-sep">·</span>
+        <span id="map-pts">0%</span>
       </div>
-      <!-- map.js appends a transparent SVG click overlay as a sibling to the img -->
-      <div class="malaysia-map-wrap" id="malaysia-map-wrap">
-        <img src="../assets/images/ui/map.png" alt="Malaysia Map" class="malaysia-map">
-      </div>
-      <p class="map-hint">Tap a state on the map or sidebar to start exploring!</p>
     </div>
 
-  </div>
+    <!-- Thin progress bar under the header -->
+    <div class="map-progress-bar-wrap">
+      <div class="map-progress-bar-fill" id="map-progress-fill" style="width: 0%"></div>
+    </div>
 
-  <!-- State detail popup overlay: hidden by default.
-       map.js opens it on state tap, closes it on popup-close or overlay click.
-       popup-explore must be an <a> so map.js can set its href attribute. -->
-  <div id="map-popup" class="map-popup hidden" role="dialog" aria-modal="true" aria-labelledby="popup-name">
+    <!-- Mascot row: Rimau or Wak with a short greeting bubble.
+         map.js populates #map-mascot-figure + #map-mascot-text. -->
+    <div class="map-mascot-row">
+      <!-- 📸 IMAGE NEEDED: replace emoji with rimau.svg or wak.svg from
+           assets/characters/. Use an <img> tag with the character illustration. -->
+      <div class="map-mascot-figure" id="map-mascot-figure">🐯</div>
+      <div class="map-mascot-bubble" id="map-mascot-text">
+        Let's explore Malaysia together!
+      </div>
+    </div>
+
+    <!-- ── West Malaysia label ── -->
+    <div class="region-label">
+      <span>West Malaysia</span>
+    </div>
+
+    <!-- ── Journey path: map.js builds the node rows here ──
+         #journey-path-nodes is the container; nodes are injected by JS.
+         The winding path trail is drawn via the ::before pseudo-element on
+         the parent .journey-path element (see map.css). -->
+    <div class="journey-path" id="journey-path">
+      <div id="journey-path-nodes">
+        <!-- JS will inject .node-row elements here -->
+        <!-- Structure per node:
+          <div class="node-row [node-row--right]">
+            <button class="journey-node" data-state="<id>" [disabled]
+                    style="--node-delay: <Nms>">
+              <div class="node-coin [node-coin--current|completed|locked]">
+                <emoji or img>
+                <span class="node-badge--done|--locked">✓|🔒</span>
+              </div>
+              <div class="node-label">
+                <p class="node-name">State Name</p>
+                <p class="node-tagline">tagline</p>
+              </div>
+              [<span class="node-next-arrow">▼</span>]
+            </button>
+          </div>
+        -->
+      </div>
+    </div>
+
+    <!-- ── East Malaysia gate: inserted by map.js between the 5th and 6th nodes ── -->
+    <!-- #east-gate is injected by JS when relevant -->
+
+  </main>
+
+  <!-- ── State detail popup (bottom sheet on mobile) ──
+       Hidden by default. map.js shows it on node tap. -->
+  <div id="map-popup" class="map-popup hidden" role="dialog" aria-modal="true"
+       aria-labelledby="popup-name">
     <div class="map-popup-card">
-      <button class="popup-close-btn" id="popup-close" aria-label="Close">&#10005;</button>
+      <button class="popup-close-btn" id="popup-close" aria-label="Close">✕</button>
 
+      <!-- State identity header -->
       <div class="popup-header">
-        <span id="popup-emoji" class="popup-state-emoji"></span>
+        <div class="popup-state-emoji" id="popup-emoji"></div>
         <div class="popup-header-text">
           <p id="popup-name"    class="popup-state-name"></p>
           <p id="popup-tagline" class="popup-state-tagline"></p>
         </div>
       </div>
 
-      <!-- Tab completion badges: map.js injects <span class="popup-badge [done]"> -->
+      <!-- Tab completion badges: story / culture / activity / quiz
+           map.js injects <span class="popup-badge [done]"> elements here -->
       <div id="popup-badges" class="popup-badges"></div>
 
-      <a id="popup-explore" class="popup-explore-btn" href="#">Explore Now &#8250;</a>
+      <!-- "Explore Now" button — map.js sets href + class (locked variant)
+           Must be an <a> not a <button> so the browser handles navigation -->
+      <a id="popup-explore" class="popup-explore-btn" href="#">
+        Explore Now ›
+      </a>
     </div>
   </div>
 
-  <!-- Navbar: innerHTML injected by renderNavbar('map') in map.js -->
-  <nav class="bottom-nav">
-    <a href="home.html" class="map-nav-item">
-      <img src="../assets/images/ui/home-icon.png"   alt="" class="nav-icon">
-      <span>Home</span>
-    </a>
-    <a href="map.html" class="map-nav-item active">
-      <img src="../assets/images/ui/my-map-icon.png" alt="" class="nav-icon">
-      <span>Map</span>
-    </a>
-    <a href="stampbook.html" class="map-nav-item">
-      <img src="../assets/images/ui/stamp-icon.png"  alt="" class="nav-icon">
-      <span>Stamps</span>
-    </a>
-    <a href="quiz.html" class="map-nav-item">
-      <img src="../assets/images/ui/quiz-icon.png"   alt="" class="nav-icon">
-      <span>Quiz</span>
-    </a>
-    <a href="settings.html" class="map-nav-item">
-      <img src="../assets/images/ui/setting-icon.png" alt="" class="nav-icon">
-      <span>Me</span>
-    </a>
-  </nav>
+  <!-- Bottom navbar: map.js calls renderNavbar('map') to fill this.
+       The .bottom-nav styles come from style.css (purple bar + yellow pill). -->
+  <nav id="navbar"></nav>
 
 </div>
 
-<!-- type="module" auto-defers and enables ES6 imports -->
+<!-- ES module — auto-deferred by the browser, safe to put before </body> -->
 <script type="module" src="../js/map.js"></script>
 </body>
 </html>

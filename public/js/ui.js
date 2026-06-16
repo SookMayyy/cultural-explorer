@@ -33,19 +33,27 @@ export function renderTopbar({
 }
 
 // ── Navbar ───────────────────────────────────────────────────────────────────
+// Uses image icons to stay visually consistent with the static bottom-nav
+// used on map.html, quiz.html, stampbook.html, and settings.html.
 const NAV_ITEMS = [
-  { id: 'map',       href: 'map.html',       icon: '🗺️',  label: 'Map'     },
-  { id: 'stampbook', href: 'stampbook.html', icon: '📚',  label: 'Stamps'  },
-  { id: 'dashboard', href: 'dashboard.html', icon: '📊',  label: 'Progress'},
+  { id: 'home',      href: 'home.html',      img: '../assets/images/ui/home-icon.png',    label: 'Home'    },
+  { id: 'map',       href: 'map.html',       img: '../assets/images/ui/my-map-icon.png',  label: 'Map'     },
+  { id: 'stampbook', href: 'stampbook.html', img: '../assets/images/ui/stamp-icon.png',   label: 'Stamps'  },
+  { id: 'quiz',      href: 'quiz.html',      img: '../assets/images/ui/quiz-icon.png',    label: 'Quiz'    },
+  { id: 'settings',  href: 'settings.html',  img: '../assets/images/ui/setting-icon.png', label: 'Me'      },
 ];
 
 export function renderNavbar(activeId = '') {
   const el = document.getElementById('navbar');
   if (!el) return;
 
+  // Apply the shared .bottom-nav class so the purple bar + yellow active pill
+  // styles from style.css apply automatically.
+  el.className = 'bottom-nav';
+
   el.innerHTML = NAV_ITEMS.map(item => `
-    <a class="nav-item ${item.id === activeId ? 'active' : ''}" href="${item.href}">
-      <span class="nav-icon">${item.icon}</span>
+    <a class="map-nav-item ${item.id === activeId ? 'active' : ''}" href="${item.href}">
+      <img src="${item.img}" alt="" class="nav-icon">
       <span>${item.label}</span>
     </a>
   `).join('');
