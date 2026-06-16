@@ -1,11 +1,7 @@
 // js/login.js — login page interactions
 
 import Storage from './utils/storage.js';
-
-const AVATARS = [
-  '🦁','🐘','🦧','🦜','🐯','🦊','🦎','🦀','🐊','🦋',
-  '🦚','🦃','🦤','🦞','🦅','🦩','🐢','🐬','🦈','🦦',
-];
+import { AVATARS } from './data/avatars.js';
 
 let selectedAvatar = 0;
 
@@ -13,8 +9,8 @@ let selectedAvatar = 0;
 const grid = document.getElementById('avatar-grid');
 if (grid) {
   grid.innerHTML = AVATARS.map((a, i) => `
-    <button class="avatar-item ${i === 0 ? 'selected' : ''}" data-avatar="${i}" aria-label="${a}">
-      ${a}
+    <button class="avatar-item ${i === 0 ? 'selected' : ''}" data-avatar="${i}" aria-label="${a.name}">
+      ${a.emoji}
     </button>
   `).join('');
 
@@ -24,7 +20,7 @@ if (grid) {
       btn.classList.add('selected');
       selectedAvatar = parseInt(btn.dataset.avatar);
       const nameAvatar = document.getElementById('name-avatar');
-      if (nameAvatar) nameAvatar.textContent = AVATARS[selectedAvatar];
+      if (nameAvatar) nameAvatar.textContent = AVATARS[selectedAvatar].emoji;
     });
   });
 }
@@ -45,7 +41,7 @@ function showStep(id) {
 }
 
 // Path card buttons
-document.getElementById('btn-moe')?.addEventListener('click', () => showView('view-moe'));
+// MOE / school-ID login deferred to future work (CP3).
 document.getElementById('btn-class')?.addEventListener('click', () => showView('view-class'));
 document.getElementById('btn-teacher-link')?.addEventListener('click', () => showView('view-teacher'));
 
@@ -60,26 +56,7 @@ document.querySelectorAll('.login-back-btn[data-back]').forEach(btn => {
   btn.addEventListener('click', () => showView(btn.dataset.back));
 });
 
-// ── MOE / Student ID form ────────────────────────────────────────────────────
-document.getElementById('btn-moe-submit')?.addEventListener('click', () => {
-  const ic   = document.getElementById('moe-ic')?.value.trim();
-  const name = document.getElementById('moe-name')?.value.trim();
-  const err  = document.getElementById('moe-error');
-
-  if (!ic || ic.length !== 12 || !/^\d+$/.test(ic)) {
-    err.textContent = 'Please enter a valid 12-digit IC number.';
-    err.classList.remove('hidden');
-    return;
-  }
-  if (!name) {
-    err.textContent = 'Please enter your name.';
-    err.classList.remove('hidden');
-    return;
-  }
-
-  Storage.setSession({ type: 'moe', displayName: name, avatarId: 0, icNumber: ic, points: 0 });
-  window.location.href = 'map.html';
-});
+// ── MOE / Student ID form removed — deferred to future work (CP3). ────────────
 
 // ── Class PIN — digit auto-advance ───────────────────────────────────────────
 const pinDigits = document.querySelectorAll('.pin-digit');

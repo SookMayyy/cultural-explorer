@@ -53,33 +53,39 @@
             <span class="stat-key">Complete</span>
           </div>
         </div>
+
+        <button class="logout-btn" id="btn-logout">
+          <span aria-hidden="true">🚪</span> Log Out
+        </button>
       </div>
 
       <!-- Right: Menu cards 2×2 -->
       <div class="menu-grid">
 
-        <button class="menu-card">
-          <img src="../assets/images/ui/setting_name.png"     alt="" class="menu-icon">
-          <span class="menu-label">My Profile</span>
-          <span class="menu-arrow">›</span>
-        </button>
-
-        <button class="menu-card">
+        <!-- Link to dashboard for progress view -->
+        <a href="dashboard.html" class="menu-card">
           <img src="../assets/images/ui/setting_progress.png" alt="" class="menu-icon">
           <span class="menu-label">My Progress</span>
-          <span class="menu-arrow">›</span>
-        </button>
+          <span class="menu-arrow">&#8250;</span>
+        </a>
+
+        <!-- Link to the new Avatar Shop page -->
+        <a href="avatar.html" class="menu-card menu-card--avatar">
+          <span class="menu-icon menu-icon--emoji" aria-hidden="true">&#129409;</span>
+          <span class="menu-label">Avatar Shop</span>
+          <span class="menu-arrow">&#8250;</span>
+        </a>
 
         <button class="menu-card">
           <img src="../assets/images/ui/setting_guide.png"    alt="" class="menu-icon">
           <span class="menu-label">Game Guide</span>
-          <span class="menu-arrow">›</span>
+          <span class="menu-arrow">&#8250;</span>
         </button>
 
         <button class="menu-card">
           <img src="../assets/images/ui/setting_safety.png"   alt="" class="menu-icon">
           <span class="menu-label">Student Safety</span>
-          <span class="menu-arrow">›</span>
+          <span class="menu-arrow">&#8250;</span>
         </button>
 
       </div>
@@ -111,5 +117,6 @@
   </nav>
 
 </div>
+<script type="module" src="../js/settings.js"></script>
 </body>
 </html>

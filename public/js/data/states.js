@@ -49,6 +49,14 @@ export const STATES_DATA = [
         image: null,
       },
     ],
+    // Curated drag-match pairs for the "Match the Culture!" activity.
+    // food = the chip the player taps; state = the descriptor zone they match it to.
+    dragPairs: [
+      { food: '🍜 Char Kway Teow', state: 'Smoky fried noodles' },
+      { food: '🏛️ Georgetown',     state: 'Heritage street art' },
+      { food: '🎆 Thaipusam',       state: 'Kavadi festival'    },
+      { food: '🍲 Penang Laksa',    state: 'Spicy fish soup'    },
+    ],
     quizQuestion: {
       q: 'What is Penang famous for?',
       opts: ['Its cold mountains', 'Its amazing street food', 'Its coconut farms', 'Its gold mines'],
@@ -104,6 +112,12 @@ export const STATES_DATA = [
         // Export from Figma → Cards/Melaka/Heritage — Peranakan culture illustration
         image: null,
       },
+    ],
+    dragPairs: [
+      { food: '🍱 Nyonya Cuisine', state: 'Chinese-Malay food' },
+      { food: '⛵ A Famosa',        state: 'Portuguese fort'    },
+      { food: '🎭 Baba Nyonya',     state: 'Peranakan culture'  },
+      { food: '🛺 Jonker Street',   state: 'Night market'       },
     ],
     quizQuestion: {
       q: 'What is Melaka famous for?',
@@ -161,6 +175,12 @@ export const STATES_DATA = [
         image: null,
       },
     ],
+    dragPairs: [
+      { food: '⛰️ Batu Caves',     state: '272 temple steps' },
+      { food: '✨ Kuala Selangor',  state: 'Glowing fireflies' },
+      { food: '🦴 Klang',           state: 'Bak Kut Teh'       },
+      { food: '🕌 Shah Alam',       state: 'Blue Mosque'       },
+    ],
     quizQuestion: {
       q: 'How many steps lead up to the Batu Caves temple?',
       opts: ['100 steps', '200 steps', '272 steps', '350 steps'],
@@ -216,6 +236,12 @@ export const STATES_DATA = [
         // Export from Figma → Cards/Johor/Nature — Desaru beach illustration
         image: null,
       },
+    ],
+    dragPairs: [
+      { food: '🍝 Laksa Johor',     state: 'Spaghetti laksa'      },
+      { food: '🏯 Bukit Serene',    state: "Sultan's palace"      },
+      { food: '🏖️ Desaru',          state: 'Beach resort'         },
+      { food: '🍜 Mee Bandung',     state: 'Prawn broth noodles'  },
     ],
     quizQuestion: {
       q: 'What makes Laksa Johor different from other laksa?',
@@ -273,6 +299,12 @@ export const STATES_DATA = [
         image: null,
       },
     ],
+    dragPairs: [
+      { food: '🪁 Wau Bulan',      state: 'Giant moon kite' },
+      { food: '🎭 Wayang Kulit',    state: 'Shadow puppets'   },
+      { food: '🧵 Batik Lukis',     state: 'Wax-dyed fabric'  },
+      { food: '👑 Kota Bharu',      state: 'Capital city'     },
+    ],
     quizQuestion: {
       q: 'What is a "Wau"?',
       opts: ['A type of dance', 'A traditional kite', 'A musical instrument', 'A cooking method'],
@@ -329,6 +361,12 @@ export const STATES_DATA = [
         image: null,
       },
     ],
+    dragPairs: [
+      { food: '🏔️ Mount Kinabalu', state: 'Highest peak'          },
+      { food: '🦧 Orangutan',       state: 'Person of the forest' },
+      { food: '🎉 Kaamatan',        state: 'Harvest festival'     },
+      { food: '🐘 Pygmy Elephant',  state: 'Borneo wildlife'      },
+    ],
     quizQuestion: {
       q: 'What is Mount Kinabalu famous for?',
       opts: ['Being the oldest volcano', 'Being the highest mountain in Malaysia', 'Being underwater', 'Being made of gold'],
@@ -384,6 +422,12 @@ export const STATES_DATA = [
         // Export from Figma → Cards/Sarawak/Nature — Mulu caves illustration
         image: null,
       },
+    ],
+    dragPairs: [
+      { food: '🦜 Hornbill',        state: 'State bird'          },
+      { food: '🏡 Longhouse',       state: 'Iban village home'   },
+      { food: '🕯️ Mulu Caves',      state: "World's largest cave" },
+      { food: '🐱 Kuching',         state: 'Cat city'            },
     ],
     quizQuestion: {
       q: 'Why is Sarawak called the "Land of the Hornbills"?',

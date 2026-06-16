@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Quiz Time!</title>
+  <title>Quiz Time! — Cultural Explorer MY</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Fredoka+One&family=Ribeye&display=swap" rel="stylesheet">
@@ -14,87 +14,158 @@
 
 <div class="app-container">
 
-  <header class="topbar topbar--orange">
-    <div class="topbar-left">
-      <img src='../assets/images/ui/quiz-icon.png'><span class="topbar-title">Quiz Time!</span>
-    </div>
-    <div class="topbar-right">
-      <div class="topbar-points">⭐ 150 pts</div>
-      <div class="topbar-avatar">P</div>
-    </div>
-  </header>
+  <!-- Topbar — rendered by quiz.js.
+       The .quiz-topbar modifier forces purple, same pattern as .narrative-topbar. -->
+  <header id="topbar" class="topbar quiz-topbar"></header>
 
-  <!-- Progress strip -->
-  <div class="quiz-strip">
-    <span class="quiz-strip-label">Q 1 of 12</span>
-    <div class="quiz-strip-track">
-      <div class="quiz-strip-fill" style="width:8%"></div>
+  <!-- Progress strip — question counter + animated fill bar + pts earned -->
+  <div class="quiz-progress-strip">
+    <span class="qstrip-label" id="quiz-counter">Question 1 of 4</span>
+    <div class="qstrip-track" role="progressbar" aria-label="Quiz progress">
+      <div class="qstrip-fill" id="quiz-prog-fill"></div>
     </div>
-    <span class="quiz-strip-score">0 pts earned</span>
+    <span class="qstrip-pts" id="quiz-score-display">0</span><span class="qstrip-pts-label"> pts</span>
   </div>
 
-  <main class="quiz-main">
+  <!-- ════════════════════════════════════════════════════════════════════
+       Main quiz body — scrollable so long questions fit on small screens
+       ════════════════════════════════════════════════════════════════════ -->
+  <main class="quiz-main has-navbar" id="quiz-main">
 
-    <!-- Left: question card -->
-    <div class="question-card">
-      <div class="q-badge">Q 1</div>
+    <!-- ── Active question view ─────────────────────────────────────────── -->
+    <div id="quiz-question-view">
 
-      <img src="../assets/flags/penang-flag.png" alt="State flag" class="q-flag">
+      <!-- Mascot encouragement row — floats above the question card -->
+      <div class="quiz-mascot-row">
+        <!-- 📸 IMAGE NEEDED: assets/images/mascots/rimau.png (West) / wak.png (East)
+             Replace the emoji span with <img> of the Loka Made–style mascot illustration. -->
+        <div class="quiz-mascot-figure" id="quiz-mascot-figure" aria-hidden="true">🦁</div>
+        <div class="quiz-mascot-bubble" role="status" aria-live="polite">
+          <p id="quiz-mascot-text">Let's test what you know! You can do it!</p>
+        </div>
+      </div>
 
-      <p class="q-state">Penang</p>
-      <p class="q-text">What is Penang famous for?</p>
-    </div>
+      <!-- Question card — "kopitiam paper" warm card with coloured top accent -->
+      <div class="quiz-question-card" id="quiz-question-card">
 
-    <!-- Right: answer buttons -->
-    <div class="answers-panel">
+        <!-- Category / state badge in the card header -->
+        <div class="quiz-card-header">
+          <!-- 📸 IMAGE NEEDED: assets/images/states/{stateId}-thumb.png
+               A small illustrated circular thumbnail of the state would go here. -->
+          <span class="quiz-state-badge" id="quiz-state-badge">State</span>
+          <span class="quiz-q-num" id="quiz-q-num">Q1</span>
+        </div>
 
-      <button class="answer-btn">
-        <span class="answer-letter">A</span>
-        <span class="answer-text">🍜 Street Food</span>
+        <!-- The question text itself -->
+        <p class="quiz-question-text" id="quiz-question-text">Loading question…</p>
+
+      </div>
+
+      <!-- Answer option buttons — 2×2 grid on wide screens, stacked on mobile -->
+      <div class="quiz-options-grid" id="quiz-options-grid">
+
+        <button class="quiz-option" data-idx="0" aria-label="Option A">
+          <span class="quiz-option-letter">A</span>
+          <span class="quiz-option-text" id="opt-0">—</span>
+        </button>
+
+        <button class="quiz-option" data-idx="1" aria-label="Option B">
+          <span class="quiz-option-letter">B</span>
+          <span class="quiz-option-text" id="opt-1">—</span>
+        </button>
+
+        <button class="quiz-option" data-idx="2" aria-label="Option C">
+          <span class="quiz-option-letter">C</span>
+          <span class="quiz-option-text" id="opt-2">—</span>
+        </button>
+
+        <button class="quiz-option" data-idx="3" aria-label="Option D">
+          <span class="quiz-option-letter">D</span>
+          <span class="quiz-option-text" id="opt-3">—</span>
+        </button>
+
+      </div>
+
+      <!-- Feedback panel — slides in after an answer is selected.
+           Gets .correct-fb or .wrong-fb class from JS for green/red colouring. -->
+      <div class="quiz-feedback hidden" id="quiz-feedback" role="alert" aria-live="assertive">
+        <div class="quiz-feedback-inner">
+          <span class="quiz-feedback-icon" id="feedback-icon">✅</span>
+          <div class="quiz-feedback-text">
+            <p class="quiz-feedback-result" id="feedback-result">Correct!</p>
+            <p class="quiz-feedback-explain" id="feedback-explain"></p>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end #quiz-question-view -->
+
+    <!-- ════════════════════════════════════════════════════════════════════
+         Completion screen — hidden until finish() is called.
+         Word Force–style reward beat: score tally + mascot + orange CTA.
+         ════════════════════════════════════════════════════════════════════ -->
+    <div id="quiz-complete-view" class="hidden">
+
+      <!-- Celebratory mascot -->
+      <div class="complete-mascot-wrap">
+        <!-- 📸 IMAGE NEEDED: assets/images/mascots/rimau-celebrate.png
+             A Loka Made–style "jumping for joy" pose of the mascot. -->
+        <div class="complete-mascot-figure" id="complete-mascot-figure" aria-hidden="true">🦁</div>
+      </div>
+
+      <!-- Score tally card -->
+      <div class="complete-score-card">
+        <div class="complete-score-card__header">
+          <span class="complete-state-name" id="complete-state-name">State</span>
+          <span class="complete-badge" id="complete-badge">Quiz Done!</span>
+        </div>
+
+        <!-- Big score display -->
+        <div class="complete-score-display">
+          <span class="complete-score-num" id="complete-score-num">0</span>
+          <span class="complete-score-slash">/</span>
+          <span class="complete-score-total" id="complete-score-total">4</span>
+        </div>
+        <p class="complete-score-label">questions correct</p>
+
+        <!-- Points earned pill -->
+        <div class="complete-pts-pill">
+          <span class="complete-pts-star">⭐</span>
+          <span id="complete-pts-earned">0</span>
+          <span class="complete-pts-text"> pts earned!</span>
+        </div>
+      </div>
+
+      <!-- Mascot encouragement message -->
+      <div class="complete-message-bubble" role="status">
+        <p id="complete-mascot-message">Great effort! Every question is a step closer to mastering Malaysian culture!</p>
+      </div>
+
+      <!-- Stamp earned banner — only shown when the player passes (score >= 50%) -->
+      <div class="complete-stamp-banner hidden" id="complete-stamp-banner">
+        <!-- 📸 IMAGE NEEDED: assets/images/stamps/{stateId}-stamp.png
+             Illustrated rubber-stamp badge for this state. -->
+        <span class="complete-stamp-icon" id="complete-stamp-icon">🏅</span>
+        <div>
+          <p class="complete-stamp-title">Stamp Earned!</p>
+          <p class="complete-stamp-sub" id="complete-stamp-sub">You've unlocked the Penang stamp!</p>
+        </div>
+      </div>
+
+      <!-- Orange 3-D CTA — takes player to reward.html (existing flow preserved) -->
+      <button class="btn-primary complete-cta" id="complete-cta-btn">
+        See Your Reward! 🏆
       </button>
 
-      <button class="answer-btn">
-        <span class="answer-letter">B</span>
-        <span class="answer-text">🥇 Gold Mining</span>
-      </button>
-
-      <button class="answer-btn">
-        <span class="answer-letter">C</span>
-        <span class="answer-text">🌿 Pepper Farming</span>
-      </button>
-
-      <button class="answer-btn">
-        <span class="answer-letter">D</span>
-        <span class="answer-text">🛢️ Oil Production</span>
-      </button>
-
-    </div>
+    </div><!-- end #quiz-complete-view -->
 
   </main>
 
-  <nav class="bottom-nav">
-    <a href="home.html" class="map-nav-item">
-      <img src="../assets/images/ui/home-icon.png"   alt="" class="nav-icon">
-      <span>Home</span>
-    </a>
-    <a href="map.html" class="map-nav-item">
-      <img src="../assets/images/ui/my-map-icon.png" alt="" class="nav-icon">
-      <span>Map</span>
-    </a>
-    <a href="stampbook.html" class="map-nav-item">
-      <img src="../assets/images/ui/stamp-icon.png"  alt="" class="nav-icon">
-      <span>Stamps</span>
-    </a>
-    <a href="quiz.html" class="map-nav-item active">
-      <img src="../assets/images/ui/quiz-icon.png"   alt="" class="nav-icon">
-      <span>Quiz</span>
-    </a>
-    <a href="settings.html" class="map-nav-item">
-      <img src="../assets/images/ui/setting-icon.png" alt="" class="nav-icon">
-      <span>Me</span>
-    </a>
-  </nav>
+  <!-- Bottom navbar — rendered by quiz.js -->
+  <nav id="navbar"></nav>
 
-</div>
+</div><!-- end .app-container -->
+
+<script type="module" src="../js/quiz.js"></script>
 </body>
 </html>

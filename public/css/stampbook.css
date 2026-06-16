@@ -167,6 +167,38 @@
   color: var(--clr-text-muted);
 }
 
+/* ── Stamp fly-in animation ──
+   Add class .stamp-earned to a .stamp-slot to trigger the celebration.
+   stampbook.js adds this to freshly-earned stamps so they "fly in" on load. */
+.stamp-slot.stamp-earned .stamp-circle {
+  animation: stamp-fly-in 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Stagger the animation slightly for each stamp */
+.stamp-slot:nth-child(1).stamp-earned .stamp-circle { animation-delay: 0.05s; }
+.stamp-slot:nth-child(2).stamp-earned .stamp-circle { animation-delay: 0.12s; }
+.stamp-slot:nth-child(3).stamp-earned .stamp-circle { animation-delay: 0.19s; }
+.stamp-slot:nth-child(4).stamp-earned .stamp-circle { animation-delay: 0.26s; }
+.stamp-slot:nth-child(5).stamp-earned .stamp-circle { animation-delay: 0.33s; }
+.stamp-slot:nth-child(6).stamp-earned .stamp-circle { animation-delay: 0.40s; }
+.stamp-slot:nth-child(7).stamp-earned .stamp-circle { animation-delay: 0.47s; }
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .stamp-slot.stamp-earned .stamp-circle { animation: none; }
+}
+
+/* Hover lift on earned stamps — feels interactive */
+.stamp-slot.earned .stamp-circle {
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s;
+  cursor: pointer;
+}
+
+.stamp-slot.earned .stamp-circle:hover {
+  transform: scale(1.1) translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
 /* ── Bottom nav image icons ── */
 .nav-icon {
   width: 30px;

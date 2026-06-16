@@ -1,188 +1,365 @@
-// js/narrative.js — narrative/discovery cards page
+// js/narrative.js — Narrative / Discovery Cards screen
+// Redesign: collectible postcard carousel with scroll-snap,
+// tap-to-reveal fun facts, per-card mascot narration, purple topbar.
 
 import Storage from './utils/storage.js';
-import { renderTopbar, requireAuth, getStateParam } from './ui.js';
+import { renderTopbar, renderNavbar, requireAuth, getStateParam } from './ui.js';
 import { getState } from './data/states.js';
 import Typewriter from './components/typewriter.js';
 
+// ── Auth guard ────────────────────────────────────────────────────────────
 requireAuth();
 
+// ── Load state from ?state= param (or last-visited fallback) ──────────────
 const stateId = getStateParam();
 const state   = getState(stateId);
 
 if (!state) {
-  document.querySelector('main').innerHTML = '<p style="padding:2rem;text-align:center">State not found. <a href="map.html">Back to map</a></p>';
+  document.querySelector('main').innerHTML =
+    '<p style="padding:2rem;text-align:center">State not found. <a href="map.html">Back to map</a></p>';
   throw new Error('State not found: ' + stateId);
 }
 
-// Set state in storage for other pages
+// Track that this state has been opened
 Storage.setCurrentState(stateId);
 Storage.incrementVisit(stateId);
 
+// ── Topbar — always purple on this screen ─────────────────────────────────
+// We pass null for color so renderTopbar() sets no inline background;
+// the .narrative-topbar CSS class forces purple via !important.
+// This keeps other screens unaffected by this decision.
 renderTopbar({
-  title:    state.name,
-  showBack: true,
-  backHref: 'map.html',
+  title:     state.name,
+  showBack:  true,
+  backHref:  'map.html',
   showPoints: true,
-  color:    state.color,
+  color:     null,   // intentionally null — .narrative-topbar CSS handles purple
 });
 
-// ── Hero banner ───────────────────────────────────────────────────────────────
-const hero = document.getElementById('narrative-hero');
-if (hero) {
-  hero.style.background = state.color;
-  // Try to load state hero image
+// ── Bottom navbar ─────────────────────────────────────────────────────────
+// No active item highlighted since "narrative" isn't a nav destination
+renderNavbar('');
+
+// ── Hero banner ───────────────────────────────────────────────────────────
+// Apply state colour as hero background; attempt to load a hero illustration.
+const heroEl = document.getElementById('narrative-hero');
+if (heroEl) {
+  heroEl.style.background = state.color;
+  // Attempt to load the state hero image — silently falls back to solid colour
   const heroImg = new Image();
-  heroImg.onload = () => { hero.style.backgroundImage = `url(${heroImg.src})`; hero.style.backgroundSize = 'cover'; };
-  heroImg.src = `assets/images/states/${stateId}-hero.png`;
+  heroImg.onload = () => {
+    heroEl.style.backgroundImage = `url(${heroImg.src})`;
+    heroEl.style.backgroundSize  = 'cover';
+    heroEl.style.backgroundPosition = 'center';
+  };
+  heroImg.src = `../assets/images/states/${stateId}-hero.png`;
 }
-document.getElementById('hero-emoji').textContent   = state.emoji;
+
+// Populate hero text
+document.getElementById('hero-emoji').innerHTML     = state.emoji;
 document.getElementById('hero-name').textContent    = state.name;
 document.getElementById('hero-tagline').textContent = state.tagline;
 
-// CSS custom property for tab underline colour
-document.querySelector('.narrative-screen')?.style.setProperty('--state-color', state.color);
-document.querySelector('.narrative-screen')?.style.setProperty('--state-color-light', state.colorLight);
-
-// ── Story tab ─────────────────────────────────────────────────────────────────
-document.getElementById('story-text').textContent = state.story;
-
-const storyMascotEl = document.getElementById('story-mascot-text');
-if (storyMascotEl) {
-  const snippet = state.story.slice(0, 120) + '…';
-  new Typewriter(storyMascotEl, snippet, { speed: 28 }).start();
+// ── CSS custom properties for state-themed colours ────────────────────────
+// These let the tabs, dots, badges, etc. all pick up the state palette
+// without any JS needing to know about specific colour values.
+const screen = document.querySelector('.narrative-screen');
+if (screen) {
+  screen.style.setProperty('--state-color',       state.color);
+  screen.style.setProperty('--state-color-light', state.colorLight || '#FEF0DC');
 }
 
-// ── Cards tab ─────────────────────────────────────────────────────────────────
-let cardIdx = 0;
+// ═══════════════════════════════════════════════════════════════════════════
+// STORY TAB
+// ═══════════════════════════════════════════════════════════════════════════
+document.getElementById('story-text').textContent = state.story;
 
-function renderCard(idx) {
-  const card = state.cards[idx];
-  if (!card) return;
+// Mascot typewriter: first ~120 chars of story as a teaser line
+const storyMascotEl = document.getElementById('story-mascot-text');
+if (storyMascotEl) {
+  const teaser = state.story.slice(0, 120) + '…';
+  new Typewriter(storyMascotEl, teaser, { speed: 28 }).start();
+}
 
-  const area = document.getElementById('card-area');
+// Pick the right mascot emoji based on region
+// 📸 IMAGE NEEDED: replace these emoji with <img> of rimau.png / wak.png
+const mascotEmoji = state.region === 'east' ? '🦅' : '🦁';
+document.querySelectorAll('.narrative-mascot-figure').forEach(el => {
+  el.textContent = mascotEmoji;
+});
 
-  // Image: try to load, fall back to placeholder
-  const imgHtml = `
-    <div class="culture-card-img-placeholder" id="card-img-wrap">
-      <span>${card.icon}</span>
+// Mark story tab as visited immediately on page load
+Storage.markCompleted(stateId, 'story');
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DISCOVERY CARDS TAB — Scroll-snap postcard carousel
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Builds the postcard HTML for a single cultural card.
+ * The fun-fact starts hidden behind a toggle button so children must tap
+ * to reveal it — adds a discovery moment and light interactivity.
+ *
+ * @param {Object} card  - Card data from state.cards[i]
+ * @param {number} index - Card index (used for animation stagger delay)
+ * @returns {string}     HTML string for the postcard element
+ */
+function buildPostcardHTML(card, index) {
+  // Stagger animation delay: each card is slightly delayed so they cascade in
+  const delay = `${index * 90}ms`;
+
+  // Image placeholder — shows the card's icon until the real illustration loads.
+  // The JS below this function attempts to load the real image.
+  const imgAreaId = `img-wrap-${card.id}`;
+
+  return `
+    <article
+      class="postcard"
+      data-card-id="${card.id}"
+      style="animation-delay: ${delay}"
+      aria-label="${card.category}: ${card.title}"
+    >
+      <!-- Coloured header: category badge + icon + title -->
+      <div class="postcard__header" style="background: ${state.color}">
+        <span class="postcard__icon" aria-hidden="true">${card.icon}</span>
+        <div class="postcard__header-meta">
+          <span class="postcard__category">${card.category}</span>
+          <h3 class="postcard__title">${card.title}</h3>
+        </div>
+      </div>
+
+      <!-- Image area: emoji placeholder until real art loads -->
       <!-- 📸 IMAGE NEEDED: assets/images/cards/${stateId}/${card.id}.png
-           Export from Figma → Cards/${state.name}/${card.category} — ${card.title} illustration -->
-    </div>
-  `;
+           Export from Figma → Cards/${state.name}/${card.category} — illustrated scene
+           Place in: public/assets/images/cards/${stateId}/${card.id}.png -->
+      <div class="postcard__img-wrap" id="${imgAreaId}" aria-hidden="true">
+        ${card.icon}
+      </div>
 
-  area.innerHTML = `
-    <div class="culture-card card">
-      <div class="culture-card-header" style="background:${state.color}">
-        <span class="culture-card-icon">${card.icon}</span>
-        <div>
-          <span class="culture-card-category">${card.category}</span>
-          <h3 class="culture-card-title">${card.title}</h3>
+      <!-- Description + tap-to-reveal fun fact -->
+      <div class="postcard__body">
+        <p class="postcard__desc">${card.desc}</p>
+
+        <!-- Fun-fact toggle button — tapping reveals the fun fact below -->
+        <button
+          class="postcard__funfact-toggle"
+          data-card="${card.id}"
+          aria-expanded="false"
+          aria-controls="funfact-${card.id}"
+        >
+          💡 Tap to reveal a fun fact!
+        </button>
+
+        <!-- Fun-fact panel — hidden until toggle is pressed -->
+        <div class="postcard__funfact-panel" id="funfact-${card.id}" aria-hidden="true">
+          <div class="postcard__funfact-label">💡 Fun Fact!</div>
+          <p class="postcard__funfact-text">${card.funFact}</p>
         </div>
       </div>
-      <div class="culture-card-body">
-        ${imgHtml}
-        <p class="culture-card-desc">${card.desc}</p>
-        <div class="culture-card-funfact">
-          <span class="funfact-label">💡 Fun Fact!</span>
-          <p>${card.funFact}</p>
-        </div>
-      </div>
-    </div>
+    </article>
   `;
+}
 
-  // Try loading actual image
-  const imgWrap = document.getElementById('card-img-wrap');
-  if (imgWrap) {
+// Render all postcards into the scroll-snap rail
+const rail = document.getElementById('cards-scroll-rail');
+if (rail && state.cards) {
+  rail.innerHTML = state.cards.map((card, i) => buildPostcardHTML(card, i)).join('');
+
+  // Attempt to load real card illustrations for each postcard
+  state.cards.forEach(card => {
+    const wrap = document.getElementById(`img-wrap-${card.id}`);
+    if (!wrap) return;
+
     const img = new Image();
     img.onload = () => {
-      imgWrap.innerHTML = '';
-      imgWrap.classList.remove('culture-card-img-placeholder');
-      imgWrap.classList.add('culture-card-img-loaded');
-      img.className = 'culture-card-img';
+      // Replace emoji placeholder with the actual illustration
+      wrap.innerHTML = '';
+      wrap.classList.remove('postcard__img-wrap');   // remove placeholder styles
+      wrap.classList.add('postcard__img-wrap--loaded');
+      img.className = 'postcard__img-loaded';
       img.alt = card.title;
-      imgWrap.appendChild(img);
+      wrap.appendChild(img);
     };
-    img.src = `assets/images/cards/${stateId}/${card.id}.png`;
-  }
+    img.src = `../assets/images/cards/${stateId}/${card.id}.png`;
+  });
+}
 
-  // Update counter + dots
-  const counter = document.getElementById('card-counter');
-  if (counter) counter.textContent = `${idx + 1} / ${state.cards.length}`;
+// ── Build dot indicators ────────────────────────────────────────────────
+const dotsEl = document.getElementById('card-dots');
+if (dotsEl && state.cards) {
+  dotsEl.innerHTML = state.cards.map((_, i) =>
+    `<button
+       class="card-dot ${i === 0 ? 'active' : ''}"
+       data-idx="${i}"
+       aria-label="Card ${i + 1}"
+     ></button>`
+  ).join('');
+}
 
+// ── Track which card is currently centred in the scroll rail ────────────
+// IntersectionObserver watches each postcard; when one is >60% visible,
+// it becomes the "current" card and updates dots + counter + mascot.
+let currentCardIdx = 0;
+
+function updateCardUI(idx) {
+  if (idx === currentCardIdx && idx !== 0) return; // avoid redundant updates
+  currentCardIdx = idx;
+
+  // Update dots
   document.querySelectorAll('.card-dot').forEach((dot, i) => {
     dot.classList.toggle('active', i === idx);
   });
 
-  document.getElementById('card-prev').disabled = idx === 0;
-  document.getElementById('card-next').disabled = idx === state.cards.length - 1;
+  // Update counter
+  const counter = document.getElementById('card-counter');
+  if (counter) counter.textContent = `${idx + 1} / ${state.cards.length}`;
 
-  // Mascot typewriter
-  const mascotEl = document.getElementById('card-mascot-text');
-  if (mascotEl && card.mascotLine) {
-    new Typewriter(mascotEl, card.mascotLine, { speed: 30 }).start();
+  // Update mascot speech bubble with a Typewriter animation
+  const mascotEl   = document.getElementById('card-mascot-text');
+  const card       = state.cards[idx];
+  if (mascotEl && card?.mascotLine) {
+    new Typewriter(mascotEl, card.mascotLine, { speed: 28 }).start();
   }
 }
 
-// Build card dots
-const dotsEl = document.getElementById('card-dots');
-if (dotsEl) {
-  dotsEl.innerHTML = state.cards.map((_, i) =>
-    `<span class="card-dot ${i === 0 ? 'active' : ''}"></span>`
-  ).join('');
+// Set up IntersectionObserver on the scroll rail
+if (rail && state.cards?.length > 0) {
+  const postcards = rail.querySelectorAll('.postcard');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.intersectionRatio >= 0.6) {
+        const cardEl  = entry.target;
+        const allCards = Array.from(postcards);
+        const idx     = allCards.indexOf(cardEl);
+        if (idx !== -1) updateCardUI(idx);
+      }
+    });
+  }, {
+    root: rail,          // observe within the scroll rail itself
+    threshold: 0.6,      // trigger when 60% of the card is visible
+  });
+
+  postcards.forEach(card => observer.observe(card));
+
+  // Fire initial state (first card)
+  updateCardUI(0);
 }
 
-renderCard(0);
+// ── Dot click: scroll the rail to the clicked card ───────────────────────
+dotsEl?.addEventListener('click', e => {
+  const btn = e.target.closest('.card-dot');
+  if (!btn) return;
 
-document.getElementById('card-prev')?.addEventListener('click', () => {
-  if (cardIdx > 0) renderCard(--cardIdx);
-});
-document.getElementById('card-next')?.addEventListener('click', () => {
-  if (cardIdx < state.cards.length - 1) renderCard(++cardIdx);
-});
+  const idx      = parseInt(btn.dataset.idx, 10);
+  const postcards = rail?.querySelectorAll('.postcard');
+  if (!postcards || !postcards[idx]) return;
 
-// Swipe support
-let touchX = 0;
-const cardArea = document.getElementById('card-area');
-cardArea?.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, { passive: true });
-cardArea?.addEventListener('touchend', e => {
-  const dx = e.changedTouches[0].clientX - touchX;
-  if (dx < -50 && cardIdx < state.cards.length - 1) renderCard(++cardIdx);
-  if (dx > 50  && cardIdx > 0)                      renderCard(--cardIdx);
+  postcards[idx].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
 });
 
-// ── Dialect tab ───────────────────────────────────────────────────────────────
+// ── Fun-fact tap-to-reveal logic ──────────────────────────────────────────
+// Event delegation on the whole rail — one listener handles all cards.
+rail?.addEventListener('click', e => {
+  const toggleBtn = e.target.closest('.postcard__funfact-toggle');
+  if (!toggleBtn) return;
+
+  const cardId = toggleBtn.dataset.card;
+  const panel  = document.getElementById(`funfact-${cardId}`);
+  if (!panel) return;
+
+  // Reveal the panel
+  panel.classList.add('revealed');
+  panel.removeAttribute('aria-hidden');
+
+  // Hide the toggle button (it's no longer needed)
+  toggleBtn.classList.add('hidden');
+  toggleBtn.setAttribute('aria-expanded', 'true');
+});
+
+// ── Swipe support (touchstart / touchend fallback) ────────────────────────
+// scroll-snap handles most swipe cases natively on mobile, but this
+// provides a fallback nudge for browsers where snap is not smooth.
+let touchStartX = 0;
+
+rail?.addEventListener('touchstart', e => {
+  touchStartX = e.touches[0].clientX;
+}, { passive: true });
+
+rail?.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const postcards = rail.querySelectorAll('.postcard');
+
+  if (Math.abs(dx) < 40) return; // ignore micro-movements
+
+  const nextIdx = dx < 0
+    ? Math.min(currentCardIdx + 1, state.cards.length - 1)
+    : Math.max(currentCardIdx - 1, 0);
+
+  if (postcards[nextIdx]) {
+    postcards[nextIdx].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DIALECT TAB
+// ═══════════════════════════════════════════════════════════════════════════
 const d = state.dialectWord;
-document.getElementById('dialect-word').textContent  = `"${d.word}"`;
-document.getElementById('dialect-pron').textContent  = `/${d.pronunciation}/`;
+document.getElementById('dialect-word').textContent    = `"${d.word}"`;
+document.getElementById('dialect-pron').textContent    = `/${d.pronunciation}/`;
 document.getElementById('dialect-meaning').textContent = d.meaning;
-document.getElementById('dialect-badge').textContent = `${state.name} dialect`;
+document.getElementById('dialect-badge').textContent   = `${state.name} dialect`;
 
-// ── Tab switching ─────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// TAB SWITCHING
+// ═══════════════════════════════════════════════════════════════════════════
 document.querySelectorAll('.ntab').forEach(tab => {
   tab.addEventListener('click', () => {
-    document.querySelectorAll('.ntab').forEach(t => t.classList.remove('active'));
+    // Deactivate all tabs
+    document.querySelectorAll('.ntab').forEach(t => {
+      t.classList.remove('active');
+      t.setAttribute('aria-selected', 'false');
+    });
+    // Hide all panels
     document.querySelectorAll('.ntab-content').forEach(c => c.classList.add('hidden'));
-    tab.classList.add('active');
-    document.getElementById('tab-' + tab.dataset.tab)?.classList.remove('hidden');
 
-    // Mark progress
-    const tabMap = { story: 'story', cards: 'culture', dialect: 'activity' };
-    if (tabMap[tab.dataset.tab]) Storage.markCompleted(stateId, tabMap[tab.dataset.tab]);
+    // Activate clicked tab
+    tab.classList.add('active');
+    tab.setAttribute('aria-selected', 'true');
+
+    const panelId = `tab-${tab.dataset.tab}`;
+    const panel   = document.getElementById(panelId);
+    if (panel) {
+      panel.classList.remove('hidden');
+    }
+
+    // Map tab name → Storage progress key
+    const progressMap = {
+      story:   'story',
+      cards:   'culture',
+      dialect: 'activity',
+    };
+    const key = progressMap[tab.dataset.tab];
+    if (key) Storage.markCompleted(stateId, key);
   });
 });
 
-Storage.markCompleted(stateId, 'story');
+// ═══════════════════════════════════════════════════════════════════════════
+// CTA BUTTONS
+// ═══════════════════════════════════════════════════════════════════════════
 
-// ── CTA buttons ───────────────────────────────────────────────────────────────
+// "Discover More" — jump to the cards tab
 document.getElementById('cta-to-cards')?.addEventListener('click', () => {
   document.querySelector('[data-tab="cards"]')?.click();
 });
+
+// "Take the Quiz" — mark culture done, navigate to quiz
 document.getElementById('cta-to-quiz')?.addEventListener('click', () => {
   Storage.markCompleted(stateId, 'culture');
   window.location.href = `quiz.html?state=${stateId}`;
 });
+
+// "Try an Activity" — navigate to standalone Match-the-Culture activity
 document.getElementById('cta-to-activity')?.addEventListener('click', () => {
-  Storage.markCompleted(stateId, 'activity');
-  window.location.href = `quiz.html?state=${stateId}`;
+  window.location.href = `activity.html?state=${stateId}`;
 });

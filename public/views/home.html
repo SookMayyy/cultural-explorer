@@ -141,28 +141,67 @@
 
       <!-- Login form -->
       <form id="form-login" class="modal-form" novalidate>
-        <input type="text"     id="login-username" class="modal-input"
-               placeholder="Username" autocomplete="username" required>
+        <input type="text"     id="login-name" class="modal-input"
+               placeholder="Your name" autocomplete="username" required>
+        <div class="grade-select" id="login-grade" role="group" aria-label="Select your grade">
+          <button type="button" class="grade-btn" data-grade="1-2">Grade 1–2</button>
+          <button type="button" class="grade-btn" data-grade="3-4">Grade 3–4</button>
+          <button type="button" class="grade-btn" data-grade="5-6">Grade 5–6</button>
+        </div>
         <input type="password" id="login-password" class="modal-input"
                placeholder="Password" autocomplete="current-password" required>
         <p class="form-error hidden" id="login-error" role="alert"></p>
         <button type="submit" class="home-btn home-btn--primary modal-submit-btn">
           Login &#128640;
         </button>
+        <button type="button" class="modal-link" id="link-forgot">Forgot password?</button>
       </form>
 
       <!-- Register form (hidden until Register tab is clicked) -->
       <form id="form-register" class="modal-form hidden" novalidate>
-        <input type="text"     id="reg-nickname" class="modal-input"
-               placeholder="Your nickname (e.g. Cikgu Panda)" maxlength="20" required>
-        <input type="text"     id="reg-username" class="modal-input"
-               placeholder="Username (for logging in)" autocomplete="username" required>
+        <input type="text"     id="reg-name" class="modal-input"
+               placeholder="Your name (letters only)" maxlength="20"
+               autocomplete="username" required>
+        <div class="grade-select" id="reg-grade" role="group" aria-label="Select your grade">
+          <button type="button" class="grade-btn" data-grade="1-2">Grade 1–2</button>
+          <button type="button" class="grade-btn" data-grade="3-4">Grade 3–4</button>
+          <button type="button" class="grade-btn" data-grade="5-6">Grade 5–6</button>
+        </div>
         <input type="password" id="reg-password" class="modal-input"
-               placeholder="Password (at least 4 characters)" autocomplete="new-password" required>
+               placeholder="Password (min 6 characters)" autocomplete="new-password">
+        <p class="modal-hint reg-pw-hint hidden" id="reg-pw-hint">
+          Grade 1–2 gets an automatic password — no need to type one! &#127880;
+        </p>
+        <p class="modal-hint">Pick 2 secret icons (for password recovery):</p>
+        <div class="icon-picker" id="reg-icons" role="group" aria-label="Pick two secret icons"></div>
         <p class="form-error hidden" id="reg-error" role="alert"></p>
         <button type="submit" class="home-btn home-btn--primary modal-submit-btn">
           Create Account &#127775;
         </button>
+      </form>
+
+      <!-- Forgot-password / icon recovery form (hidden until "Forgot password?") -->
+      <form id="form-recover" class="modal-form hidden" novalidate>
+        <p class="modal-hint">
+          Enter your name &amp; grade, then tap your 2 secret icons
+          <strong>in the same order</strong> you chose them.
+        </p>
+        <input type="text" id="recover-name" class="modal-input"
+               placeholder="Your name" autocomplete="username" required>
+        <div class="grade-select" id="recover-grade" role="group" aria-label="Select your grade">
+          <button type="button" class="grade-btn" data-grade="1-2">Grade 1–2</button>
+          <button type="button" class="grade-btn" data-grade="3-4">Grade 3–4</button>
+          <button type="button" class="grade-btn" data-grade="5-6">Grade 5–6</button>
+        </div>
+        <div class="icon-picker" id="recover-icons" role="group" aria-label="Tap your two secret icons"></div>
+        <input type="password" id="recover-newpw" class="modal-input hidden"
+               placeholder="New password (min 6 characters)" autocomplete="new-password">
+        <p class="form-error hidden" id="recover-error" role="alert"></p>
+        <p class="form-success hidden" id="recover-success" role="status"></p>
+        <button type="submit" class="home-btn home-btn--primary modal-submit-btn">
+          Recover &#128273;
+        </button>
+        <button type="button" class="modal-link" id="link-back-login">&#8249; Back to login</button>
       </form>
 
       <div class="modal-divider"><span>or</span></div>

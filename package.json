@@ -4,12 +4,17 @@
   "description": "Game-Based Learning Platform for Malaysian Cultural Education — Primary School Students",
   "main": "server.js",
   "scripts": {
-    "dev": "npx live-server public --port=3000 --open=index.html",
-    "start": "node server.js",
-    "server": "nodemon server.js",
-    "serve": "npx serve public -p 3000"
+    "dev": "nodemon server.js",
+    "start": "node server.js"
   },
-  "keywords": ["malaysia", "culture", "education", "game", "learning", "primary-school"],
+  "keywords": [
+    "malaysia",
+    "culture",
+    "education",
+    "game",
+    "learning",
+    "primary-school"
+  ],
   "author": "Phang Sook May (22074090) — Sunway University",
   "license": "MIT",
   "dependencies": {
@@ -20,7 +25,8 @@
     "express-rate-limit": "^7.3.1",
     "express-session": "^1.18.0",
     "express-validator": "^7.1.0",
-    "mysql2": "^3.9.8"
+    "mysql2": "^3.9.8",
+    "pg": "^8.21.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.3"

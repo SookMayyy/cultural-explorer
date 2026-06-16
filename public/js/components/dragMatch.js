@@ -10,6 +10,11 @@ export default class DragMatch {
   }
 
   render() {
+    // Shuffle the zone order so the matching answer isn't sitting directly
+    // under its chip. data-zone still carries the true pair index, so the
+    // chipIdx === zoneIdx correctness check is unaffected.
+    const zoneOrder = this._shuffledOrder(this._pairs.length);
+
     this._el.innerHTML = `
       <div class="dragmatch-wrapper">
         <p class="dragmatch-instruction">Tap a food, then tap the matching state!</p>
@@ -19,9 +24,9 @@ export default class DragMatch {
           `).join('')}
         </div>
         <div class="drag-zones">
-          ${this._pairs.map((p, i) => `
+          ${zoneOrder.map(i => `
             <div class="drag-zone" data-zone="${i}">
-              <span class="drag-zone-label">${p.state}</span>
+              <span class="drag-zone-label">${this._pairs[i].state}</span>
             </div>
           `).join('')}
         </div>
@@ -32,6 +37,20 @@ export default class DragMatch {
       </div>
     `;
     this._bindEvents();
+  }
+
+  // Returns indices 0..n-1 in random order, avoiding the identity permutation
+  // (which would line every answer up under its chip) when n > 1.
+  _shuffledOrder(n) {
+    const order = Array.from({ length: n }, (_, i) => i);
+    for (let attempt = 0; attempt < 5; attempt++) {
+      for (let i = order.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [order[i], order[j]] = [order[j], order[i]];
+      }
+      if (n < 2 || order.some((v, i) => v !== i)) break;
+    }
+    return order;
   }
 
   _bindEvents() {

@@ -14,107 +14,150 @@
 
   <div class="app-container">
 
-  <!-- Topbar (rendered by narrative.js with back button + state colour) -->
-  <header id="topbar" class="topbar"></header>
+    <!-- Topbar — rendered by narrative.js.
+         The .narrative-topbar modifier forces purple regardless of state colour. -->
+    <header id="topbar" class="topbar narrative-topbar"></header>
 
-  <main class="narrative-screen">
+    <main class="narrative-screen has-navbar">
 
-    <!-- State hero banner -->
-    <div class="narrative-hero" id="narrative-hero">
-      <!-- 📸 IMAGE NEEDED: assets/images/states/{stateId}-hero.png
-           Export from Figma → States/{StateName}/Hero banner image
-           narrative.js sets background-image when state is loaded
-           Fallback is the solid state colour -->
-      <div class="narrative-hero-overlay">
-        <span class="narrative-hero-emoji" id="hero-emoji">🏝️</span>
-        <h2 class="narrative-hero-name" id="hero-name">State Name</h2>
-        <p class="narrative-hero-tagline" id="hero-tagline">Tagline</p>
+      <!-- ── Hero banner ──────────────────────────────────────────────────────
+           Shows the state colour as a gradient until a real hero image loads.
+           📸 IMAGE NEEDED: assets/images/states/{stateId}-hero.png
+           narrative.js sets background-image when available. -->
+      <div class="narrative-hero" id="narrative-hero">
+        <div class="narrative-hero-overlay">
+          <div class="narrative-hero-inner">
+            <!-- State emoji / flag icon -->
+            <span class="narrative-hero-emoji" id="hero-emoji">🏝️</span>
+            <div class="narrative-hero-text">
+              <h2 class="narrative-hero-name" id="hero-name">State Name</h2>
+              <p class="narrative-hero-tagline" id="hero-tagline">Tagline</p>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <!-- Tab navigation -->
-    <div class="narrative-tabs">
-      <button class="ntab active" data-tab="story">📖 Story</button>
-      <button class="ntab" data-tab="cards">🃏 Discover</button>
-      <button class="ntab" data-tab="dialect">💬 Dialect</button>
-    </div>
+      <!-- ── Tab strip ─────────────────────────────────────────────────────── -->
+      <div class="narrative-tabs" role="tablist">
+        <button class="ntab active" role="tab" aria-selected="true"  data-tab="story">
+          📖 Story
+        </button>
+        <button class="ntab" role="tab" aria-selected="false" data-tab="cards">
+          🃏 Discover
+        </button>
+        <button class="ntab" role="tab" aria-selected="false" data-tab="dialect">
+          💬 Dialect
+        </button>
+      </div>
 
-    <!-- ── TAB: Story ── -->
-    <div id="tab-story" class="ntab-content active">
-      <div class="narrative-story-body">
+      <!-- ════════════════════════════════════════════════════════════════════
+           TAB: Story
+           Mascot introduction + full story text card.
+           ════════════════════════════════════════════════════════════════════ -->
+      <div id="tab-story" class="ntab-content active" role="tabpanel">
 
-        <div class="narrative-mascot-row">
-          <!-- 📸 IMAGE NEEDED: assets/images/mascots/rimau.png (replace emoji) -->
-          <div class="narrative-mascot-figure">🦁</div>
-          <div class="narrative-story-bubble">
-            <p id="story-mascot-text">Loading story…</p>
+        <div class="narrative-story-body">
+
+          <!-- Mascot row: floating character + typewriter speech bubble -->
+          <div class="narrative-mascot-row">
+            <!-- 📸 IMAGE NEEDED: assets/images/mascots/rimau.png
+                 Replace the emoji with a Loka Made–style illustrated mascot image.
+                 West Malaysia = Rimau (tiger), East Malaysia = Wak (hornbill). -->
+            <div class="narrative-mascot-figure" id="story-mascot-figure" aria-hidden="true">🦁</div>
+            <div class="narrative-story-bubble" role="status" aria-live="polite">
+              <p id="story-mascot-text">Loading story…</p>
+            </div>
+          </div>
+
+          <!-- Story text on warm "kopitiam paper" card -->
+          <div class="story-text-card card">
+            <div class="story-text-card__header">
+              <span class="story-text-card__icon">📜</span>
+              <span class="story-text-card__label">The Story</span>
+            </div>
+            <p class="story-full-text" id="story-text">Loading…</p>
+          </div>
+
+          <!-- Orange 3-D CTA to advance to cards -->
+          <button class="btn-primary narrative-cta" id="cta-to-cards">
+            Discover More 🃏
+          </button>
+
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════════════════════════════════════════
+           TAB: Discovery Cards
+           Horizontal CSS scroll-snap carousel of collectible "postcards".
+           Each card has: category badge, illustration area, description,
+           and a tap-to-reveal fun fact panel.
+           ════════════════════════════════════════════════════════════════════ -->
+      <div id="tab-cards" class="ntab-content hidden" role="tabpanel">
+
+        <!-- Dot progress indicator above the scroll rail -->
+        <div class="card-dots-row">
+          <div class="card-dots" id="card-dots" role="tablist" aria-label="Card progress"></div>
+          <span class="card-counter" id="card-counter" aria-live="polite">1 / 3</span>
+        </div>
+
+        <!-- Horizontal scroll-snap rail — one card per "snap point" on mobile.
+             Cards are rendered by narrative.js as .postcard elements inside here. -->
+        <div class="cards-scroll-rail" id="cards-scroll-rail">
+          <!-- .postcard elements injected by JS -->
+        </div>
+
+        <!-- Mascot narration bubble — updates per card via Typewriter -->
+        <div class="narrative-mascot-row narrative-mascot-row--card" id="card-mascot-row">
+          <div class="narrative-mascot-figure" id="card-mascot-figure" aria-hidden="true">🦁</div>
+          <div class="narrative-card-bubble" role="status" aria-live="polite">
+            <p id="card-mascot-text">Let's explore!</p>
           </div>
         </div>
 
-        <div class="story-text-card card">
-          <p class="story-full-text" id="story-text">Loading…</p>
-        </div>
-
-        <button class="btn-primary narrative-cta" id="cta-to-cards">
-          Discover More 🃏
+        <!-- Advance to quiz CTA -->
+        <button class="btn-primary narrative-cta" id="cta-to-quiz">
+          🎯 Take the Quiz!
         </button>
-      </div>
-    </div>
 
-    <!-- ── TAB: Discovery cards ── -->
-    <div id="tab-cards" class="ntab-content hidden">
-
-      <div class="card-nav-row">
-        <button class="card-nav-btn" id="card-prev" disabled>‹</button>
-        <span class="card-counter" id="card-counter">1 / 3</span>
-        <button class="card-nav-btn" id="card-next">›</button>
       </div>
 
-      <div class="card-dots" id="card-dots">
-        <!-- Dots inserted by narrative.js -->
-      </div>
+      <!-- ════════════════════════════════════════════════════════════════════
+           TAB: Dialect
+           Featured dialect word from the state; CTA into the activity.
+           ════════════════════════════════════════════════════════════════════ -->
+      <div id="tab-dialect" class="ntab-content hidden" role="tabpanel">
 
-      <!-- Culture card -->
-      <div id="card-area">
-        <!-- Card HTML rendered by narrative.js -->
-      </div>
-
-      <div class="narrative-mascot-row" id="card-mascot-row">
-        <div class="narrative-mascot-figure">🦁</div>
-        <div class="narrative-card-bubble">
-          <p id="card-mascot-text">Let's explore!</p>
+        <!-- Main dialect word card -->
+        <div class="dialect-card card">
+          <div class="dialect-card__top">
+            <div class="dialect-card__icon-wrap" aria-hidden="true">💬</div>
+            <div class="dialect-region-badge" id="dialect-badge">dialect</div>
+          </div>
+          <h3 class="dialect-word" id="dialect-word">"—"</h3>
+          <p class="dialect-pronunciation" id="dialect-pron">/—/</p>
+          <p class="dialect-meaning" id="dialect-meaning">Loading…</p>
         </div>
+
+        <!-- Fun-fact sub-card -->
+        <div class="dialect-fun-fact card">
+          <div class="dialect-fun-fact__label">🗣️ Did you know?</div>
+          <p>Malaysia has many different languages and dialects! Each state has its own
+             unique words and expressions passed down through generations.</p>
+        </div>
+
+        <!-- Links to the standalone Match-the-Culture activity page -->
+        <button class="btn-primary narrative-cta" id="cta-to-activity">
+          🎮 Try an Activity!
+        </button>
+
       </div>
 
-      <button class="btn-primary narrative-cta" id="cta-to-quiz">
-        🎯 Take the Quiz!
-      </button>
-    </div>
+    </main><!-- end .narrative-screen -->
 
-    <!-- ── TAB: Dialect ── -->
-    <div id="tab-dialect" class="ntab-content hidden">
+    <!-- Bottom navbar — rendered by narrative.js -->
+    <nav id="navbar"></nav>
 
-      <div class="dialect-card card">
-        <div class="dialect-icon">💬</div>
-        <h3 class="dialect-word" id="dialect-word">"—"</h3>
-        <p class="dialect-pronunciation" id="dialect-pron">/—/</p>
-        <p class="dialect-meaning" id="dialect-meaning">Loading…</p>
-        <div class="dialect-region-badge" id="dialect-badge">dialect</div>
-      </div>
-
-      <div class="dialect-fun-fact card">
-        <h4>Did you know?</h4>
-        <p>Malaysia has many different languages and dialects! Each state has its own unique words and expressions passed down through generations.</p>
-      </div>
-
-      <button class="btn-primary narrative-cta" id="cta-to-activity">
-        🎮 Try an Activity!
-      </button>
-    </div>
-
-  </main>
-
-  </div><!-- end app-container -->
+  </div><!-- end .app-container -->
 
   <script type="module" src="../js/narrative.js"></script>
 </body>
