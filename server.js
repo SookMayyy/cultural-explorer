@@ -56,9 +56,12 @@ app.use((err, req, res, next) => {
 });
 
 // ── Start ─────────────────────────────────────────────────────────────────────
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Cultural Explorer running at http://localhost:${PORT}`);
-});
+// Skip binding the port under test — Supertest drives the app handle directly.
+if (process.env.NODE_ENV !== 'test') {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`Cultural Explorer running at http://localhost:${PORT}`);
+  });
+}
 
 module.exports = app; // exported for Supertest
