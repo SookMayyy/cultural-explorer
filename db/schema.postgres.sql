@@ -65,6 +65,7 @@ CREATE TABLE IF NOT EXISTS states (
   mascot            VARCHAR(10) NOT NULL CHECK (mascot IN ('rimau','wak')),
   color_hex         CHAR(7)     NOT NULL,
   flag_file         VARCHAR(100),
+  story             TEXT,                 -- state intro narrative (FR2); seeded by npm run seed
   is_locked_default BOOLEAN  DEFAULT FALSE,
   unlock_after      SMALLINT DEFAULT 0,   -- require N west states completed before unlocking
   sort_order        SMALLINT NOT NULL
@@ -158,16 +159,25 @@ CREATE TABLE IF NOT EXISTS user_costumes (
 -- SEED DATA
 -- ═════════════════════════════════════════════════════════════
 
--- States (7 representative states for CP2 prototype)
+-- Bring already-deployed databases up to date (CREATE IF NOT EXISTS won't add new columns).
+ALTER TABLE states ADD COLUMN IF NOT EXISTS story TEXT;
+
+-- States (7 representative states for CP2 prototype).
+-- These MUST match the frontend single-source-of-truth in public/js/data/states.js
+-- (Penang, Melaka, Selangor, Johor, Kelantan, Sabah, Sarawak).
 INSERT INTO states (id, name, region, mascot, color_hex, flag_file, is_locked_default, unlock_after, sort_order) VALUES
-  (1, 'Penang',   'west', 'rimau', '#E74C3C', 'penang-flag.png',   FALSE, 0, 1),
-  (2, 'Kedah',    'west', 'rimau', '#27AE60', 'kedah-flag.png',    FALSE, 0, 2),
-  (3, 'Melaka',   'west', 'rimau', '#E67E22', 'melaka-flag.png',   FALSE, 0, 3),
-  (4, 'Selangor', 'west', 'rimau', '#F39C12', 'selangor-flag.png', FALSE, 0, 4),
-  (5, 'Pahang',   'west', 'rimau', '#2980B9', NULL,                FALSE, 0, 5),
-  (6, 'Sabah',    'east', 'wak',   '#8E44AD', 'sabah-flag.png',    TRUE,  5, 6),
-  (7, 'Sarawak',  'east', 'wak',   '#16A085', 'sarawak-flag.png',  TRUE,  5, 7)
-ON CONFLICT (id) DO NOTHING;
+  (1, 'Penang',   'west', 'rimau', '#E67E22', 'penang-flag.png',   FALSE, 0, 1),
+  (2, 'Melaka',   'west', 'rimau', '#8E44AD', 'melaka-flag.png',   FALSE, 0, 2),
+  (3, 'Selangor', 'west', 'rimau', '#1A5276', 'selangor-flag.png', FALSE, 0, 3),
+  (4, 'Johor',    'west', 'rimau', '#1E8449', 'johor-flag.png',    FALSE, 0, 4),
+  (5, 'Kelantan', 'west', 'rimau', '#C0392B', 'kelatan-flag.png',  FALSE, 0, 5),
+  (6, 'Sabah',    'east', 'wak',   '#117A65', 'sabah-flag.png',    TRUE,  5, 6),
+  (7, 'Sarawak',  'east', 'wak',   '#1A5276', 'sarawak-flag.png',  TRUE,  5, 7)
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name, region = EXCLUDED.region, mascot = EXCLUDED.mascot,
+  color_hex = EXCLUDED.color_hex, flag_file = EXCLUDED.flag_file,
+  is_locked_default = EXCLUDED.is_locked_default, unlock_after = EXCLUDED.unlock_after,
+  sort_order = EXCLUDED.sort_order;
 
 -- Default costume (every new student starts with costume id=1)
 INSERT INTO costumes (id, name, culture_ref, points_cost, image_file) VALUES
