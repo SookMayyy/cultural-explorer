@@ -4,11 +4,15 @@
 > For the **authoritative spec** (features, schema rationale, security rules) see
 > [`docs/CLAUDE.md`](./CLAUDE.md). This guide is the *how-to-operate-it* companion.
 
-Last verified (2026-06-18): **39/39 tests passing** against Supabase across 3 suites —
+Last verified (2026-06-20): **60/60 tests passing** across 5 suites (4 hit Supabase;
+the FR3 mini-games suite is pure data) —
 `tests/fr1-states.test.js` (FR1 map/states, 7 tests, incl. the 4-vs-5 East-unlock
 boundary), `tests/fr2-content.test.js` (FR2 cultural content, 14 tests, incl. all-7-state
-coverage), and `tests/backend.test.js` (FR1–FR6 smoke, 18 tests). FR3–FR6 currently
-covered by the smoke suite; dedicated per-FR suites land as we test them.
+coverage), `tests/fr3-quiz.test.js` (FR3 MCQ delivery + scoring, 11 tests, incl. the guest
+scoring path), `tests/fr3-minigames.test.js` (FR3 mini-games content contract — MCQ bank,
+Drag-Match, Guess-the-State — 10 tests), and `tests/backend.test.js` (FR1–FR6 smoke,
+18 tests). FR5–FR6 currently covered by the smoke suite; dedicated per-FR suites land as
+we test them.
 
 ---
 
@@ -93,6 +97,9 @@ cultural-explorer/
 ├── tests/
 │   ├── fr1-states.test.js # FR1 — map/states + unlock logic (standalone, thorough)
 │   ├── fr2-content.test.js# FR2 — cultural content cards + story + dialogue (standalone)
+│   ├── fr3-quiz.test.js   # FR3 — MCQ quiz delivery + answer validation/scoring (API)
+│   ├── fr3-minigames.test.js# FR3 — mini-game content contract: MCQ bank + Drag-Match +
+│   │                        #        Guess-the-State (pure data, no DB)
 │   └── backend.test.js    # FR1–FR6 integration smoke tests (Jest + Supertest)
 │
 ├── public/                # Frontend — served statically by Express (MPA, no bundler)
@@ -243,11 +250,36 @@ Use this as a regression checklist whenever the backend changes.
 - [ ] **Traditional costume** is served via the costume catalogue
       (`GET /api/progress/costumes`), not a per-state card — see the costume note in §8.
 
-### FR3 — Mini-games / quiz
-- [ ] `GET /api/quiz/state/:id` returns 1–4 questions with all four options.
+### FR3 — Mini-games
+
+**MCQ — API (`tests/fr3-quiz.test.js`)**
+- [ ] `GET /api/quiz/state/:id` returns 1–4 questions, each with four non-empty options,
+      a valid `correct_opt` (a–d), a `difficulty`, and an `explanation`.
+- [ ] Unknown state id → empty set (200, not an error); every seeded state (1–7) has ≥1 question.
 - [ ] Correct answer → `correct:true`, `pointsAwarded:10`, user points +10.
 - [ ] Wrong answer → `correct:false`, `pointsAwarded:0`, points unchanged.
 - [ ] Missing fields → 422; unknown question id → 404.
+- [ ] Guest (no session) can validate (200) but is not credited points server-side.
+
+**Mini-game content contract — data (`tests/fr3-minigames.test.js`)**
+- [ ] MCQ bank: every question has a valid state, 4 non-empty options, in-range answer,
+      explanation; the bank carries >1 difficulty (so "adaptive" can step up); every state
+      has ≥1 MCQ.
+- [ ] **Drag-Match** (`states.js` `dragPairs`): every state ships 3–4 pairs with non-empty
+      chip + drop-zone labels; drop-zone labels within a state are distinct.
+- [ ] **Guess-the-State** (`guessRounds.js`): one round per state; each answers a real
+      state; clues are progressive with strictly **descending** point values (early correct
+      = more points); options include the answer and only valid states (id/name/icon).
+
+> **Two of the three mini-games have no backend.** Drag-Match and Guess-the-State (plus
+> adaptive difficulty and spaced-repetition resurfacing) run entirely client-side from
+> `public/js/data/`. They're verified as a **content contract** against the source
+> modules — the same data the screens render from — not via the API.
+>
+> ⚠️ **Guess-the-State spec drift:** `docs/CLAUDE.md` §3 says *"4 progressive clues,
+> +20/15/10/5"*, but the shipped `GUESS_ROUNDS` data has **3 hints with `pointValues`
+> [30,20,10]**. The data suite asserts the *actual* contract (descending values, one per
+> clue) and flags the drift; reconcile spec vs. data later. See §8.
 
 ### FR5 — Progress, stamps, points
 - [ ] Progress empty before any completion.
@@ -281,6 +313,12 @@ Use this as a regression checklist whenever the backend changes.
   once the frontend and backend are both feature-complete** to either (a) implement true
   sequential unlock or (b) update the spec to "all west open." Tracked in
   `tests/fr1-states.test.js` (current behaviour is asserted, incl. the 4-vs-5 boundary).
+- **Guess-the-State: 3 clues in data vs. 4 in the spec.** `docs/CLAUDE.md` §3 describes
+  *"4 progressive clues. Early correct = more points (+20/15/10/5)."* The shipped
+  `public/js/data/guessRounds.js` ships **3 hints per round with `pointValues` [30,20,10]**.
+  `tests/fr3-minigames.test.js` locks in the *actual* contract (descending values, one per
+  clue) rather than the spec numbers, and the drift is tracked here for later reconciliation
+  (either add a 4th clue per round or update the spec to 3 clues).
 - **Traditional costume is not a per-state content card.** FR2 lists "traditional
   costume" as part of a state's culture, but there is no `costume`-type row in
   `cultural_content` (the frontend has no such card data). The culturally-themed
