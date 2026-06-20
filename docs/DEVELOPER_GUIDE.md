@@ -298,9 +298,11 @@ Use this as a regression checklist whenever the backend changes.
 - [ ] First-visit and return-visit lines are both present and distinct; gated states (Sabah,
       Sarawak) carry an `entry_locked` line.
 
-> ⚠️ **Backend doesn't track visits yet.** First-vs-return branching is enabled by the data
-> (both lines exist) but `user_progress.visits` / `first_visited` are never written — the
-> branch is frontend-only for now. See §8.
+> **By design, the backend doesn't detect first vs return.** The app just plays the entry
+> dialogue whenever a student opens a state after logging in ("start game"), so no visit
+> tracking is needed — `user_progress.visits` / `first_visited` stay unused. Both
+> `entry_first` and `entry_return` are kept in the data so return-branching can be enabled
+> later without a migration. See §8.
 
 ### FR5 — Progress, stamps, points  (`tests/fr5-rewards.test.js`)
 - [ ] Progress empty before any completion.
@@ -308,8 +310,9 @@ Use this as a regression checklist whenever the backend changes.
       and awards +20.
 - [ ] Quiz (+10) and completion (+20) both accrue to `users.points`.
 - [ ] Stamp count equals the number of completed states.
-- [ ] Re-completing a state updates the same row in place (no duplicate stamp). ⚠️ the +20
-      bonus is **not** idempotent on re-completion — see §8.
+- [ ] Re-completing a state refreshes the row (no duplicate stamp), keeps the original
+      `completed_at`, and does **not** re-award the +20 (bonus is paid once, on first
+      completion; response carries `bonusPoints:0` + `alreadyCompleted:true`).
 
 ### FR6 — Costume shop  (`tests/fr6-costumes.test.js`)
 - [ ] Catalogue exposes the full 6-costume culturally-themed set with correct costs,
@@ -333,8 +336,9 @@ Use this as a regression checklist whenever the backend changes.
 - [ ] MOE login → 501 (deferred); teacher login: bad email → 422, unknown → 401, valid → 200.
 
 > **Not yet implemented (don't expect these to pass):** MOE login (501),
-> teacher dashboard / class routes, `visits`/`first_visited` tracking for
-> first-visit vs return mascot dialogue, audio/voiceover (FR9).
+> teacher dashboard / class routes, audio/voiceover (FR9).
+> (`visits`/`first_visited` first-vs-return tracking is **intentionally** not implemented —
+> the app plays entry dialogue on each login; see FR4 in §8.)
 
 ---
 
@@ -349,15 +353,16 @@ Use this as a regression checklist whenever the backend changes.
   once the frontend and backend are both feature-complete** to either (a) implement true
   sequential unlock or (b) update the spec to "all west open." Tracked in
   `tests/fr1-states.test.js` (current behaviour is asserted, incl. the 4-vs-5 boundary).
-- **State-completion bonus is not idempotent (FR5).** `POST /api/progress/:stateId/complete`
-  upserts the progress row (so there's never a duplicate stamp), but it adds the **+20 bonus
-  every time it's called** — re-completing an already-completed state pays the bonus again.
-  `tests/fr5-rewards.test.js` captures this so a fix (award the bonus only on first
-  completion) is a deliberate change rather than a silent regression.
-- **Mascot first-vs-return branching is frontend-only (FR4).** The data ships both
-  `entry_first` and `entry_return`, but nothing writes `user_progress.visits` /
-  `first_visited`, so the backend can't tell first visit from return — the screen decides.
-  Wire visit tracking when the mascot flow is finalised. Tracked in `tests/fr4-mascot.test.js`.
+- **State-completion bonus is idempotent (FR5) — RESOLVED.** `POST /api/progress/:stateId/complete`
+  now pays the +20 **only on first completion**: it checks `stamp_earned` before the upsert,
+  awards the bonus once, and preserves the original `completed_at` on replays (response:
+  `bonusPoints:0` + `alreadyCompleted:true` on re-completion). Verified in
+  `tests/fr5-rewards.test.js`.
+- **Mascot first-vs-return is intentionally NOT detected by the backend (FR4) — by design.**
+  The app plays the entry dialogue on each state entry after login ("start game"), so visit
+  tracking isn't needed and `user_progress.visits` / `first_visited` stay unused. Both
+  `entry_first` and `entry_return` remain in the data so return-branching can be switched on
+  later without a schema change. Tracked in `tests/fr4-mascot.test.js`.
 - **Rate limiters are skipped under `NODE_ENV=test`.** `middleware/rateLimiter.js` short-
   circuits the login (10/min) and register (20/hr) limiters during tests, because the whole
   Jest suite runs in one process (`--runInBand`) and the in-memory windows would otherwise

@@ -75,8 +75,10 @@ describe('FR4 — Per-state dialogue set', () => {
   });
 
   test('first-visit and return-visit lines are both present and distinct', async () => {
-    // The frontend branches on these; the backend does not yet track visits
-    // (user_progress.visits / first_visited are unwritten — see DEVELOPER_GUIDE §7).
+    // BY DESIGN the backend does not detect first vs return — the app simply plays the
+    // entry dialogue whenever a student opens a state after logging in, so no visit
+    // tracking is needed (user_progress.visits / first_visited stay unused). Both lines
+    // are kept in the data so return-branching can be turned on later without a migration.
     for (let id = 1; id <= 7; id++) {
       const { state_dialogue: d } = (await api.get(`/api/states/${id}`)).body.data;
       expect(d.entry_first).not.toBe(d.entry_return);
