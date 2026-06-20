@@ -84,18 +84,20 @@ describe('FR5 — Stamps & completion bonus', () => {
     expect(completed.map(p => p.state_id).sort()).toEqual([1, 2, 3]);
   });
 
-  test('re-completing a state updates the same row in place (no duplicate stamp)', async () => {
-    const before = (await progress()).filter(p => p.state_id === 1).length;
-    expect(before).toBe(1);
+  test('re-completing a state refreshes the row but does NOT re-award the bonus', async () => {
+    const rowBefore = (await progress()).find(p => p.state_id === 1);
+    expect(rowBefore).toBeTruthy();
+    const pointsBefore = await points();
 
     const res = await agent.post('/api/progress/1/complete').send({ quizScore: 99 });
     expect(res.status).toBe(200);
+    expect(res.body.bonusPoints).toBe(0);          // bonus paid once, on first completion
+    expect(res.body.alreadyCompleted).toBe(true);
+    expect(await points()).toBe(pointsBefore);     // no double-dipping
 
     const rows = (await progress()).filter(p => p.state_id === 1);
-    expect(rows.length).toBe(1);                 // still one stamp for the state
-    expect(rows[0].last_quiz_score).toBe(99);    // score refreshed
-    // NOTE (known gap): the completion bonus is NOT idempotent — re-completing pays the
-    // +20 again. Captured here so a future fix (guard the bonus on first completion) is a
-    // deliberate change. See DEVELOPER_GUIDE §8.
+    expect(rows.length).toBe(1);                   // still one stamp for the state
+    expect(rows[0].last_quiz_score).toBe(99);      // score refreshed
+    expect(rows[0].completed_at).toBe(rowBefore.completed_at); // first-finish time kept
   });
 });
