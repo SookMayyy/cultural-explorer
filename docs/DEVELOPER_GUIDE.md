@@ -4,15 +4,20 @@
 > For the **authoritative spec** (features, schema rationale, security rules) see
 > [`docs/CLAUDE.md`](./CLAUDE.md). This guide is the *how-to-operate-it* companion.
 
-Last verified (2026-06-20): **60/60 tests passing** across 5 suites (4 hit Supabase;
-the FR3 mini-games suite is pure data) —
-`tests/fr1-states.test.js` (FR1 map/states, 7 tests, incl. the 4-vs-5 East-unlock
-boundary), `tests/fr2-content.test.js` (FR2 cultural content, 14 tests, incl. all-7-state
-coverage), `tests/fr3-quiz.test.js` (FR3 MCQ delivery + scoring, 11 tests, incl. the guest
-scoring path), `tests/fr3-minigames.test.js` (FR3 mini-games content contract — MCQ bank,
-Drag-Match, Guess-the-State — 10 tests), and `tests/backend.test.js` (FR1–FR6 smoke,
-18 tests). FR5–FR6 currently covered by the smoke suite; dedicated per-FR suites land as
-we test them.
+Last verified (2026-06-21): **105/105 tests passing** across 9 suites (8 hit Supabase;
+the FR3 mini-games suite is pure data):
+- `tests/fr1-states.test.js` (FR1 map/states, 7) — incl. the 4-vs-5 East-unlock boundary
+- `tests/fr2-content.test.js` (FR2 cultural content, 14) — incl. all-7-state coverage
+- `tests/fr3-quiz.test.js` (FR3 MCQ delivery + scoring, 11) — incl. the guest scoring path
+- `tests/fr3-minigames.test.js` (FR3 mini-game content contract, 10) — MCQ bank, Drag-Match, Guess-the-State
+- `tests/fr4-mascot.test.js` (FR4 mascot selection + dialogue set, 8)
+- `tests/fr5-rewards.test.js` (FR5 stamps + points, 5)
+- `tests/fr6-costumes.test.js` (FR6 costume catalogue/unlock/equip, 9)
+- `tests/fr7-auth.test.js` (FR7 login, auto-password, recovery, session, teacher, 14)
+- `tests/backend.test.js` (FR1–FR6 smoke, 18)
+
+Rate limiters are disabled under `NODE_ENV=test` so the auth suite's many calls don't trip
+the 10/min · 20/hr windows (see `middleware/rateLimiter.js`).
 
 ---
 
@@ -100,6 +105,10 @@ cultural-explorer/
 │   ├── fr3-quiz.test.js   # FR3 — MCQ quiz delivery + answer validation/scoring (API)
 │   ├── fr3-minigames.test.js# FR3 — mini-game content contract: MCQ bank + Drag-Match +
 │   │                        #        Guess-the-State (pure data, no DB)
+│   ├── fr4-mascot.test.js  # FR4 — mascot selection by region + per-state dialogue set
+│   ├── fr5-rewards.test.js # FR5 — stamps + points (quiz +10, completion +20)
+│   ├── fr6-costumes.test.js# FR6 — costume catalogue, unlock (spend), equip/preview
+│   ├── fr7-auth.test.js    # FR7 — login, auto-password lifecycle, icon recovery, session
 │   └── backend.test.js    # FR1–FR6 integration smoke tests (Jest + Supertest)
 │
 ├── public/                # Frontend — served statically by Express (MPA, no bundler)
@@ -281,20 +290,47 @@ Use this as a regression checklist whenever the backend changes.
 > [30,20,10]**. The data suite asserts the *actual* contract (descending values, one per
 > clue) and flags the drift; reconcile spec vs. data later. See §8.
 
-### FR5 — Progress, stamps, points
+### FR4 — Mascot system  (`tests/fr4-mascot.test.js`)
+- [ ] Every state's `mascot` matches its region (west → `rimau`, east → `wak`); both appear.
+- [ ] Each state ships a complete, non-empty dialogue set (`entry_first`, `entry_return`,
+      `entry_locked`, `challenge_frame`, `feedback_correct`, `feedback_wrong`, `reward_outro`).
+- [ ] `entry_first` follows the 3-sentence Hook→Bridge→CTA formula and names the right mascot.
+- [ ] First-visit and return-visit lines are both present and distinct; gated states (Sabah,
+      Sarawak) carry an `entry_locked` line.
+
+> ⚠️ **Backend doesn't track visits yet.** First-vs-return branching is enabled by the data
+> (both lines exist) but `user_progress.visits` / `first_visited` are never written — the
+> branch is frontend-only for now. See §8.
+
+### FR5 — Progress, stamps, points  (`tests/fr5-rewards.test.js`)
 - [ ] Progress empty before any completion.
-- [ ] Completion sets `is_completed` + `stamp_earned` + `last_quiz_score` and awards +20.
+- [ ] Completion sets `is_completed` + `stamp_earned` + `last_quiz_score` + `completed_at`
+      and awards +20.
+- [ ] Quiz (+10) and completion (+20) both accrue to `users.points`.
+- [ ] Stamp count equals the number of completed states.
+- [ ] Re-completing a state updates the same row in place (no duplicate stamp). ⚠️ the +20
+      bonus is **not** idempotent on re-completion — see §8.
 
-### FR6 — Costume shop
+### FR6 — Costume shop  (`tests/fr6-costumes.test.js`)
+- [ ] Catalogue exposes the full 6-costume culturally-themed set with correct costs,
+      sorted by ascending cost (free default first).
 - [ ] Costume list shows default (id 1) equipped, others locked.
-- [ ] Unlock deducts the exact `points_cost`.
-- [ ] Re-unlock same costume → 400; unknown costume → 404.
-- [ ] User with too few points → 400.
-- [ ] Equip owned → 200 and `avatar_costume_id` updates; equip unowned → 403.
+- [ ] Unlock deducts the exact `points_cost` and marks it owned.
+- [ ] Re-unlock same costume → 400; unknown costume → 404; too few points → 400 (not charged).
+- [ ] Equip owned → 200 and `avatar_costume_id` updates (preview); equip unowned → 403;
+      free default always equippable.
 
-### Auth / session
-- [ ] Protected routes return 401 without a session.
-- [ ] Logout destroys the session (subsequent `/api/auth/me` → 401).
+### FR7 — Login & session  (`tests/fr7-auth.test.js`)
+- [ ] Grade 3+ register opens a session; the session user carries no password hash.
+- [ ] Grade 1-2 register returns a memorable auto-password; first login clears it + sets a hash.
+- [ ] Wrong password / unknown user → 401; missing fields → 422.
+- [ ] Registration validation: letters-only ≤20 name, valid grade, icons 1–12 & distinct,
+      Grade 3+ password ≥6 — all → 422.
+- [ ] Icon recovery: correct icons reset (Grade 3+) / reveal (Grade 1-2); wrong or
+      **swapped-order** icons → 401; unknown account → 404.
+- [ ] Session cookie is `HttpOnly` + `SameSite=Strict`; protected routes → 401 without a
+      session; logout destroys it.
+- [ ] MOE login → 501 (deferred); teacher login: bad email → 422, unknown → 401, valid → 200.
 
 > **Not yet implemented (don't expect these to pass):** MOE login (501),
 > teacher dashboard / class routes, `visits`/`first_visited` tracking for
@@ -313,6 +349,20 @@ Use this as a regression checklist whenever the backend changes.
   once the frontend and backend are both feature-complete** to either (a) implement true
   sequential unlock or (b) update the spec to "all west open." Tracked in
   `tests/fr1-states.test.js` (current behaviour is asserted, incl. the 4-vs-5 boundary).
+- **State-completion bonus is not idempotent (FR5).** `POST /api/progress/:stateId/complete`
+  upserts the progress row (so there's never a duplicate stamp), but it adds the **+20 bonus
+  every time it's called** — re-completing an already-completed state pays the bonus again.
+  `tests/fr5-rewards.test.js` captures this so a fix (award the bonus only on first
+  completion) is a deliberate change rather than a silent regression.
+- **Mascot first-vs-return branching is frontend-only (FR4).** The data ships both
+  `entry_first` and `entry_return`, but nothing writes `user_progress.visits` /
+  `first_visited`, so the backend can't tell first visit from return — the screen decides.
+  Wire visit tracking when the mascot flow is finalised. Tracked in `tests/fr4-mascot.test.js`.
+- **Rate limiters are skipped under `NODE_ENV=test`.** `middleware/rateLimiter.js` short-
+  circuits the login (10/min) and register (20/hr) limiters during tests, because the whole
+  Jest suite runs in one process (`--runInBand`) and the in-memory windows would otherwise
+  accumulate across suites and throw flaky 429s. Limiters stay fully active in dev/prod;
+  verify them manually if needed.
 - **Guess-the-State: 3 clues in data vs. 4 in the spec.** `docs/CLAUDE.md` §3 describes
   *"4 progressive clues. Early correct = more points (+20/15/10/5)."* The shipped
   `public/js/data/guessRounds.js` ships **3 hints per round with `pointValues` [30,20,10]**.
