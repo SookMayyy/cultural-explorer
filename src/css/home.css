@@ -1,0 +1,943 @@
+/* ═══════════════════════════════════════════════════════════════════
+   HOME SCREEN  —  home.css
+   Loaded AFTER style.css, so CSS variables from style.css are
+   available here. We only override what we need to.
+   ═══════════════════════════════════════════════════════════════════ */
+
+
+/* ── Page base ──────────────────────────────────────────────────── */
+body {
+  /* Neutral backdrop behind the framed prototype stage */
+  background: #E7E0EC;
+  min-height: 100vh;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   EXACT PROTOTYPE STAGE — Figma "Main Page" (293:2441)
+   Fixed 1104×682 reproduction; scaled to fit by inline JS in home.html.
+   Colours/fonts/coordinates taken directly from the Figma frame.
+   ═══════════════════════════════════════════════════════════════════ */
+.proto-viewport {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #E7E0EC;
+  overflow: hidden;
+}
+
+.proto-stage {
+  position: relative;
+  flex: none;
+  width: 1104px;
+  height: 682px;
+  background: #FEF7FF;
+  border-radius: 18px;
+  outline: 8px solid #CAC4D0;
+  overflow: hidden;
+  transform-origin: center center;
+  font-family: 'Rowdies', cursive;
+}
+
+/* ── Page background image (fills the full stage) ── */
+.pb-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+/* ── Mascot illustration (element 34 — Wak the hornbill) ── */
+.pb-illus {
+  position: absolute;
+  left: 0; bottom: 0;
+  width: 323px;
+  height: 383px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 1;
+  filter: drop-shadow(0 10px 24px rgba(0,0,0,0.25));
+}
+.pb-illus img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* ── LOKALEARN wordmark ── */
+.pb-logo {
+  position: absolute;
+  left: 350px; top: 179px;
+  width: 436px;
+  margin: 0;
+  font-family: 'Rowdies', cursive;
+  font-weight: 700;
+  font-size: 60px;
+  line-height: 1;
+  white-space: nowrap;
+  z-index: 2;
+}
+.pb-loka, .pb-learn {
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+.pb-loka  { background-image: linear-gradient(90deg, #DD301D 31%, #D68330 67%); }
+.pb-learn { background-image: linear-gradient(90deg, #30D046 38%, #278ED7 72%); }
+
+/* ── Subtitle ── */
+.pb-subtitle {
+  position: absolute;
+  left: 403px; top: 255px;
+  width: 307px;
+  margin: 0;
+  color: #145DA0;
+  font-family: 'Rowdies', cursive;
+  font-size: 22px;
+  line-height: 24px;
+  letter-spacing: 0.5px;
+  z-index: 2;
+}
+
+/* ── Description ── */
+.pb-desc {
+  position: absolute;
+  left: 324px; top: 299px;
+  width: 484px;
+  margin: 0;
+  text-align: center;
+  color: #000;
+  font-family: 'Rowdies', cursive;
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: 0.5px;
+  z-index: 2;
+}
+
+/* ── Buttons ── */
+.pb-btn {
+  position: absolute;
+  left: 403px;
+  width: 286px;
+  height: 71px;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  color: #fff;
+  font-family: 'Rowdies', cursive;
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 1;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  transition: transform 0.1s ease, filter 0.12s ease;
+}
+.pb-btn:active { transform: translateY(2px); filter: brightness(0.96); }
+.pb-start { top: 419px; background: #FE6815; border: 2px solid #D68356; }
+.pb-how   { top: 526px; background: #02A2F8; box-shadow: 0 9px 9px 2px rgba(0,0,0,0.25); }
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURE 4 — ANIMATED CLOUD BACKGROUND
+
+   How parallax works here:
+     Each cloud div is POSITION: ABSOLUTE inside a FIXED container.
+     They all move left using the same keyframe (cloud-drift).
+     DIFFERENT animation-duration values = different speeds.
+     Negative animation-delay values make clouds start mid-journey,
+     distributing them naturally across the screen on first load.
+
+   Depth perception rule:
+     Faster + bigger  =  feels closer to the viewer
+     Slower + smaller =  feels further away (background)
+   ═══════════════════════════════════════════════════════════════════ */
+
+.sky-bg {
+  position: fixed;
+  inset: 0;                /* shorthand for top:0 right:0 bottom:0 left:0 */
+  z-index: 0;              /* behind everything */
+  pointer-events: none;    /* clicks pass through to content below */
+  overflow: hidden;
+}
+
+.cloud {
+  position: absolute;
+  line-height: 1;
+  animation: cloud-drift linear infinite;
+  user-select: none;
+}
+
+/* Each cloud has a different size, vertical position, speed, and start time */
+.cloud-1 { top:  6%; font-size: 68px; opacity: 0.35; animation-duration: 38s; animation-delay:   0s; }
+.cloud-2 { top: 16%; font-size: 44px; opacity: 0.25; animation-duration: 55s; animation-delay: -22s; }
+.cloud-3 { top:  3%; font-size: 36px; opacity: 0.20; animation-duration: 47s; animation-delay: -35s; }
+.cloud-4 { top: 28%; font-size: 58px; opacity: 0.22; animation-duration: 62s; animation-delay: -48s; }
+.cloud-5 { top: 12%; font-size: 52px; opacity: 0.18; animation-duration: 70s; animation-delay: -15s; }
+
+/* Cloud moves from just off the right edge → just off the left edge */
+@keyframes cloud-drift {
+  from { transform: translateX(110vw); }
+  to   { transform: translateX(-25vw); }
+}
+
+
+/* ── Ground foreground decorations ───────────────────────────────── */
+.ground-deco {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  pointer-events: none;
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  padding: 0 5vw;
+  height: 60px;
+}
+
+.grass {
+  font-size: 28px;
+  line-height: 1;
+  animation: grass-sway 4s ease-in-out infinite;
+}
+
+/* Stagger the sway so plants don't all move together */
+.g1 { animation-delay: 0s;    font-size: 24px; }
+.g2 { animation-delay: -1.1s; font-size: 22px; }
+.g3 { animation-delay: -2.2s; font-size: 26px; }
+.g4 { animation-delay: -0.7s; font-size: 20px; }
+.g5 { animation-delay: -3.0s; font-size: 24px; }
+
+@keyframes grass-sway {
+  0%, 100% { transform: rotate(0deg);   transform-origin: bottom center; }
+  25%       { transform: rotate(5deg);  transform-origin: bottom center; }
+  75%       { transform: rotate(-5deg); transform-origin: bottom center; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   MAIN HOME LAYOUT
+   ═══════════════════════════════════════════════════════════════════ */
+
+.home {
+  position: relative;      /* needed so .deco-corner children position relative to this */
+  z-index: 2;              /* above sky-bg and ground-deco */
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Override the sizes from style.css for the home screen specifically */
+.home .deco-tl,
+.home .deco-tr { width: 220px; }
+.home .deco-bl,
+.home .deco-br { width: 240px; }
+
+
+/* ── Central content column ──────────────────────────────────────────
+   Per the Figma "Main Page" (293:2441), the whole title/mascots/buttons
+   block sits inside one rounded panel floating on the background. */
+.home-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding: var(--sp-xl) var(--sp-2xl);
+  /* Framed card on the background */
+  max-width: 560px;
+  margin: var(--sp-lg);
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 32px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
+  /* Whole block fades in as one unit on load */
+  animation: fade-in 0.5s ease both;
+}
+
+
+/* ── Malaysia badge tag ──────────────────────────────────────────── */
+.home-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  background: var(--clr-red);
+  color: var(--clr-yellow);
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  font-weight: 700;
+  padding: 6px 20px;
+  border-radius: var(--r-pill);
+  box-shadow: var(--shadow-sm);
+  animation: fade-in 0.5s 0.1s ease both;
+}
+
+.home-tag-flag {
+  width: 34px;
+  height: 20px;
+  object-fit: cover;
+  border-radius: 3px;
+  display: block;
+}
+
+
+/* ── Main title — batik texture fill ─────────────────────────────── */
+/* background-clip: text clips the background image to the text shape.
+   -webkit-text-fill-color: transparent makes the text itself transparent,
+   letting the background image show through. Combined = textured text. */
+.home-title {
+  font-family: 'Ribeye', cursive;
+  font-size: clamp(52px, 6.5vw, 76px);
+  line-height: 0.95;
+  margin: 0;
+  background: url('../assets/images/ui/batik-pattern.png') center / cover;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.12));
+  animation: fade-in 0.5s 0.2s ease both;
+}
+
+/* The second line is larger for visual punch */
+.home-title-accent {
+  display: block;
+  font-size: clamp(62px, 8vw, 96px);
+}
+
+
+/* ── Subtitle ────────────────────────────────────────────────────── */
+.home-subtitle {
+  font-family: 'Reggae One', cursive;
+  font-size: var(--text-md);
+  color: var(--clr-navy);
+  margin: 0;
+  animation: fade-in 0.5s 0.3s ease both;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURE 1 — MASCOT SCENE
+
+   Layout: two mascot blocks side by side.
+   Each block is a column: [bubble] [emoji] [label]
+
+   The BLOCK slides in from its side (translateX animation).
+   The EMOJI floats independently (translateY animation from style.css).
+   Keeping these on DIFFERENT elements prevents transform conflicts.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.home-scene {
+  display: flex;
+  align-items: flex-end;   /* align mascots at the bottom so they "stand" */
+  justify-content: center;
+  gap: 52px;
+  width: 100%;
+  padding: var(--sp-sm) 0;
+}
+
+.mascot-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-sm);
+  position: relative;
+}
+
+/* Slide in from sides — the cubic-bezier gives a slight overshoot (bounce feel) */
+.mascot-left  { animation: slide-in-left  0.7s 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
+.mascot-right { animation: slide-in-right 0.7s 0.65s cubic-bezier(0.34,1.56,0.64,1) both; }
+
+@keyframes slide-in-left {
+  from { transform: translateX(-100px); opacity: 0; }
+  to   { transform: translateX(0);      opacity: 1; }
+}
+@keyframes slide-in-right {
+  from { transform: translateX(100px);  opacity: 0; }
+  to   { transform: translateX(0);      opacity: 1; }
+}
+
+
+/* ── Speech bubble ───────────────────────────────────────────────── */
+.home-bubble {
+  background: #fff;
+  border-radius: var(--r-md);
+  padding: 10px 16px;
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  color: var(--clr-navy);
+  text-align: center;
+  box-shadow: var(--shadow-md);
+  max-width: 170px;
+  min-height: 46px;
+  line-height: 1.45;
+  position: relative;
+  /* Gentle entrance after the mascot slides in */
+  animation: fade-in 0.4s 1.1s ease both;
+}
+
+/* The caret / arrow pointing downward toward the mascot */
+.home-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 10px solid transparent;
+  border-top-color: #fff;
+  border-bottom: 0;
+  /* Tiny shadow on the arrow to match the card shadow */
+  filter: drop-shadow(0 2px 1px rgba(0,0,0,0.06));
+}
+
+.bubble-text {
+  /* text is typed by JS typewriter — min-height keeps bubble from collapsing */
+  display: inline-block;
+  min-height: 1em;
+}
+
+
+/* ── Mascot emoji ────────────────────────────────────────────────── */
+.mascot-emoji {
+  font-size: 84px;
+  line-height: 1;
+  filter: drop-shadow(0 8px 20px rgba(0,0,0,0.28));
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.15s ease;
+  /* Focus ring for keyboard users */
+  border-radius: 50%;
+  outline-offset: 6px;
+}
+
+.mascot-emoji:hover,
+.mascot-emoji:focus { transform: scale(1.12); outline: 3px solid var(--clr-yellow); }
+
+/* Float animations — staggered with animation-delay so they don't move in sync */
+/* mascot-float keyframe is defined in style.css */
+.rimau-emoji { animation: mascot-float 3.2s ease-in-out infinite; }
+.wak-emoji   { animation: mascot-float 3.2s ease-in-out infinite; animation-delay: -1.6s; }
+
+
+/* ── Name label ──────────────────────────────────────────────────── */
+.mascot-label {
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  color: #fff;
+  background: rgba(0,0,0,0.32);
+  border-radius: var(--r-pill);
+  padding: 2px 12px;
+  white-space: nowrap;
+}
+
+
+/* ── Home screen buttons ─────────────────────────────────────────── */
+.home-btn {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  border: none;
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  padding: 14px 44px;
+  text-align: center;
+  text-decoration: none;
+  width: 270px;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  animation: fade-in 0.5s 0.8s ease both;
+}
+
+.home-btn:active { transform: translateY(3px) !important; box-shadow: none !important; }
+
+/* Yellow primary — used for the main CTA */
+.home-btn--primary {
+  background: var(--clr-yellow);
+  color: var(--clr-navy);
+  box-shadow: 0 5px 0 #c8890a;
+}
+.home-btn--primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 #c8890a;
+}
+
+/* White secondary */
+.home-btn--secondary {
+  background: #fff;
+  color: var(--clr-navy);
+  box-shadow: 0 5px 0 rgba(0,0,0,0.14);
+}
+.home-btn--secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 rgba(0,0,0,0.14);
+}
+
+/* Description */
+.desc {
+    font-family: 'Reggae One', cursive;
+    font-size: 15px;
+    color: black;
+    margin-bottom: 30px;
+}
+
+
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURES 2 & 3 — MODAL SYSTEM
+
+   Pattern:
+     .modal-overlay  — the full-screen dark backdrop (display:none by default)
+     .modal-overlay.is-open  — JS adds this class to reveal the modal
+     .modal-card     — the white sheet that slides up from the bottom
+
+   Why class-toggle instead of HTML "hidden" attribute?
+     When you toggle a CSS class, the animation re-runs every time.
+     The "hidden" attribute removes the element from layout, so when
+     you un-hide it the animation has already "played" in CSS memory
+     and won't replay. Class-toggle avoids this.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.modal-overlay {
+  display: none;             /* hidden by default */
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: rgba(10,10,20,0.6);
+  align-items: flex-end;     /* card sticks to bottom edge */
+  justify-content: center;
+  backdrop-filter: blur(3px);
+}
+
+/* JS adds this class to open the modal */
+.modal-overlay.is-open {
+  display: flex;
+  animation: modal-fade-in 0.2s ease both;
+}
+
+@keyframes modal-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* The actual card slides up from the bottom — cubic-bezier gives spring feel */
+.modal-overlay.is-open .modal-card {
+  animation: modal-slide-up 0.38s cubic-bezier(0.34,1.28,0.64,1) both;
+}
+
+@keyframes modal-slide-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+.modal-card {
+  position: relative;
+  background: var(--clr-bg);
+  width: 100%;
+  max-width: 520px;
+  max-height: 90dvh;           /* dvh = dynamic viewport height — more accurate on mobile */
+  overflow-y: auto;
+  border-radius: 24px 24px 0 0;
+  padding: var(--sp-lg) var(--sp-xl) calc(var(--sp-2xl) + 16px);
+  box-shadow: 0 -10px 50px rgba(0,0,0,0.25);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-sm);
+}
+
+/* Scrollbar hidden for clean look on mobile */
+.modal-card::-webkit-scrollbar { display: none; }
+.modal-card { scrollbar-width: none; }
+
+/* Close button — absolute positioned in top-right corner */
+.modal-close {
+  position: absolute;
+  top: var(--sp-md);
+  right: var(--sp-md);
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--clr-grey-light);
+  color: var(--clr-text-muted);
+  font-size: 18px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.modal-close:hover { background: var(--clr-border); color: var(--clr-text); }
+
+
+/* ── Mascot row inside modal ─────────────────────────────────────── */
+.modal-mascot-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-md);
+  margin-bottom: var(--sp-xs);
+}
+
+.modal-mascot-emoji {
+  font-size: 56px;
+  flex-shrink: 0;
+  animation: mascot-float 3s ease-in-out infinite;
+}
+
+/* Speech bubble pointing LEFT toward the mascot emoji */
+.modal-speech {
+  background: #fff;
+  border-radius: var(--r-md);
+  padding: var(--sp-sm) var(--sp-md);
+  box-shadow: var(--shadow-sm);
+  border: 2px solid var(--clr-border);
+  position: relative;
+  flex: 1;
+}
+
+/* Left-pointing caret arrow */
+.modal-speech::before,
+.modal-speech::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 10px solid transparent;
+}
+.modal-speech::before {
+  left: -20px;
+  border-right-color: var(--clr-border);
+  border-left: 0;
+}
+.modal-speech::after {
+  left: -16px;
+  border: 8px solid transparent;
+  border-right-color: #fff;
+  border-left: 0;
+}
+
+.modal-greeting-text {
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  color: var(--clr-navy);
+  margin: 0;
+  min-height: 1.5em;
+}
+
+
+/* ── Tab switcher ────────────────────────────────────────────────── */
+.modal-tabs {
+  display: flex;
+  background: var(--clr-grey-light);
+  border-radius: var(--r-pill);
+  padding: 4px;
+  gap: 4px;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 10px var(--sp-md);
+  border-radius: var(--r-pill);
+  border: none;
+  background: none;
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  color: var(--clr-text-muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+}
+
+.tab-btn.active {
+  background: #fff;
+  color: var(--clr-red);
+  box-shadow: var(--shadow-sm);
+}
+
+
+/* ── Forms ───────────────────────────────────────────────────────── */
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-sm);
+}
+
+.modal-input {
+  width: 100%;
+  padding: 14px var(--sp-md);
+  border-radius: var(--r-md);
+  border: 2px solid var(--clr-border);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  background: #fff;
+  color: var(--clr-text);
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.modal-input:focus { border-color: var(--clr-red); }
+.modal-input::placeholder { color: var(--clr-grey); }
+
+.form-error {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--clr-red);
+  margin: 0;
+  padding: 0 var(--sp-xs);
+}
+
+.form-success {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: #2e7d32;
+  margin: 0;
+  padding: var(--sp-xs);
+  background: #eaf6ea;
+  border-radius: var(--r-sm);
+  text-align: center;
+}
+
+/* Text-style link (Forgot password? / Back to login) */
+.modal-link {
+  display: block;
+  width: 100%;
+  margin-top: var(--sp-xs);
+  padding: 4px;
+  border: none;
+  background: none;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--clr-red);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.modal-link:hover { opacity: 0.8; }
+
+.modal-submit-btn {
+  width: 100%;
+  padding: 14px;
+  margin-top: var(--sp-xs);
+}
+
+/* ── Grade selector (3 buttons) ──────────────────────────────────── */
+.grade-select {
+  display: flex;
+  gap: var(--sp-xs);
+}
+.grade-btn {
+  flex: 1;
+  padding: 12px 4px;
+  border-radius: var(--r-md);
+  border: 2px solid var(--clr-border);
+  background: #fff;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--clr-text);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+}
+.grade-btn:hover   { border-color: var(--clr-red); }
+.grade-btn:active  { transform: scale(0.96); }
+.grade-btn.selected {
+  background: var(--clr-red);
+  border-color: var(--clr-red);
+  color: #fff;
+}
+
+/* ── Secret-icon picker (12-icon grid, pick 2) ───────────────────── */
+.icon-picker {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: var(--sp-xs);
+}
+.icon-pick {
+  aspect-ratio: 1 / 1;
+  border-radius: var(--r-md);
+  border: 2px solid var(--clr-border);
+  background: #fff;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+}
+.icon-pick:hover  { border-color: var(--clr-red); }
+.icon-pick:active { transform: scale(0.92); }
+.icon-pick.selected {
+  background: #fff3cd;
+  border-color: var(--clr-red);
+  box-shadow: 0 0 0 2px var(--clr-red) inset;
+}
+
+
+/* ── Divider ─────────────────────────────────────────────────────── */
+.modal-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-md);
+  color: var(--clr-text-muted);
+  font-size: var(--text-sm);
+  margin: var(--sp-xs) 0;
+}
+.modal-divider::before,
+.modal-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--clr-border);
+}
+
+
+/* ── MOE button (disabled placeholder) ──────────────────────────── */
+.home-btn--moe {
+  width: 100%;
+  padding: 12px var(--sp-md);
+  background: #EBF5FB;
+  color: #1A6FA6;
+  border: 2px solid #B8D8EF;
+  border-radius: var(--r-pill);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  opacity: 0.65;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+
+/* ── Ghost / guest button ────────────────────────────────────────── */
+.home-btn--ghost {
+  width: 100%;
+  background: none;
+  border: none;
+  color: var(--clr-text-muted);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  text-decoration: underline;
+  padding: var(--sp-sm);
+  cursor: pointer;
+  border-radius: var(--r-md);
+  box-shadow: none;
+}
+.home-btn--ghost:hover { color: var(--clr-navy); }
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURE 3 — AVATAR PICKER
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Avatar modal card gets extra centering */
+.modal-card--avatar {
+  align-items: center;
+  text-align: center;
+}
+
+.modal-title {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  color: var(--clr-navy);
+  margin: 0;
+}
+
+.modal-hint {
+  font-size: var(--text-sm);
+  color: var(--clr-text-muted);
+  margin: 0;
+}
+
+/* 4-column grid: 2 rows of 4 avatars */
+.avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-md);
+  width: 100%;
+  padding: var(--sp-xs) 0;
+}
+
+.avatar-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-xs);
+  padding: var(--sp-sm);
+  border-radius: var(--r-md);
+  border: 3px solid transparent;
+  cursor: pointer;
+  background: var(--clr-grey-light);
+  transition: border-color 0.15s, transform 0.15s, background 0.15s;
+  user-select: none;
+  /* Reset button styles */
+  font: inherit;
+  outline: none;
+}
+
+.avatar-item:hover {
+  background: #fff;
+  transform: scale(1.06);
+}
+
+.avatar-item:focus {
+  outline: 3px solid var(--clr-yellow);
+  outline-offset: 2px;
+}
+
+/* Highlight the selected avatar */
+.avatar-item.selected {
+  border-color: var(--clr-yellow);
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(252,209,22,0.25);
+  transform: scale(1.06);
+}
+
+.avatar-emoji { font-size: 42px; line-height: 1; }
+
+.avatar-name {
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  color: var(--clr-navy);
+}
+
+/* Confirm button — disabled until avatar is selected */
+#btn-confirm-avatar {
+  width: 75%;
+  margin-top: var(--sp-sm);
+}
+
+#btn-confirm-avatar:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--clr-yellow);
+  background: rgba(0,0,0,0.28);
+  border-radius: 99px;
+  padding: 2px 12px;
+}
+
+.home-mascot-region {
+  font-family: var(--font-body);
+  font-size: 10px;
+  color: rgba(255,255,255,0.55);
+}

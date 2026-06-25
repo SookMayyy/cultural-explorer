@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>My Avatar — Cultural Explorer MY</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Fredoka+One&family=Ribeye&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/avatar.css">
+</head>
+<body>
+
+<div class="app-container">
+
+  <!-- Topbar: title + points (mirrors Figma "My Avatar" 273:348) -->
+  <header class="topbar topbar--purple" id="topbar">
+    <div class="topbar-left">
+      <a class="topbar-back" href="settings.html" aria-label="Back">&#8249;</a>
+      <span class="topbar-title">&#128088; My Avatar</span>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-points" id="topbar-pts">&#11088; 0 pts</div>
+    </div>
+  </header>
+
+  <!-- ── Avatar preview banner ──
+       Shows the player's base animal avatar wearing the equipped costume,
+       plus the "Wearing: …" status pill. -->
+  <div class="av-hero">
+    <img src="../assets/images/ui/top-left.png"  class="av-deco av-deco--tl" alt="">
+    <img src="../assets/images/ui/top-right.png" class="av-deco av-deco--tr" alt="">
+
+    <div class="av-hero-preview" id="av-hero-preview" aria-live="polite">
+      <span class="av-hero-base"   id="av-hero-base">&#129409;</span>
+      <span class="av-hero-costume" id="av-hero-costume">&#128088;</span>
+    </div>
+
+    <div class="av-hero-info">
+      <p class="av-hero-name">Explorer</p>
+      <span class="av-wearing-pill">Wearing: <span id="av-wearing-name">Baju Melayu</span></span>
+    </div>
+  </div>
+
+  <!-- ── Costume shop ── -->
+  <main class="av-main">
+
+    <h2 class="av-section-title">&#128717;&#65039; Unlock Costumes</h2>
+
+    <!-- Costume grid — built by avatar.js from the COSTUMES array.
+         Each card is Equipped / Equip (owned) / Unlock (price). -->
+    <div class="av-grid" id="av-grid" aria-label="Costumes">
+      <!-- Filled by avatar.js -->
+    </div>
+
+  </main>
+
+  <!-- Bottom navigation bar (purple, image icons) -->
+  <nav class="bottom-nav">
+    <a href="home.html" class="map-nav-item">
+      <img src="../assets/images/ui/home-icon.png"   alt="" class="nav-icon">
+      <span>Home</span>
+    </a>
+    <a href="map.html" class="map-nav-item">
+      <img src="../assets/images/ui/my-map-icon.png" alt="" class="nav-icon">
+      <span>Map</span>
+    </a>
+    <a href="stampbook.html" class="map-nav-item">
+      <img src="../assets/images/ui/stamp-icon.png"  alt="" class="nav-icon">
+      <span>Stamps</span>
+    </a>
+    <a href="quiz.html" class="map-nav-item">
+      <img src="../assets/images/ui/quiz-icon.png"   alt="" class="nav-icon">
+      <span>Quiz</span>
+    </a>
+    <a href="settings.html" class="map-nav-item active">
+      <img src="../assets/images/ui/setting-icon.png" alt="" class="nav-icon">
+      <span>Me</span>
+    </a>
+  </nav>
+
+</div>
+
+<script type="module" src="../js/avatar.js"></script>
+</body>
+</html>

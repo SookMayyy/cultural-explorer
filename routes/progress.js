@@ -17,32 +17,43 @@ router.get('/', requireLogin, async (req, res, next) => {
   }
 });
 
-// POST /api/progress/:stateId/complete — mark state complete, award stamp + points
+// POST /api/progress/:stateId/complete — mark state complete, award stamp + points.
+// The +20 completion bonus is paid ONCE, on first completion. Replaying a finished
+// state refreshes the score but does not re-award points (and keeps the original stamp).
 router.post('/:stateId/complete', requireLogin, async (req, res, next) => {
   try {
     const stateId   = parseInt(req.params.stateId);
     const quizScore = parseInt(req.body.quizScore) || 0;
     const userId    = req.session.user.id;
-    const bonusPts  = 20; // state completion bonus
+    const BONUS     = 20; // first-completion bonus
 
-    // Upsert progress row
+    // Was this state already completed? Decide the bonus before the upsert.
+    const [[existing]] = await pool.execute(
+      'SELECT stamp_earned FROM user_progress WHERE user_id = ? AND state_id = ? LIMIT 1',
+      [userId, stateId]
+    );
+    const firstCompletion = !existing || !existing.stamp_earned;
+
+    // Upsert progress row; keep the original completed_at on replays.
     await pool.execute(
       `INSERT INTO user_progress (user_id, state_id, is_completed, stamp_earned, last_quiz_score, completed_at)
        VALUES (?, ?, TRUE, TRUE, ?, NOW())
        ON CONFLICT (user_id, state_id) DO UPDATE SET
          is_completed = TRUE, stamp_earned = TRUE,
-         last_quiz_score = EXCLUDED.last_quiz_score, completed_at = NOW()`,
+         last_quiz_score = EXCLUDED.last_quiz_score,
+         completed_at = COALESCE(user_progress.completed_at, NOW())`,
       [userId, stateId, quizScore]
     );
 
-    // Award bonus points
-    await pool.execute(
-      'UPDATE users SET points = points + ? WHERE id = ?',
-      [bonusPts, userId]
-    );
-    req.session.user.points += bonusPts;
+    // Award the bonus only the first time the state is completed.
+    let bonusPoints = 0;
+    if (firstCompletion) {
+      bonusPoints = BONUS;
+      await pool.execute('UPDATE users SET points = points + ? WHERE id = ?', [bonusPoints, userId]);
+      req.session.user.points += bonusPoints;
+    }
 
-    res.json({ ok: true, bonusPoints: bonusPts });
+    res.json({ ok: true, bonusPoints, alreadyCompleted: !firstCompletion });
   } catch (err) {
     next(err);
   }

@@ -30,3 +30,6 @@ logs/
 # Claude Code project instructions (local only)
 CLAUDE.md
 .claude/
+
+# seed-content.mjs temp ESM twins
+scripts/.gen/

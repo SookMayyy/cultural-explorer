@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="Cultural Explorer Malaysia - Learn about Malaysian states through fun games!">
+  <title>LokaLearn</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Fredoka+One&family=Ribeye&family=Reggae+One&family=Rowdies:wght@300;400;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/home.css">
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       EXACT REPRODUCTION of Figma "Main Page" (293:2441).
+       Fixed 1104×682 stage, scaled to fit the viewport by the inline
+       script at the bottom. Coordinates/colours/fonts match the frame.
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="proto-viewport">
+    <div class="proto-stage" id="proto-stage">
+
+      <!-- Page background image (element 33 — placeholder in Figma) -->
+      <img class="pb-bg" src="../assets/images/ui/home-backgrounds.png" alt="">
+
+      <!-- Mascot illustration (element 34 — Wak the hornbill) -->
+      <div class="pb-illus" aria-hidden="true">
+        <img src="../assets/characters/wak-mascot.png" alt="">
+      </div>
+
+      <!-- LOKALEARN wordmark -->
+      <h1 class="pb-logo"><span class="pb-loka">LOKA</span><span class="pb-learn">LEARN</span></h1>
+
+      <!-- Subtitle -->
+      <p class="pb-subtitle">Jelajah Budaya Malaysia!</p>
+
+      <!-- Description -->
+      <p class="pb-desc">Explore Malaysia&rsquo;s 13 states, discover traditions, foods and festivals &mdash; earn stamps as you go!</p>
+
+      <!-- Buttons (ids kept so home.js still wires the modals) -->
+      <button class="pb-btn pb-start" id="btn-start">START GAME</button>
+      <button class="pb-btn pb-how" id="btn-how-to-play">HOW TO PLAY</button>
+
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       LOGIN / REGISTER MODAL (unchanged — opened by START GAME)
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="login-modal">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-heading">
+
+      <button class="modal-close" id="btn-modal-close" aria-label="Close">&#10005;</button>
+
+      <div class="modal-mascot-row">
+        <span class="modal-mascot-emoji" aria-hidden="true">&#129409;</span>
+        <div class="modal-speech">
+          <p id="modal-greeting" class="modal-greeting-text"></p>
+        </div>
+      </div>
+
+      <div class="modal-tabs" role="tablist" aria-label="Login or Register">
+        <button class="tab-btn active"
+                data-tab="login"
+                role="tab"
+                aria-selected="true"
+                aria-controls="form-login">Login</button>
+        <button class="tab-btn"
+                data-tab="register"
+                role="tab"
+                aria-selected="false"
+                aria-controls="form-register">Register</button>
+      </div>
+
+      <!-- Login form -->
+      <form id="form-login" class="modal-form" novalidate>
+        <input type="text"     id="login-name" class="modal-input"
+               placeholder="Your name" autocomplete="username" required>
+        <div class="grade-select" id="login-grade" role="group" aria-label="Select your grade">
+          <button type="button" class="grade-btn" data-grade="1-2">Grade 1–2</button>
+          <button type="button" class="grade-btn" data-grade="3-4">Grade 3–4</button>
+          <button type="button" class="grade-btn" data-grade="5-6">Grade 5–6</button>
+        </div>
+        <input type="password" id="login-password" class="modal-input"
+               placeholder="Password" autocomplete="current-password" required>
+        <p class="form-error hidden" id="login-error" role="alert"></p>
+        <button type="submit" class="home-btn home-btn--primary modal-submit-btn">
+          Login &#128640;
+        </button>
+        <button type="button" class="modal-link" id="link-forgot">Forgot password?</button>
+      </form>
+
+      <!-- Register form -->
+      <form id="form-register" class="modal-form hidden" novalidate>
+        <input type="text"     id="reg-name" class="modal-input"
+               placeholder="Your name (letters only)" maxlength="20"
+               autocomplete="username" required>
+        <div class="grade-select" id="reg-grade" role="group" aria-label="Select your grade">
+          <button type="button" class="grade-btn" data-grade="1-2">Grade 1–2</button>
+          <button type="button" class="grade-btn" data-grade="3-4">Grade 3–4</button>
+          <button type="button" class="grade-btn" data-grade="5-6">Grade 5–6</button>
+        </div>
+        <input type="password" id="reg-password" class="modal-input"
+               placeholder="Password (min 6 characters)" autocomplete="new-password">
+        <p class="modal-hint reg-pw-hint hidden" id="reg-pw-hint">
+          Grade 1–2 gets an automatic password — no need to type one! &#127880;
+        </p>
+        <p class="modal-hint">Pick 2 secret icons (for password recovery):</p>
+        <div class="icon-picker" id="reg-icons" role="group" aria-label="Pick two secret icons"></div>
+        <p class="form-error hidden" id="reg-error" role="alert"></p>
+        <button type="submit" class="home-btn home-btn--primary modal-submit-btn">
+          Create Account &#127775;
+        </button>
+      </form>
+
+      <!-- Forgot-password / icon recovery form -->
+      <form id="form-recover" class="modal-form hidden" novalidate>
+        <p class="modal-hint">
+          Enter your name &amp; grade, then tap your 2 secret icons
+          <strong>in the same order</strong> you chose them.
+        </p>
+        <input type="text" id="recover-name" class="modal-input"
+               placeholder="Your name" autocomplete="username" required>
+        <div class="grade-select" id="recover-grade" role="group" aria-label="Select your grade">
+          <button type="button" class="grade-btn" data-grade="1-2">Grade 1–2</button>
+          <button type="button" class="grade-btn" data-grade="3-4">Grade 3–4</button>
+          <button type="button" class="grade-btn" data-grade="5-6">Grade 5–6</button>
+        </div>
+        <div class="icon-picker" id="recover-icons" role="group" aria-label="Tap your two secret icons"></div>
+        <input type="password" id="recover-newpw" class="modal-input hidden"
+               placeholder="New password (min 6 characters)" autocomplete="new-password">
+        <p class="form-error hidden" id="recover-error" role="alert"></p>
+        <p class="form-success hidden" id="recover-success" role="status"></p>
+        <button type="submit" class="home-btn home-btn--primary modal-submit-btn">
+          Recover &#128273;
+        </button>
+        <button type="button" class="modal-link" id="link-back-login">&#8249; Back to login</button>
+      </form>
+
+      <div class="modal-divider"><span>or</span></div>
+
+      <button class="home-btn home-btn--moe" disabled aria-disabled="true">
+        &#127979; MOE Account Login &middot; Coming Soon
+      </button>
+
+      <button class="home-btn home-btn--ghost" id="btn-guest-modal">
+        &#128100; Play as Guest
+      </button>
+
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       AVATAR PICKER MODAL (unchanged)
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="avatar-modal">
+    <div class="modal-card modal-card--avatar" role="dialog" aria-modal="true" aria-labelledby="avatar-heading">
+
+      <h2 class="modal-title" id="avatar-heading">Pick Your Explorer! &#127258;</h2>
+      <p class="modal-hint">Tap a character to choose your avatar</p>
+
+      <div class="avatar-grid" id="avatar-grid" role="listbox" aria-label="Choose your avatar"></div>
+
+      <button class="home-btn home-btn--primary" id="btn-confirm-avatar" disabled>
+        Let&#39;s Go! &#127881;
+      </button>
+
+    </div>
+  </div>
+
+
+  <script type="module" src="../js/home.js"></script>
+
+  <!-- Scale the fixed 1104×682 stage to fit the viewport (never upscale) -->
+  <script>
+    (function () {
+      var stage = document.getElementById('proto-stage');
+      function fit() {
+        var s = Math.min(window.innerWidth / 1120, window.innerHeight / 698, 1);
+        stage.style.transform = 'scale(' + s + ')';
+      }
+      window.addEventListener('resize', fit);
+      fit();
+    })();
+  </script>
+</body>
+</html>

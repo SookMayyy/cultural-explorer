@@ -1,0 +1,201 @@
+/* ═══════════════════════════════════════════════════════════════════
+   FORGOT PASSWORD  —  recover.css   (Figma "Forgot Password" 273:86)
+   Standalone page: identify by name + grade, tap 2 secret icons in
+   order, then (Grade 3+) set a new password.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.rec-screen {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-lg);
+  background: linear-gradient(160deg, #fdf6e9 0%, #f6e3c9 100%);
+  overflow-y: auto;
+}
+
+/* Batik corner decorations */
+.rec-deco {
+  position: absolute;
+  width: 110px;
+  pointer-events: none;
+  opacity: 0.4;
+}
+.rec-deco--tl { top: 0; left: 0; }
+.rec-deco--tr { top: 0; right: 0; transform: scaleX(-1); }
+
+/* ── Card ── */
+.rec-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 420px;
+  background: var(--clr-card);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--sp-xl) var(--sp-lg) var(--sp-lg);
+  margin: auto;
+}
+
+.rec-back {
+  position: absolute;
+  top: var(--sp-md);
+  left: var(--sp-md);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--clr-bg);
+  color: var(--clr-text);
+  font-size: 22px;
+  text-decoration: none;
+}
+
+.rec-title {
+  font-family: var(--font-title);
+  font-size: var(--text-2xl);
+  color: var(--clr-red);
+  text-align: center;
+  margin: 0 0 4px;
+}
+.rec-sub {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--clr-text-muted);
+  text-align: center;
+  margin: 0 0 var(--sp-lg);
+}
+
+/* ── Form ── */
+.rec-form { display: flex; flex-direction: column; gap: var(--sp-sm); }
+
+.rec-label {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  color: var(--clr-text);
+  margin-top: var(--sp-xs);
+}
+
+.rec-input {
+  width: 100%;
+  padding: 13px var(--sp-md);
+  border: 2px solid var(--clr-border);
+  border-radius: var(--r-md);
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  color: var(--clr-text);
+  background: #fff;
+}
+.rec-input:focus {
+  outline: none;
+  border-color: var(--clr-red);
+}
+
+/* ── Grade selector ── */
+.grade-select { display: flex; gap: var(--sp-xs); }
+.grade-btn {
+  flex: 1;
+  padding: 10px 4px;
+  border: 2px solid var(--clr-border);
+  border-radius: var(--r-md);
+  background: #fff;
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  color: var(--clr-text);
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s, transform 0.1s;
+}
+.grade-btn:active { transform: scale(0.96); }
+.grade-btn.selected {
+  border-color: var(--clr-red);
+  background: #fdecea;
+  color: var(--clr-red);
+}
+
+/* ── Instruction + icon picker ── */
+.rec-instruction {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--clr-text);
+  text-align: center;
+  margin: var(--sp-sm) 0 0;
+}
+
+.icon-picker {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-sm);
+  margin-top: var(--sp-xs);
+}
+.icon-pick {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  border: 2.5px solid var(--clr-border);
+  border-radius: var(--r-md);
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s, transform 0.12s;
+}
+.icon-pick:active { transform: scale(0.92); }
+.icon-pick.selected {
+  border-color: var(--clr-gold);
+  background: #fffbf0;
+  box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.25);
+}
+
+.rec-counter {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  color: var(--clr-text-muted);
+  text-align: center;
+  margin: 0;
+}
+.rec-counter span { color: var(--clr-red); }
+
+/* ── Messages ── */
+.form-error {
+  color: var(--clr-red);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  text-align: center;
+  margin: 0;
+}
+.form-success {
+  color: var(--clr-green);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  text-align: center;
+  margin: 0;
+}
+
+/* ── Submit + link ── */
+.rec-submit {
+  width: 100%;
+  padding: 14px var(--sp-lg);
+  border: none;
+  border-radius: var(--r-pill);
+  background: var(--clr-red);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  cursor: pointer;
+  margin-top: var(--sp-sm);
+  transition: transform 0.1s, filter 0.12s;
+}
+.rec-submit:active:not(:disabled) { transform: scale(0.98); filter: brightness(0.96); }
+.rec-submit:disabled { background: #d9b8b3; cursor: not-allowed; }
+
+.rec-link {
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--clr-text-muted);
+  text-decoration: none;
+  margin-top: var(--sp-xs);
+}
