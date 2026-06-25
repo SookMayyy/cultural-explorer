@@ -28,7 +28,7 @@
 
 /* 📸 IMAGE NEEDED: rimau-welcome.png — Rimau mascot waving
    Export from Figma → Login/Rimau welcome pose
-   Place in: public/assets/images/mascots/rimau-welcome.png */
+   Place in: src/assets/images/mascots/rimau-welcome.png */
 .login-mascot {
   display: flex;
   flex-direction: column;

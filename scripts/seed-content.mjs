@@ -2,7 +2,7 @@
 // Seeds the DB tables that the backend reads but the schema never populated:
 //   states (re-aligned to the frontend), cultural_content, state_dialogue, quiz_questions.
 //
-// Source of truth = the frontend ES modules in public/js/data/. Those files use
+// Source of truth = the frontend ES modules in src/js/data/. Those files use
 // `export const`, so we copy them to temporary `.mjs` twins (forcing ESM parsing)
 // and dynamic-import them — no content is duplicated by hand.
 //
@@ -18,7 +18,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root      = path.join(__dirname, '..');
-const dataDir   = path.join(root, 'public', 'js', 'data');
+const dataDir   = path.join(root, 'src', 'js', 'data');
 const tmpDir    = path.join(__dirname, '.gen');
 
 // ── Load the frontend data modules as ESM ──────────────────────────────────────

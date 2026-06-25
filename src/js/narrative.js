@@ -131,7 +131,7 @@ function buildPostcardHTML(card, index) {
       <!-- Image area: emoji placeholder until real art loads -->
       <!-- 📸 IMAGE NEEDED: assets/images/cards/${stateId}/${card.id}.png
            Export from Figma → Cards/${state.name}/${card.category} — illustrated scene
-           Place in: public/assets/images/cards/${stateId}/${card.id}.png -->
+           Place in: src/assets/images/cards/${stateId}/${card.id}.png -->
       <div class="postcard__img-wrap" id="${imgAreaId}" aria-hidden="true">
         ${card.icon}
       </div>

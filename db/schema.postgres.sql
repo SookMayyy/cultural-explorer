@@ -163,7 +163,7 @@ CREATE TABLE IF NOT EXISTS user_costumes (
 ALTER TABLE states ADD COLUMN IF NOT EXISTS story TEXT;
 
 -- States (7 representative states for CP2 prototype).
--- These MUST match the frontend single-source-of-truth in public/js/data/states.js
+-- These MUST match the frontend single-source-of-truth in src/js/data/states.js
 -- (Penang, Melaka, Selangor, Johor, Kelantan, Sabah, Sarawak).
 INSERT INTO states (id, name, region, mascot, color_hex, flag_file, is_locked_default, unlock_after, sort_order) VALUES
   (1, 'Penang',   'west', 'rimau', '#E67E22', 'penang-flag.png',   FALSE, 0, 1),

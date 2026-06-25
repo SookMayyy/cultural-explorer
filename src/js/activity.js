@@ -7,7 +7,7 @@
 import Storage from './utils/storage.js';
 import { requireAuth, getStateParam } from './ui.js';
 import { STATES_DATA } from './data/states.js';
-import { avatarEmoji } from './data/avatars.js';
+import { avatarStackHTML } from './utils/avatarDisplay.js';
 import DragMatch from './components/dragMatch.js';
 
 // ── Auth guard ───────────────────────────────────────────────────────────────
@@ -27,7 +27,7 @@ if (topbar && state) {
 }
 
 document.getElementById('topbar-pts').textContent    = `⭐ ${Storage.getPoints()} pts`;
-document.getElementById('topbar-avatar').textContent = avatarEmoji(session.avatarId);
+document.getElementById('topbar-avatar').innerHTML = avatarStackHTML(session.avatarId);
 
 // ── Build drag pairs for this state ───────────────────────────────────────────
 // Each pair is { food, state } where "food" = the chip the player taps, and

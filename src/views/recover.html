@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Forgot Password — Cultural Explorer MY</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Fredoka+One&family=Ribeye&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/recover.css">
+</head>
+<body>
+
+<div class="app-container">
+
+  <main class="rec-screen">
+
+    <!-- Batik corner decorations for cultural consistency -->
+    <img src="../assets/images/ui/top-left.png"  class="rec-deco rec-deco--tl" alt="">
+    <img src="../assets/images/ui/top-right.png" class="rec-deco rec-deco--tr" alt="">
+
+    <div class="rec-card">
+
+      <!-- Header -->
+      <a class="rec-back" href="home.html" aria-label="Back to login">&#8249;</a>
+      <h1 class="rec-title">Forgot Password?</h1>
+      <p class="rec-sub">No worries! Let&rsquo;s find your account.</p>
+
+      <!-- ── Step 1: identify the account ── -->
+      <form id="form-recover" class="rec-form" novalidate>
+
+        <label class="rec-label" for="recover-name">Your name</label>
+        <input type="text" id="recover-name" class="rec-input"
+               placeholder="Type your name" autocomplete="username" required>
+
+        <label class="rec-label">Your grade</label>
+        <div class="grade-select" id="recover-grade" role="group" aria-label="Select your grade">
+          <button type="button" class="grade-btn" data-grade="1-2">Grade 1&ndash;2</button>
+          <button type="button" class="grade-btn" data-grade="3-4">Grade 3&ndash;4</button>
+          <button type="button" class="grade-btn" data-grade="5-6">Grade 5&ndash;6</button>
+        </div>
+
+        <!-- ── Step 2: tap the 2 secret icons in order ── -->
+        <p class="rec-instruction">
+          Tap the <strong>2 icons</strong> you chose when you signed up
+          &mdash; <strong>in the same order</strong>.
+        </p>
+        <div class="icon-picker" id="recover-icons" role="group" aria-label="Tap your two secret icons"></div>
+        <p class="rec-counter">Selected: <span id="recover-count">0</span> of 2</p>
+
+        <!-- New password (Grade 3+ only; Grade 1-2 gets an auto password) -->
+        <label class="rec-label rec-newpw-label hidden" id="recover-newpw-label" for="recover-newpw">
+          New password
+        </label>
+        <input type="password" id="recover-newpw" class="rec-input hidden"
+               placeholder="New password (min 6 characters)" autocomplete="new-password">
+
+        <p class="form-error hidden" id="recover-error" role="alert"></p>
+        <p class="form-success hidden" id="recover-success" role="status"></p>
+
+        <button type="submit" class="rec-submit" id="recover-submit">Verify &rarr;</button>
+        <a class="rec-link" href="home.html">&#8249; Back to login</a>
+      </form>
+
+    </div>
+  </main>
+
+</div>
+
+<script type="module" src="../js/recover.js"></script>
+</body>
+</html>

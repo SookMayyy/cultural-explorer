@@ -12,7 +12,7 @@ npm install      # first time only
 npm run dev      # http://localhost:3000  (live reload)
 ```
 
-Open `http://localhost:3000` → it serves `public/views/home.html`.
+Open `http://localhost:3000` → it serves `src/views/home.html`.
 To reset all test data: open Settings → Reset Progress, or run
 `localStorage.clear()` in the browser console.
 

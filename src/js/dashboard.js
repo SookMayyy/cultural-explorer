@@ -3,7 +3,7 @@
 import Storage from './utils/storage.js';
 import { renderTopbar, renderNavbar, requireAuth } from './ui.js';
 import { STATES_DATA, nextRecommended } from './data/states.js';
-import { avatarEmoji } from './data/avatars.js';
+import { avatarStackHTML } from './utils/avatarDisplay.js';
 
 const session = requireAuth();
 
@@ -26,7 +26,7 @@ function levelLabel(n) {
 }
 
 // ── Hero ──────────────────────────────────────────────────────────────────────
-document.getElementById('dash-avatar').textContent = avatarEmoji(session.avatarId ?? 0);
+document.getElementById('dash-avatar').innerHTML = avatarStackHTML(session.avatarId ?? 0);
 document.getElementById('dash-name').textContent   = session.displayName || 'Explorer';
 document.getElementById('dash-level').textContent  = levelLabel(completed);
 

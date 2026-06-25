@@ -96,7 +96,7 @@ cultural-explorer/
 │   └── schema.sql         # legacy MySQL schema (kept for history; not used)
 │
 ├── scripts/
-│   └── seed-content.mjs   # Ports public/js/data/* into the DB content tables
+│   └── seed-content.mjs   # Ports src/js/data/* into the DB content tables
 │   └── .gen/              # (git-ignored) temp ESM twins the seed creates — auto-managed
 │
 ├── tests/
@@ -111,7 +111,7 @@ cultural-explorer/
 │   ├── fr7-auth.test.js    # FR7 — login, auto-password lifecycle, icon recovery, session
 │   └── backend.test.js    # FR1–FR6 integration smoke tests (Jest + Supertest)
 │
-├── public/                # Frontend — served statically by Express (MPA, no bundler)
+├── src/                # Frontend — served statically by Express (MPA, no bundler)
 │   ├── views/             #   one .html per screen (home, map, quiz, …)
 │   ├── js/
 │   │   ├── <screen>.js    #   page logic, one ES module per view
@@ -130,7 +130,7 @@ cultural-explorer/
 
 ### The data-flow you must understand
 
-- The **frontend renders from `public/js/data/`** ES modules directly (offline-capable).
+- The **frontend renders from `src/js/data/`** ES modules directly (offline-capable).
 - The **backend serves the same content from the DB**, but those tables are **empty
   until `npm run seed` runs**. The seed copies `js/data/` → DB so both layers agree.
 - ⇒ **If you edit content in `js/data/`, re-run `npm run seed`** to keep the DB in sync.
@@ -282,7 +282,7 @@ Use this as a regression checklist whenever the backend changes.
 
 > **Two of the three mini-games have no backend.** Drag-Match and Guess-the-State (plus
 > adaptive difficulty and spaced-repetition resurfacing) run entirely client-side from
-> `public/js/data/`. They're verified as a **content contract** against the source
+> `src/js/data/`. They're verified as a **content contract** against the source
 > modules — the same data the screens render from — not via the API.
 >
 > ⚠️ **Guess-the-State spec drift:** `docs/CLAUDE.md` §3 says *"4 progressive clues,
@@ -370,7 +370,7 @@ Use this as a regression checklist whenever the backend changes.
   verify them manually if needed.
 - **Guess-the-State: 3 clues in data vs. 4 in the spec.** `docs/CLAUDE.md` §3 describes
   *"4 progressive clues. Early correct = more points (+20/15/10/5)."* The shipped
-  `public/js/data/guessRounds.js` ships **3 hints per round with `pointValues` [30,20,10]**.
+  `src/js/data/guessRounds.js` ships **3 hints per round with `pointValues` [30,20,10]**.
   `tests/fr3-minigames.test.js` locks in the *actual* contract (descending values, one per
   clue) rather than the spec numbers, and the drift is tracked here for later reconciliation
   (either add a 4th clue per round or update the spec to 3 clues).
@@ -386,9 +386,9 @@ Use this as a regression checklist whenever the backend changes.
   `docs/CLAUDE.md §6`). Frontend `fetch()` must use the actual paths above.
 - **Answer leak:** `GET /api/quiz/state/:id` currently returns `correct_opt` to the
   client. Consider stripping it before shipping (rely on `/api/quiz/validate`).
-- **Content lives in two places:** `public/js/data/` (frontend) and the DB (backend).
+- **Content lives in two places:** `src/js/data/` (frontend) and the DB (backend).
   The seed keeps them in sync — re-run `npm run seed` after editing `js/data/`.
-- **Assets are placeholders:** `public/assets/` images/audio are mostly empty; UI falls
+- **Assets are placeholders:** `src/assets/` images/audio are mostly empty; UI falls
   back to emoji until Figma exports land.
 - **MySQL → Postgres:** older docs and `db/schema.sql` mention MySQL/XAMPP; the live
   backend is Supabase Postgres. `db/schema.postgres.sql` is the one to run.

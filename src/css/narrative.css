@@ -450,7 +450,7 @@
    📸 IMAGE NEEDED: {stateId}/{cardId}.png — illustrated cultural scene.
    This placeholder shows an emoji + subtle texture until the real art lands.
    Export from Figma → Cards/{StateName}/{Category} — illustrated scene
-   Place in: public/assets/images/cards/{stateId}/{cardId}.png */
+   Place in: src/assets/images/cards/{stateId}/{cardId}.png */
 .postcard__img-wrap {
   width: 100%;
   height: 150px;
