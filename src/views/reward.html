@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Well Done! — Cultural Explorer MY</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Fredoka+One&family=Ribeye&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/reward.css">
+</head>
+<body>
+
+  <div class="app-container">
+
+  <!-- Full-screen reward — no topbar/navbar: the celebration fills the whole screen.
+       Layout mirrors the Figma "Stamp Earned" frame (273:382):
+       confetti → stamp circle → headline → subline → dual-stat card → two CTAs,
+       with a mascot peeking in from the bottom-left corner. -->
+  <main class="reward-screen">
+
+    <!-- Animated confetti/stars background layer -->
+    <div class="reward-stars" id="reward-stars" aria-hidden="true"></div>
+
+    <!-- State colour accent bar at the very top — reward.js sets the colour -->
+    <div class="reward-accent-bar" id="reward-accent"></div>
+
+    <!-- Centred celebration column -->
+    <div class="reward-body">
+
+      <!-- ── Stamp earned reveal ──
+           Round collectible stamp. Shown when the student scores ≥ 50%.
+           The .reward-stamp uses the stamp-fly-in keyframe from style.css.
+           📸 IMAGE NEEDED: assets/images/stamps/{stateId}.png -->
+      <div class="reward-stamp-container" id="reward-stamp-container">
+        <div class="reward-stamp-glow" id="reward-stamp-glow"></div>
+        <div class="reward-stamp" id="reward-stamp">
+          <div class="reward-stamp-inner">
+            <span class="reward-stamp-emoji" id="stamp-emoji">&#127965;&#65039;</span>
+            <span class="reward-stamp-name" id="stamp-name">State Name</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Headline + subline ── -->
+      <h1 class="reward-headline" id="reward-result-label">Amazing! &#127881;</h1>
+      <p class="reward-subline" id="reward-subline">
+        You&#39;ve earned the <span id="stamp-state-name">State</span> Stamp
+      </p>
+
+      <!-- ── No-stamp message (shown when score < 50%) ── -->
+      <div class="reward-no-stamp hidden" id="reward-no-stamp">
+        <p>&#128170; Score at least 50% to earn a stamp!</p>
+        <p class="reward-no-stamp-sub" id="no-stamp-msg">Keep practising — you can do it!</p>
+      </div>
+
+      <!-- ── Dual-stat card: points earned + stamps collected ── -->
+      <div class="reward-stats-card" id="reward-stats-card">
+        <div class="reward-stat">
+          <span class="reward-stat-value" id="reward-pts-earned">+0</span>
+          <span class="reward-stat-label">Points earned</span>
+        </div>
+        <div class="reward-stat-divider" aria-hidden="true"></div>
+        <div class="reward-stat">
+          <span class="reward-stat-value" id="reward-stamp-count">0/7</span>
+          <span class="reward-stat-label" id="reward-stamp-count-label">Stamps collected</span>
+        </div>
+      </div>
+
+      <!-- ── Action buttons ── -->
+      <div class="reward-actions">
+        <a class="reward-btn-primary" id="reward-continue" href="map.html">
+          Continue Exploring! &#8594;
+        </a>
+        <a class="reward-btn-secondary" href="stampbook.html">
+          View Stamp Book &#128218;
+        </a>
+      </div>
+
+    </div>
+
+    <!-- ── Corner mascot ──
+         📸 IMAGE NEEDED: assets/images/mascots/rimau-celebrate.png -->
+    <div class="reward-mascot" id="reward-mascot" aria-hidden="true">&#129409;</div>
+
+  </main>
+
+  </div><!-- end app-container -->
+
+  <script type="module" src="../js/reward.js"></script>
+</body>
+</html>

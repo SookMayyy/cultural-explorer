@@ -1,0 +1,214 @@
+/* ═══════════════════════════════════════════════════════════════════
+   AVATAR SHOP  —  avatar.css   (Figma "Avatar Shop" 273:280)
+   Purple theme. Costume shop: preview banner + costume grid where
+   players spend points to unlock culturally-themed outfits.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.app-container { background: var(--clr-bg); }
+
+.topbar--purple {
+  background: linear-gradient(to right, #7b4dff, #5a7dff);
+}
+
+/* ── Preview banner ── */
+.av-hero {
+  position: relative;
+  background: linear-gradient(135deg, #6b50ce 0%, #8a72e0 60%, #5a7dff 100%);
+  padding: var(--sp-xl) var(--sp-lg) var(--sp-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-lg);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.av-deco {
+  position: absolute;
+  width: 90px;
+  pointer-events: none;
+  opacity: 0.55;
+}
+.av-deco--tl { top: 0; left: 0; }
+.av-deco--tr { top: 0; right: 0; transform: scaleX(-1); }
+
+/* Avatar preview: base animal avatar with the equipped costume overlaid */
+.av-hero-preview {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  flex-shrink: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.18);
+  border: 3px solid rgba(255,255,255,0.5);
+  border-radius: 50%;
+  animation: av-bounce-in 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  filter: drop-shadow(0 6px 16px rgba(0,0,0,0.3));
+}
+.av-hero-base    { font-size: 52px; line-height: 1; }
+.av-hero-costume {
+  position: absolute;
+  right: -6px;
+  bottom: -4px;
+  font-size: 38px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.35));
+  /* re-pop whenever JS swaps the equipped costume */
+  animation: av-bounce-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes av-bounce-in {
+  from { transform: scale(0.4); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+.av-hero-info {
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-xs);
+}
+.av-hero-name {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  color: #fff;
+  margin: 0;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+.av-wearing-pill {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: #fff;
+  background: rgba(255,255,255,0.22);
+  border-radius: var(--r-pill);
+  padding: 4px 12px;
+}
+.av-wearing-pill span { font-weight: 700; }
+
+/* ── Main content ── */
+.av-main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-md);
+  padding: var(--sp-lg) var(--sp-lg) calc(var(--navbar-h) + var(--sp-xl));
+  overflow-y: auto;
+}
+.av-section-title {
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  color: var(--clr-text);
+  margin: 0;
+}
+
+/* ── Costume grid (3 columns, per Figma) ── */
+.av-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-md);
+}
+@media (max-width: 380px) {
+  .av-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ── Costume card ── */
+.av-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-xs);
+  padding: var(--sp-md) var(--sp-sm);
+  background: var(--clr-card);
+  border: 2.5px solid var(--clr-border);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+.av-card.is-locked { background: #faf8ff; }
+.av-card.is-equipped {
+  border-color: var(--clr-gold);
+  background: #fffbf0;
+  box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.25), var(--shadow-sm);
+}
+
+/* Round icon backdrop holding the costume emoji */
+.av-card-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #f0eafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.av-card.is-equipped .av-card-icon { background: #fff3cc; }
+.av-card-icon span { font-size: 32px; line-height: 1; }
+
+.av-card-name {
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  color: var(--clr-text);
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* Foot area: holds the price + button, or the Equipped tag */
+.av-card-foot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  margin-top: auto;
+}
+.av-card-price {
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  color: #b07c00;
+}
+
+/* Equipped tag */
+.av-card-equipped-tag {
+  font-size: 10px;
+  font-family: var(--font-body);
+  font-weight: 700;
+  color: #b07c00;
+  background: #fff3cc;
+  border-radius: var(--r-pill);
+  padding: 3px 10px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Action buttons (Unlock / Equip) */
+.av-card-btn {
+  width: 100%;
+  border: none;
+  border-radius: var(--r-pill);
+  padding: 6px 8px;
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  cursor: pointer;
+  transition: transform 0.1s, filter 0.12s;
+}
+.av-card-btn:active { transform: scale(0.95); }
+.av-card-btn--unlock { background: #6b50ce; color: #fff; }
+.av-card-btn--unlock:active { filter: brightness(0.95); }
+.av-card-btn--equip  { background: var(--clr-green); color: #fff; }
+
+/* ── Bottom nav icons ── */
+.nav-icon { width: 30px; height: 30px; object-fit: contain; }
+
+/* ── Screen entry animation ── */
+@media (prefers-reduced-motion: no-preference) {
+  .av-hero { animation: screen-slide-up 0.3s ease-out both; }
+  .av-main { animation: screen-slide-up 0.35s 0.05s ease-out both; }
+}
+@keyframes screen-slide-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

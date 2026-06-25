@@ -37,7 +37,7 @@ const STATE_IDS = ['penang', 'melaka', 'selangor', 'johor', 'kelantan', 'sabah',
 let STATES_DATA, QUIZ_QUESTIONS, GUESS_ROUNDS;
 
 beforeAll(() => {
-  const dataDir = path.join(__dirname, '..', 'public', 'js', 'data');
+  const dataDir = path.join(__dirname, '..', 'src', 'js', 'data');
   const tmp     = fs.mkdtempSync(path.join(os.tmpdir(), 'ce-fr3-'));
   const twinUrl = (file) => {
     const t = path.join(tmp, file.replace(/\.js$/, '.mjs'));

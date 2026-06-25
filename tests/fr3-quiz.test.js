@@ -14,7 +14,7 @@
 //
 // Out of scope here (frontend-only, no backend endpoint): adaptive difficulty,
 // spaced-repetition of wrong answers, Drag-Match, and Guess-the-State. Those are
-// driven entirely client-side from public/js/data/ + the game components.
+// driven entirely client-side from src/js/data/ + the game components.
 //
 // Requires `npm run seed` to have populated quiz_questions.
 

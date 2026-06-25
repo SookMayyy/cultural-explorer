@@ -37,16 +37,16 @@ app.use('/api/progress', progressRoutes);
 // /api/class — teacher dashboard routes (future implementation)
 
 // ── Static files ──────────────────────────────────────────────────────────────
-// Serve the public/ directory — HTML, CSS, JS, assets
-app.use(express.static(path.join(__dirname, 'public')));
+// Serve the src/ directory — HTML, CSS, JS, assets
+app.use(express.static(path.join(__dirname, 'src')));
 
 // For direct page navigation (e.g. /views/map.html typed in address bar),
-// serve files from public/views/ as well
-app.use('/views', express.static(path.join(__dirname, 'public', 'views')));
+// serve files from src/views/ as well
+app.use('/views', express.static(path.join(__dirname, 'src', 'views')));
 
 // Root → home page
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'views', 'home.html'));
+  res.sendFile(path.join(__dirname, 'src', 'views', 'home.html'));
 });
 
 // ── Global error handler ──────────────────────────────────────────────────────

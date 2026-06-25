@@ -10,7 +10,12 @@ const KEY = {
   BEST:      PREFIX + 'best_score',
   STATE:     PREFIX + 'current_state',
   USERS:     PREFIX + 'users',       // array of registered user objects
+  COSTUMES:  PREFIX + 'costumes',    // array of unlocked costume ids
+  COSTUME:   PREFIX + 'costume',     // currently-equipped costume id
 };
+
+// Free costume every player owns from the start (see data/costumes.js).
+const DEFAULT_COSTUME_ID = 'baju-melayu';
 
 const Storage = {
   // ── Session ─────────────────────────────────────────────────────────
@@ -63,6 +68,15 @@ const Storage = {
     if (session) { session.points = current + n; this.setSession(session); }
     return current + n;
   },
+  // Spend points (e.g. unlocking a costume). Returns false if not enough.
+  spendPoints(n) {
+    const current = this.getPoints();
+    if (n > current) return false;
+    localStorage.setItem(KEY.POINTS, String(current - n));
+    const session = this.getSession();
+    if (session) { session.points = current - n; this.setSession(session); }
+    return true;
+  },
 
   // ── Stamps ──────────────────────────────────────────────────────────
   getStamps() {
@@ -80,6 +94,32 @@ const Storage = {
   },
   stampCount() {
     return this.getStamps().length;
+  },
+
+  // ── Costumes (Avatar Shop) ───────────────────────────────────────────
+  // Unlocked costumes are stored as an array of ids; the default free
+  // costume is always considered owned and equipped if nothing is set.
+  getUnlockedCostumes() {
+    let list;
+    try { list = JSON.parse(localStorage.getItem(KEY.COSTUMES)) || []; } catch { list = []; }
+    if (!list.includes(DEFAULT_COSTUME_ID)) list.unshift(DEFAULT_COSTUME_ID);
+    return list;
+  },
+  isCostumeUnlocked(id) {
+    return this.getUnlockedCostumes().includes(id);
+  },
+  unlockCostume(id) {
+    const list = this.getUnlockedCostumes();
+    if (!list.includes(id)) {
+      list.push(id);
+      localStorage.setItem(KEY.COSTUMES, JSON.stringify(list));
+    }
+  },
+  getEquippedCostume() {
+    return localStorage.getItem(KEY.COSTUME) || DEFAULT_COSTUME_ID;
+  },
+  setEquippedCostume(id) {
+    localStorage.setItem(KEY.COSTUME, id);
   },
 
   // ── Best quiz score ─────────────────────────────────────────────────

@@ -19,7 +19,7 @@
   gap: var(--sp-sm);
   overflow: hidden;
   /* 📸 IMAGE NEEDED: batik-pattern.png — batik texture overlay on hero
-     Already in: public/assets/images/ui/batik-pattern.png — use as background-image */
+     Already in: src/assets/images/ui/batik-pattern.png — use as background-image */
 }
 
 .dash-deco {
