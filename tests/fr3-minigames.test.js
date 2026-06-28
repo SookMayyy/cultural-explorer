@@ -22,9 +22,9 @@
 //   Drag-Match     — 3–4 pairs per state; tap chip → tap drop zone.
 //   Guess-the-State— progressive clues; earlier correct = more points (descending values).
 //
-// ⚠️ Known spec/data drift (asserted against the ACTUAL data, see note in the Guess block):
-//   spec text says "4 progressive clues, +20/15/10/5"; the shipped data has 3 hints with
-//   pointValues [30,20,10]. This suite locks in the real contract and flags the drift.
+// ✅ Spec/data reconciled: Guess-the-State now ships 4 progressive clues worth
+//   +20/15/10/5 and 5 answer options. Clues unlock as the player guesses wrong
+//   (keep-trying mechanic in guess.js). This suite locks the data contract in.
 
 const fs   = require('node:fs');
 const os   = require('node:os');
@@ -144,15 +144,14 @@ describe('FR3 — Guess the State (guessRounds.js)', () => {
   });
 
   test('clues are progressive and worth descending points (early correct = more points)', () => {
-    // NOTE: CLAUDE.md FR3 says "4 progressive clues, +20/15/10/5", but the shipped data
-    // uses 3 hints with pointValues [30,20,10]. We assert the ACTUAL contract here and
-    // track the drift in the file header. Update both once the spec/data are reconciled.
+    // RECONCILED: data now matches CLAUDE.md FR3 — 4 progressive clues worth
+    // +20/15/10/5. Clues reveal as the player guesses wrong (keep-trying, in guess.js).
     for (const r of GUESS_ROUNDS) {
       expect(Array.isArray(r.hints)).toBe(true);
-      expect(r.hints.length).toBeGreaterThanOrEqual(3);
+      expect(r.hints).toHaveLength(4);
       r.hints.forEach(h => { expect(typeof h).toBe('string'); expect(h.length).toBeGreaterThan(0); });
 
-      expect(Array.isArray(r.pointValues)).toBe(true);
+      expect(r.pointValues).toEqual([20, 15, 10, 5]);
       expect(r.pointValues).toHaveLength(r.hints.length);   // one value per clue
       for (let i = 1; i < r.pointValues.length; i++) {
         expect(r.pointValues[i]).toBeLessThan(r.pointValues[i - 1]); // strictly descending

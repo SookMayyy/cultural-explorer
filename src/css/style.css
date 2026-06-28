@@ -36,28 +36,30 @@
   --clr-bg:         #FEF7E8;   /* Warm cream — aged kopitiam paper */
   --clr-bg-warm:    #FDF0D4;   /* Deeper cream for map background zones */
   --clr-card:       #FFFFFF;
-  --clr-border:     #E8DFC8;
+  --clr-border:     #f0eafc;
   --clr-border-warm:#D4C4A0;   /* Warmer border for path / decorative elements */
   --clr-text:       #2C1810;   /* Very dark warm brown — more Malaysian than pure black */
   --clr-text-muted: #7A6856;   /* Warm muted brown */
   --clr-grey:       #A89880;   /* Warm grey */
   --clr-grey-light: #F5EFE4;   /* Warm light grey */
-  --clr-margin-bg:  #E8DFC8;   /* Warm parchment — visible on large screens */
+  --clr-margin-bg:  #f0eafc;   /* Warm parchment — visible on large screens */
 
   /* ── Typography ── */
   --font-display: 'Fredoka One', 'Baloo 2', cursive;
   --font-title:   'Ribeye', serif;
   --font-body:    'Baloo 2', sans-serif;
 
-  /* ── Font sizes ── */
-  --text-xs:   11px;
-  --text-sm:   13px;
-  --text-base: 15px;
-  --text-md:   17px;
-  --text-lg:   20px;
-  --text-xl:   24px;
-  --text-2xl:  30px;
-  --text-3xl:  38px;
+  /* ── Font sizes ──
+     Scaled up for young readers (primary-school audience). Adjust here to
+     re-scale the whole app's typography at once. */
+  --text-xs:   13px;
+  --text-sm:   15px;
+  --text-base: 17px;
+  --text-md:   19px;
+  --text-lg:   23px;
+  --text-xl:   28px;
+  --text-2xl:  34px;
+  --text-3xl:  44px;
 
   /* ── Spacing ── */
   --sp-xs:  4px;
@@ -159,6 +161,7 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 0 var(--sp-md);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
   box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
@@ -175,15 +178,23 @@ body {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.2);
+  background: transparent;
   color: #fff;
-  font-size: var(--text-lg);
   cursor: pointer;
   border: none;
-  transition: background 0.15s;
+  transition: transform 0.15s ease;
 }
 
-.topbar-back:hover { background: rgba(255,255,255,0.35); }
+.topbar-back img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  display: block;
+}
+
+/* Grow a little on hover, dip on press */
+.topbar-back:hover  { transform: scale(1.18); }
+.topbar-back:active { transform: scale(0.92); }
 
 .topbar-title {
   font-family: var(--font-display);
@@ -201,13 +212,29 @@ body {
 .topbar-points {
   display: flex;
   align-items: center;
-  gap: 4px;
-  background: rgba(255,255,255,0.2);
+  gap: 5px;
+  background: rgba(0, 0, 0, 0.18);
+  border: 1.5px solid rgba(255, 255, 255, 0.28);
   border-radius: var(--r-pill);
-  padding: 4px 12px;
+  padding: 4px 13px;
   font-family: var(--font-display);
   font-size: var(--text-sm);
   color: var(--clr-yellow);
+  transition: color 0.2s ease;
+}
+.topbar-points-star { font-size: 0.95em; line-height: 1; }
+.topbar-points-val  { min-width: 1ch; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Live earn/spend feedback: the badge pops; a spend briefly flashes coral. */
+@keyframes points-bump {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+.topbar-points.points-bump { animation: points-bump 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.topbar-points.is-spend    { color: var(--clr-coral); }
+@media (prefers-reduced-motion: reduce) {
+  .topbar-points.points-bump { animation: none; }
 }
 
 .topbar-avatar {
@@ -246,6 +273,27 @@ body {
   filter: drop-shadow(0 1px 2px rgba(0,0,0,0.35));
   pointer-events: none;
 }
+
+/* ─── Asset image slot ───
+   Drop-in art slot with emoji fallback. The emoji shows by default; when the
+   named image file exists and loads, JS adds .is-loaded and the <img> takes
+   over (no broken-image flash while assets are still missing).
+   See js/utils/assetImg.js and assets/ASSETS.md. */
+.img-slot {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.img-slot__img {
+  display: none;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+.img-slot.is-loaded .img-slot__img { display: block; }
+.img-slot.is-loaded .img-slot__fb  { display: none; }
 
 /* ─── Bottom Navbar ─── */
 .navbar {
@@ -311,11 +359,23 @@ body {
   position: relative;
   width: 100%;
   max-width: var(--game-max-w);
-  min-height: 100dvh;
+  height: 100vh;          /* fallback */
+  height: 100dvh;         /* bounded shell: header pins, center scrolls */
+  overflow: hidden;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   background: var(--clr-bg);
+}
+
+/* The center <main> is the only scrolling region, so the sticky topbar and the
+   fixed bottom nav never get pushed away or overlap the content. */
+.app-container > main {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Full-width top & bottom bars inside the centered phone frame */
@@ -361,46 +421,57 @@ body {
   left: 0;
   right: 0;
   z-index: 100;
+  box-sizing: border-box;
   height: var(--navbar-h);
   display: flex;
-  align-items: center;
+  align-items: stretch;          /* items fill the inner height; padding insets the pill */
   justify-content: space-around;
+  gap: 6px;
+  padding: 7px 10px;
+  /* keep clear of the iOS home indicator while staying var(--navbar-h) tall */
+  padding-bottom: max(7px, env(safe-area-inset-bottom));
   background: #6b50ce;
   border-top: none;
-  box-shadow: 0 -2px 12px rgba(107, 80, 206, 0.25);
+  box-shadow: 0 -3px 14px rgba(107, 80, 206, 0.28);
 }
 
 .bottom-nav a {
-  flex: 1;
+  flex: 1 1 0;
+  min-width: 0;                  /* let items shrink evenly instead of overflowing */
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
+  justify-content: center;       /* centre icon+label inside the inset pill */
+  gap: 2px;
   text-decoration: none;
   color: rgba(255, 255, 255, 0.85);
   font-family: 'Fredoka One', cursive;
-  font-size: 13px;
-  padding: 8px 12px;
-  border-radius: 12px;
-  transition: background 0.15s;
-  margin: 4px 2px;
+  font-size: 12px;
+  padding: 2px 4px;
+  border-radius: 14px;
+  transition: background 0.18s ease, color 0.18s ease, transform 0.12s ease;
 }
+
+.bottom-nav a:active { transform: scale(0.94); }
 
 .bottom-nav a.active {
   background: #fde15a;
-  color: #1a1a1a;
-  border-radius: 12px;
+  color: #2a1a05;
+  box-shadow: 0 3px 10px rgba(253, 225, 90, 0.45);
 }
 
 .bottom-nav a span {
-  font-size: 13px;
+  font-size: 12px;
+  line-height: 1;
 }
 
 .bottom-nav .nav-icon {
-  width: 30px;
-  height: 30px;
+  width: 26px;
+  height: 26px;
   object-fit: contain;
+  transition: transform 0.18s ease;
 }
+.bottom-nav a.active .nav-icon { transform: translateY(-1px) scale(1.08); }
 
 /* All other styles left unchanged */
 
@@ -584,6 +655,8 @@ input {
   cursor: default;
   user-select: none;
 }
+/* Mascot art slot scales to the figure's font-size (matches the emoji footprint). */
+.mascot-figure .img-slot { width: 1em; height: 1em; }
 
 .mascot-bubble {
   position: relative;
@@ -789,13 +862,134 @@ input {
   }
 }
 
+/* ─── Mascot emotion reactions ─────────────────────────────────────────────
+   Add .react-happy / .react-sad / .react-cheer to ANY mascot figure element to
+   play a one-shot reaction (correct → happy bounce, wrong → sad wobble, win →
+   cheer). JS removes + re-adds the class to retrigger. Respects reduced motion. */
+@keyframes react-happy {
+  0%   { transform: translateY(0)            scale(1); }
+  35%  { transform: translateY(-16px)        scale(1.1); }
+  60%  { transform: translateY(0)            scale(1); }
+  80%  { transform: translateY(-6px)         scale(1.04); }
+  100% { transform: translateY(0)            scale(1); }
+}
+@keyframes react-sad {
+  0%,100% { transform: translateX(0)   rotate(0); }
+  20% { transform: translateX(-6px)    rotate(-5deg); }
+  40% { transform: translateX(6px)     rotate(5deg); }
+  60% { transform: translateX(-4px)    rotate(-3deg); }
+  80% { transform: translateX(4px)     rotate(3deg); }
+}
+@keyframes react-cheer {
+  0%   { transform: scale(1)    rotate(0); }
+  25%  { transform: scale(1.18) rotate(-6deg); }
+  50%  { transform: scale(1.12) rotate(6deg); }
+  75%  { transform: scale(1.18) rotate(-4deg); }
+  100% { transform: scale(1)    rotate(0); }
+}
+.react-happy { animation: react-happy 0.6s ease both; }
+.react-sad   { animation: react-sad   0.5s ease both; }
+.react-cheer { animation: react-cheer 0.9s ease both; }
+@media (prefers-reduced-motion: reduce) {
+  .react-happy, .react-sad, .react-cheer { animation: none; }
+}
+
+/* ─── Fun UI feedback animations (Blooket / Wordwall feel) ─────────────────────
+   Kid-game polish from docs/fun-ui-animations.md: correct-answer burst, points
+   fly-up, staggered tile entrance, wiggle-to-invite, urgent countdown, card flip.
+   Tokens-only; reduced-motion respected at the foot of this block. Pairs with the
+   mascot react-* set above (use those for the mascot, these for buttons/tiles). */
+
+/* Correct-answer burst — quick scale + green glow ring */
+@keyframes burst {
+  0%   { transform: scale(1);    box-shadow: 0 0 0 0    rgba(42,157,92,0.5); }
+  50%  { transform: scale(1.06); }
+  100% { transform: scale(1);    box-shadow: 0 0 0 16px rgba(42,157,92,0); }
+}
+.burst { animation: burst 0.6s ease; }
+
+/* Wrong-answer shake (quiz options, scramble row) */
+@keyframes shake-x {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-7px); }
+  40% { transform: translateX(7px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(5px); }
+}
+.shake { animation: shake-x 0.4s ease; }
+
+/* Points fly-up — a little "+10" floats up and fades (see flyPoints() in ui.js) */
+@keyframes fly-up {
+  0%   { transform: translate(-50%, 0)     scale(1);   opacity: 1; }
+  100% { transform: translate(-50%, -52px) scale(1.2); opacity: 0; }
+}
+.fly-up {
+  position: absolute;
+  left: 50%;
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  color: var(--clr-green);
+  text-shadow: 0 2px 0 #fff, 0 0 6px rgba(42,157,92,0.4);
+  pointer-events: none;
+  z-index: 1000;
+  animation: fly-up 0.85s cubic-bezier(.22,.68,0,1.2) forwards;
+}
+
+/* Wiggle — gently nudge a Next / CTA button to invite the tap */
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-4deg); }
+  75% { transform: rotate(4deg); }
+}
+.wiggle { animation: wiggle 0.5s ease-in-out 2; }
+
+/* Tile drop-in — options/cards drop in with a stagger (set --i per item) */
+@keyframes drop-in {
+  from { opacity: 0; transform: translateY(-18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.drop-in {
+  opacity: 0;
+  animation: drop-in 0.4s ease forwards;
+  animation-delay: calc(var(--i, 0) * 0.07s);
+}
+
+/* Countdown pulse — timer beats faster when it runs low */
+@keyframes count-pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.15); }
+}
+.count-pulse { animation: count-pulse 1s ease-in-out infinite; }
+.count-pulse.urgent { animation-duration: 0.5s; color: var(--clr-red); }
+
+/* Card flip (Wordwall reveal) — for content / quiz cards */
+.flip { perspective: 800px; }
+.flip__inner {
+  position: relative;
+  transition: transform 0.5s cubic-bezier(.22,.68,0,1.2);
+  transform-style: preserve-3d;
+}
+.flip.flipped .flip__inner { transform: rotateY(180deg); }
+.flip__front, .flip__back {
+  backface-visibility: hidden;
+  position: absolute;
+  inset: 0;
+}
+.flip__back { transform: rotateY(180deg); }
+
+@media (prefers-reduced-motion: reduce) {
+  .burst, .shake, .fly-up, .wiggle, .drop-in, .count-pulse,
+  .flip__inner { animation: none !important; transition: none !important; }
+  .drop-in { opacity: 1; }
+}
+
 /* ─── Active bottom-nav item: strong yellow pill highlight ─────────────────── */
 /* This ensures the active state is visually clear for young users */
 .bottom-nav a.map-nav-item.active {
   background: #fde15a;
-  color: #1a1a1a;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(253, 225, 90, 0.4);
+  color: #2a1a05;
+  border-radius: 14px;
+  box-shadow: 0 3px 10px rgba(253, 225, 90, 0.45);
 }
 
 /* ─── Input shared styles ─────────────────────────────────────────────────── */

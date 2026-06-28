@@ -44,9 +44,11 @@ app.use(express.static(path.join(__dirname, 'src')));
 // serve files from src/views/ as well
 app.use('/views', express.static(path.join(__dirname, 'src', 'views')));
 
-// Root → home page
+// Root → session-aware entry (src/index.html redirects to dashboard if logged
+// in, else the public landing). express.static usually serves this first; this
+// route is the explicit fallback so the root is never the non-aware home page.
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'src', 'views', 'home.html'));
+  res.sendFile(path.join(__dirname, 'src', 'index.html'));
 });
 
 // ── Global error handler ──────────────────────────────────────────────────────

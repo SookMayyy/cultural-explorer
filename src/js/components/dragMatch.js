@@ -17,10 +17,10 @@ export default class DragMatch {
 
     this._el.innerHTML = `
       <div class="dragmatch-wrapper">
-        <p class="dragmatch-instruction">Tap a food, then tap the matching state!</p>
+        <p class="dragmatch-instruction">Drag a card to the matching box — or tap one, then tap the box!</p>
         <div class="drag-chips">
           ${this._pairs.map((p, i) => `
-            <div class="drag-chip" data-chip="${i}">${p.food}</div>
+            <div class="drag-chip" data-chip="${i}" draggable="true">${p.food}</div>
           `).join('')}
         </div>
         <div class="drag-zones">
@@ -55,10 +55,43 @@ export default class DragMatch {
 
   _bindEvents() {
     this._el.querySelectorAll('.drag-chip').forEach(chip => {
+      // Tap-to-select (works on touch + as a fallback).
       chip.addEventListener('click', () => this._selectChip(chip));
+
+      // Real HTML5 drag (mouse / trackpad). On touch, drag events don't fire,
+      // so the tap path above still covers young children on tablets.
+      chip.addEventListener('dragstart', e => {
+        if (chip.classList.contains('placed')) { e.preventDefault(); return; }
+        this._selectChip(chip);
+        chip.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', chip.dataset.chip);
+      });
+      chip.addEventListener('dragend', () => {
+        chip.classList.remove('dragging');
+        this._el.querySelectorAll('.drag-zone.drag-over')
+          .forEach(z => z.classList.remove('drag-over'));
+      });
     });
+
     this._el.querySelectorAll('.drag-zone').forEach(zone => {
+      // Tap-to-drop.
       zone.addEventListener('click', () => this._dropOnZone(zone));
+
+      // Drag-to-drop: must preventDefault on dragover to allow a drop.
+      zone.addEventListener('dragover', e => {
+        if (zone.classList.contains('filled')) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        zone.classList.add('drag-over');
+      });
+      zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+      zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('drag-over');
+        // The dragged chip is already this._selected (set in dragstart).
+        this._dropOnZone(zone);
+      });
     });
   }
 
@@ -78,7 +111,7 @@ export default class DragMatch {
     const correct = chipIdx === zoneIdx;
 
     if (correct) {
-      zone.classList.add('correct-zone', 'filled');
+      zone.classList.add('correct-zone', 'filled', 'burst');
       zone.innerHTML = `<span class="drag-zone-label">${this._pairs[zoneIdx].state}</span>
                         <span class="drag-chip-placed">${this._pairs[chipIdx].food}</span>`;
       this._selected.classList.add('placed', 'selected');

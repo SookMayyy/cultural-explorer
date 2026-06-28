@@ -128,9 +128,9 @@
   line-height: 1;
   animation: mascot-float 3s ease-in-out infinite;
   user-select: none;
-  /* 📸 IMAGE NEEDED: assets/images/mascots/rimau.png (West) / wak.png (East)
-     Swap the emoji for a <img> of the Loka Made–style mascot illustration. */
+  /* Mascot art (Rimau poses) drops into this slot; emoji is the fallback. */
 }
+.quiz-mascot-figure .img-slot { width: 1.4em; height: 1.4em; }
 
 /* Speech bubble — same warm-white kopitiam style as narrative */
 .quiz-mascot-bubble {
@@ -154,7 +154,9 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .quiz-question-card {
-  background: var(--clr-card);
+  /* Tinted with the state's own light colour so each state's card is its own.
+     Falls back to the warm cream card colour if no state tint is set. */
+  background: var(--state-color-light, var(--clr-card));
   border-radius: var(--r-lg);
   border: 1.5px solid var(--clr-border-warm);
   box-shadow: var(--shadow-card), 0 2px 0 var(--clr-border-warm);
@@ -186,6 +188,33 @@
     transparent 60%
   );
   border-bottom: 1.5px solid var(--clr-border-warm);
+}
+
+/* Flag + name grouped on the left of the header */
+.quiz-card-header__left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* Circular state flag thumbnail — makes each state's card instantly its own */
+.quiz-state-flag {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  display: inline-flex;
+  background: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+.quiz-state-flag img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 /* State name badge */
@@ -448,8 +477,9 @@
   /* Continuous celebrate loop after the fly-in settles */
   animation: stamp-fly-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both,
              mascot-celebrate 1.2s 0.7s ease-in-out 2;
-  /* 📸 IMAGE NEEDED: assets/images/mascots/rimau-celebrate.png */
+  /* Mascot cheer pose drops into this slot; emoji is the fallback. */
 }
+.complete-mascot-figure .img-slot { width: 1.3em; height: 1.3em; margin: 0 auto; }
 
 /* ── Score card — "kopitiam paper" warm card with coloured header ── */
 .complete-score-card {
@@ -468,7 +498,7 @@
 .complete-score-card__header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 8px;
   padding: var(--sp-sm) var(--sp-md);
   background: var(--state-color, var(--clr-purple));
   background-image: radial-gradient(
@@ -477,6 +507,23 @@
     transparent 60%
   );
 }
+
+/* State flag thumbnail on the completion card (matches the question card) */
+.complete-state-flag {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  display: inline-flex;
+  background: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+.complete-state-flag img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* Badge sits on the right; flag + name stay grouped on the left */
+.complete-badge { margin-left: auto; }
 
 .complete-state-name {
   font-family: var(--font-display);

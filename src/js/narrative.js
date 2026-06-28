@@ -5,7 +5,10 @@
 import Storage from './utils/storage.js';
 import { renderTopbar, renderNavbar, requireAuth, getStateParam } from './ui.js';
 import { getState } from './data/states.js';
+import { getMascot } from './data/mascots.js';
+import { assetImg } from './utils/assetImg.js';
 import Typewriter from './components/typewriter.js';
+import { showPopup } from './components/popup.js';
 
 // ── Auth guard ────────────────────────────────────────────────────────────
 requireAuth();
@@ -15,14 +18,28 @@ const stateId = getStateParam();
 const state   = getState(stateId);
 
 if (!state) {
-  document.querySelector('main').innerHTML =
-    '<p style="padding:2rem;text-align:center">State not found. <a href="map.html">Back to map</a></p>';
+  showPopup({
+    title: 'State not found',
+    emoji: '🧭',
+    message: "We couldn't find that state. Let's go back to the map and pick one!",
+    actions: [{ label: 'Back to Map', value: 'map', style: 'primary' }],
+  }).then(() => { window.location.href = 'map.html'; });
   throw new Error('State not found: ' + stateId);
 }
 
 // Track that this state has been opened
 Storage.setCurrentState(stateId);
 Storage.incrementVisit(stateId);
+
+// ── Mascot (Rimau guides every state) ─────────────────────────────────────
+// Render into the story + per-card speech-bubble figures as art slots
+// (emoji fallback until assets/characters/rimau.png is added).
+const mascot     = getMascot('rimau');
+const mascotHTML = assetImg(mascot.img, mascot.emoji, { alt: mascot.name });
+['story-mascot-figure', 'card-mascot-figure'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = mascotHTML;
+});
 
 // ── Topbar — always purple on this screen ─────────────────────────────────
 // We pass null for color so renderTopbar() sets no inline background;
@@ -81,11 +98,9 @@ if (storyMascotEl) {
   new Typewriter(storyMascotEl, teaser, { speed: 28 }).start();
 }
 
-// Pick the right mascot emoji based on region
-// 📸 IMAGE NEEDED: replace these emoji with <img> of rimau.png / wak.png
-const mascotEmoji = state.region === 'east' ? '🦅' : '🦁';
+// Rimau guides every state — render the idle pose art (emoji fallback).
 document.querySelectorAll('.narrative-mascot-figure').forEach(el => {
-  el.textContent = mascotEmoji;
+  el.innerHTML = mascotHTML;
 });
 
 // Mark story tab as visited immediately on page load
@@ -353,13 +368,14 @@ document.getElementById('cta-to-cards')?.addEventListener('click', () => {
   document.querySelector('[data-tab="cards"]')?.click();
 });
 
-// "Take the Quiz" — mark culture done, navigate to quiz
+// "Play the Games!" — mark culture done, start the activity chain (Word Scramble
+// → Drag-Match → Guess My State → Quiz → Reward).
 document.getElementById('cta-to-quiz')?.addEventListener('click', () => {
   Storage.markCompleted(stateId, 'culture');
-  window.location.href = `quiz.html?state=${stateId}`;
+  window.location.href = `scramble.html?state=${stateId}`;
 });
 
-// "Try an Activity" — navigate to standalone Match-the-Culture activity
+// "Try an Activity" (dialect tab) — also enters the activity chain at the start.
 document.getElementById('cta-to-activity')?.addEventListener('click', () => {
-  window.location.href = `activity.html?state=${stateId}`;
+  window.location.href = `scramble.html?state=${stateId}`;
 });

@@ -1,116 +1,150 @@
-// js/login.js — login page interactions
+// js/login.js — standalone Log In screen (grade-based + teacher).
+//
+// Posts to the same backend routes the home modal uses:
+//   POST /api/auth/login          (student: display_name + grade_group + password)
+//   POST /api/auth/teacher-login  (teacher: email + password)
+// A successful login sets an httpOnly session cookie server-side; we mirror a
+// lightweight session into localStorage so the rest of the MPA (which gates on
+// Storage.getSession()) keeps working. Sign Up lives on signup.html; password
+// recovery on recover.html.
 
 import Storage from './utils/storage.js';
-import { AVATARS } from './data/avatars.js';
+import { showError as popup } from './components/popup.js';
+import { hydrateFromBackend } from './utils/sync.js';
 
-let selectedAvatar = 0;
+let loginGrade = null;   // selected grade group on the student login form
 
-// Pre-fill avatar grid
-const grid = document.getElementById('avatar-grid');
-if (grid) {
-  grid.innerHTML = AVATARS.map((a, i) => `
-    <button class="avatar-item ${i === 0 ? 'selected' : ''}" data-avatar="${i}" aria-label="${a.name}">
-      ${a.emoji}
-    </button>
-  `).join('');
+// ── DOM ────────────────────────────────────────────────────────────────────
+const viewStudent = document.getElementById('view-student');
+const viewTeacher = document.getElementById('view-teacher');
 
-  grid.querySelectorAll('.avatar-item').forEach(btn => {
-    btn.addEventListener('click', () => {
-      grid.querySelectorAll('.avatar-item').forEach(b => b.classList.remove('selected'));
-      btn.classList.add('selected');
-      selectedAvatar = parseInt(btn.dataset.avatar);
-      const nameAvatar = document.getElementById('name-avatar');
-      if (nameAvatar) nameAvatar.textContent = AVATARS[selectedAvatar].emoji;
+const nameInput   = document.getElementById('login-name');
+const gradeWrap   = document.getElementById('login-grade');
+const pwInput     = document.getElementById('login-password');
+const loginError  = document.getElementById('login-error');
+const formLogin   = document.getElementById('form-login');
+
+const teacherEmail = document.getElementById('teacher-email');
+const teacherPass  = document.getElementById('teacher-pass');
+const teacherError = document.getElementById('teacher-error');
+const formTeacher  = document.getElementById('form-teacher');
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+// Errors are shown as a friendly popup (the inline element is kept hidden for
+// backward compatibility / screen readers).
+function showError(_el, msg) { popup(msg); }
+function clearError(el)      { el?.classList.add('hidden'); }
+
+function enterGame() { window.location.href = 'map.html'; }
+
+// ── Grade selector ───────────────────────────────────────────────────────────
+gradeWrap.querySelectorAll('.grade-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    gradeWrap.querySelectorAll('.grade-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    loginGrade = btn.dataset.grade;
+    clearError(loginError);
+  });
+});
+
+// ── Student login ────────────────────────────────────────────────────────────
+formLogin.addEventListener('submit', async e => {
+  e.preventDefault();
+  clearError(loginError);
+
+  const name     = nameInput.value.trim();
+  const password = pwInput.value;
+
+  if (!name)       return showError(loginError, '❌ Please enter your name.');
+  if (!loginGrade) return showError(loginError, '❌ Please choose your grade.');
+  if (!password)   return showError(loginError, '❌ Please enter your password.');
+
+  try {
+    const res = await fetch('/api/auth/login', {
+      method:      'POST',
+      headers:     { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ display_name: name, grade_group: loginGrade, password }),
     });
-  });
-}
+    const data = await res.json().catch(() => ({}));
 
-// Check URL for pre-set mode (e.g. login.html?mode=teacher)
-const mode = new URLSearchParams(window.location.search).get('mode');
-if (mode === 'teacher') showView('view-teacher');
+    if (!res.ok || !data.ok) {
+      return showError(loginError, '❌ ' + (data.error || 'Login failed. Try again.'));
+    }
 
-// ── View switching ──────────────────────────────────────────────────────────
-function showView(id) {
-  document.querySelectorAll('.login-body').forEach(v => v.classList.add('hidden'));
-  document.getElementById(id)?.classList.remove('hidden');
-}
+    // Preserve a previously-picked avatar/points if this browser has one.
+    const prev = Storage.getSession();
+    Storage.setSession({
+      type:        'registered',
+      displayName: name,
+      grade_group: loginGrade,
+      avatarId:    prev?.avatarId ?? 0,
+      points:      prev?.points   ?? 0,
+    });
 
-function showStep(id) {
-  document.querySelectorAll('.login-step').forEach(s => s.classList.add('hidden'));
-  document.getElementById(id)?.classList.remove('hidden');
-}
+    // Pull this account's saved progress (stamps/completed states/points) from
+    // the backend so it restores even on a new device. Best-effort.
+    await hydrateFromBackend();
+    enterGame();
+  } catch {
+    showError(loginError, '❌ Could not reach the server. Is it running (npm start)?');
+  }
+});
 
-// Path card buttons
-// MOE / school-ID login deferred to future work (CP3).
-document.getElementById('btn-class')?.addEventListener('click', () => showView('view-class'));
-document.getElementById('btn-teacher-link')?.addEventListener('click', () => showView('view-teacher'));
+// ── Forgot password → standalone recover screen ──────────────────────────────
+document.getElementById('link-forgot')?.addEventListener('click', () => {
+  window.location.href = 'recover.html';
+});
 
+// ── Guest mode ───────────────────────────────────────────────────────────────
 document.getElementById('btn-guest')?.addEventListener('click', () => {
-  const name = 'Explorer' + Math.floor(Math.random() * 1000);
-  Storage.setGuest(name, 0);
-  window.location.href = 'map.html';
+  const guestName = 'Explorer' + Math.floor(Math.random() * 9000 + 1000);
+  Storage.setGuest(guestName, 0);
+  enterGame();
 });
 
-// Back buttons (data-back attribute = target view id)
-document.querySelectorAll('.login-back-btn[data-back]').forEach(btn => {
-  btn.addEventListener('click', () => showView(btn.dataset.back));
+// ── Teacher view toggle ──────────────────────────────────────────────────────
+document.getElementById('link-teacher')?.addEventListener('click', () => {
+  viewStudent.classList.add('hidden');
+  viewTeacher.classList.remove('hidden');
+});
+document.getElementById('link-back-student')?.addEventListener('click', () => {
+  viewTeacher.classList.add('hidden');
+  viewStudent.classList.remove('hidden');
 });
 
-// ── MOE / Student ID form removed — deferred to future work (CP3). ────────────
+// Deep-link: login.html?mode=teacher opens the teacher form directly.
+if (new URLSearchParams(location.search).get('mode') === 'teacher') {
+  viewStudent.classList.add('hidden');
+  viewTeacher.classList.remove('hidden');
+}
 
-// ── Class PIN — digit auto-advance ───────────────────────────────────────────
-const pinDigits = document.querySelectorAll('.pin-digit');
-pinDigits.forEach((input, i) => {
-  input.addEventListener('input', () => {
-    input.value = input.value.replace(/\D/, '');
-    if (input.value && i < pinDigits.length - 1) pinDigits[i + 1].focus();
-  });
-  input.addEventListener('keydown', e => {
-    if (e.key === 'Backspace' && !input.value && i > 0) pinDigits[i - 1].focus();
-  });
-});
+// ── Teacher login ────────────────────────────────────────────────────────────
+formTeacher.addEventListener('submit', async e => {
+  e.preventDefault();
+  clearError(teacherError);
 
-document.getElementById('btn-pin-next')?.addEventListener('click', () => {
-  const pin = [...pinDigits].map(d => d.value).join('');
-  const err = document.getElementById('pin-error');
-  if (pin.length !== 6) {
-    err.textContent = 'Please enter the full 6-digit PIN.';
-    err.classList.remove('hidden');
-    return;
+  const email = teacherEmail.value.trim();
+  const pass  = teacherPass.value;
+
+  if (!email || !pass) return showError(teacherError, '❌ Please enter your email and password.');
+
+  try {
+    const res = await fetch('/api/auth/teacher-login', {
+      method:      'POST',
+      headers:     { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ email, password: pass }),
+    });
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok || !data.ok) {
+      return showError(teacherError, '❌ ' + (data.error || 'Email or password is incorrect.'));
+    }
+
+    Storage.setSession({ type: 'teacher', displayName: email, avatarId: null, points: 0 });
+    window.location.href = 'teacher.html';
+  } catch {
+    showError(teacherError, '❌ Could not reach the server. Is it running (npm start)?');
   }
-  err.classList.add('hidden');
-  showStep('step-avatar');
-});
-
-document.getElementById('btn-avatar-next')?.addEventListener('click', () => {
-  showStep('step-name');
-});
-
-// Live name preview
-document.getElementById('class-name')?.addEventListener('input', e => {
-  const label = document.getElementById('name-label');
-  if (label) label.textContent = e.target.value || 'Explorer';
-});
-
-document.getElementById('btn-name-submit')?.addEventListener('click', () => {
-  const name = document.getElementById('class-name')?.value.trim();
-  if (!name) { document.getElementById('class-name')?.focus(); return; }
-  Storage.setSession({ type: 'class', displayName: name, avatarId: selectedAvatar, points: 0 });
-  window.location.href = 'map.html';
-});
-
-// ── Teacher form ──────────────────────────────────────────────────────────────
-document.getElementById('btn-teacher-submit')?.addEventListener('click', () => {
-  const email = document.getElementById('teacher-email')?.value.trim();
-  const pass  = document.getElementById('teacher-pass')?.value;
-  const err   = document.getElementById('teacher-error');
-
-  if (!email || !pass) {
-    err.textContent = 'Please enter your email and password.';
-    err.classList.remove('hidden');
-    return;
-  }
-  // Demo: accept any credentials, navigate to teacher dashboard
-  Storage.setSession({ type: 'teacher', displayName: email, avatarId: null, points: 0 });
-  window.location.href = 'teacher.html';
 });
