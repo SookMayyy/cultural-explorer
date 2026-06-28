@@ -1,12 +1,8 @@
-/* stampbook.css — My Stamp Book page */
+/* stampbook.css — My Stamp Book page (mapped to Figma 38:7) */
 
-.app-container {
-  background: #FEF9EF;
-}
+.app-container { background: #F0EAFC; }
 
-.topbar--purple {
-  background: #6b50ce;
-}
+.topbar--purple { background: #6b50ce; }
 
 /* ── Main content area ── */
 .sb-main {
@@ -14,29 +10,28 @@
   min-height: 0;
   position: relative;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  /* Normal padding — corners are overlaid at bottom, not on sides */
   padding: var(--sp-lg) var(--sp-lg) calc(var(--navbar-h) + var(--sp-lg));
-  overflow: hidden;
+  overflow-y: auto;
+  /* Themed stamp-book background; flat lavender (Figma 38:7) stays as fallback. */
+  background: #F0EAFC url('../assets/images/ui/stamp-background.jpg') center / cover no-repeat;
 }
 
 /* Hibiscus corner decorations — bottom corners matching prototype */
 .sb-deco {
-  position: absolute;
+  position: fixed;
   pointer-events: none;
-  z-index: 2;           /* above content cards */
+  z-index: 2;
   object-fit: contain;
 }
-
 .sb-deco--left {
-  bottom: var(--navbar-h);   /* sit just above the fixed navbar */
+  bottom: var(--navbar-h);
   left: 0;
   width: 167px;
   height: 154px;
   object-position: bottom left;
 }
-
 .sb-deco--right {
   bottom: var(--navbar-h);
   right: 0;
@@ -50,153 +45,165 @@
   position: relative;
   z-index: 1;
   width: 100%;
+  max-width: 1100px;
   display: flex;
   flex-direction: column;
-  gap: var(--sp-lg);
+  gap: var(--sp-md);
 }
 
-/* ── Progress card ── */
+/* ── Collection Progress card ── */
 .sb-progress-card {
   background: #fff;
-  border-radius: var(--r-lg);
-  padding: var(--sp-sm) var(--sp-lg);
+  border-radius: 15px;
+  padding: var(--sp-md) var(--sp-lg);
   box-shadow: var(--shadow-sm);
   display: flex;
   align-items: center;
-  gap: var(--sp-md);
+  gap: var(--sp-lg);
 }
-
-.sb-title {
-  font-family: var(--font-display);
-  font-size: var(--text-md);
-  color: #7b4dff;
-  white-space: nowrap;
-}
-
-.sb-track {
+.sb-prog-left {
   flex: 1;
-  height: 14px;
-  background: #ede8ff;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.sb-prog-label {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  color: #6C3487;
+  letter-spacing: 0.3px;
+}
+.sb-track {
+  height: 12px;
+  background: #F0DFF8;
   border-radius: var(--r-pill);
   overflow: hidden;
 }
-
 .sb-fill {
   height: 100%;
-  background: linear-gradient(90deg, #7b4dff, #a96dff);
+  background: #8E44AD;
   border-radius: var(--r-pill);
   transition: width 0.6s ease;
 }
-
-.sb-count {
+.sb-prog-sub {
   font-family: var(--font-body);
-  font-size: var(--text-sm);
-  color: var(--clr-text-muted);
-  font-weight: 600;
+  font-size: var(--text-xs);
+  color: #6C3487;
+  opacity: 0.85;
+}
+.sb-prog-big {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  color: #6C3487;
   white-space: nowrap;
+  line-height: 1;
 }
 
-/* ── Stamp grid ── */
-.stamp-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
+/* ── Region cards (West / East Malaysia) ── */
+#sb-sections {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-md);
+}
+.sb-region {
+  background: #FEF8E7;
+  border: 1px solid #AEA09F;
+  border-radius: 15px;
+  padding: var(--sp-md) var(--sp-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-lg);
+}
+.sb-region-head {
+  width: 140px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.sb-region-title {
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  color: #733630;
+  line-height: 1.1;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+.sb-region-count {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  color: #6C3487;
+}
+.sb-region-slots {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-around;
   gap: var(--sp-md);
 }
 
-.stamp-slot {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--sp-sm);
+/* ── Stamp slots ── */
+.sb-slot {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  cursor: pointer;
 }
-
-/* Earned stamp circle */
-.stamp-circle {
-  width: 90px;
-  height: 90px;
+.sb-slot-circle {
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
-  background: var(--stamp-clr, #ccc);
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  border: 4px solid rgba(255, 255, 255, 0.85);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
 }
-
-.stamp-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.stamp-emoji {
-  font-size: 38px;
+/* Not-yet-earned: dashed "?" mystery circle */
+.sb-slot.locked .sb-slot-circle {
+  background: transparent;
+  border: 2px dashed #D6CBB6;
+  color: #C2B084;
+  font-family: var(--font-display);
+  font-size: 34px;
   line-height: 1;
 }
-
-/* Locked stamp circle */
-.stamp-circle-locked {
-  width: 90px;
-  height: 90px;
+/* Earned: coloured circle with the state's flag + a green ✓ badge */
+.sb-slot.earned .sb-slot-circle {
+  background: var(--stamp-clr, #ccc);
+  border: 4px solid #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+.sb-slot-img { width: 100%; height: 100%; object-fit: cover; }
+.sb-slot-emoji { font-size: 34px; line-height: 1; }
+.sb-slot-check {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
-  background: #f5f3ff;
+  background: var(--clr-green);
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px dashed #c4b8f5;
+  font-size: 15px;
+  border: 2.5px solid #fff;
 }
 
-.stamp-upcoming {
-  width: 62px;
-  height: 62px;
-  object-fit: contain;
-  opacity: 0.55;
-}
-
-/* Labels */
-.stamp-label {
-  font-family: var(--font-display);
-  font-size: var(--text-xs);
-  color: var(--clr-text);
-  text-align: center;
-  font-weight: 600;
-}
-
-.stamp-label.muted {
-  color: var(--clr-text-muted);
-}
-
-/* ── Stamp fly-in animation ──
-   Add class .stamp-earned to a .stamp-slot to trigger the celebration.
-   stampbook.js adds this to freshly-earned stamps so they "fly in" on load. */
-.stamp-slot.stamp-earned .stamp-circle {
-  animation: stamp-fly-in 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-}
-
-/* Stagger the animation slightly for each stamp */
-.stamp-slot:nth-child(1).stamp-earned .stamp-circle { animation-delay: 0.05s; }
-.stamp-slot:nth-child(2).stamp-earned .stamp-circle { animation-delay: 0.12s; }
-.stamp-slot:nth-child(3).stamp-earned .stamp-circle { animation-delay: 0.19s; }
-.stamp-slot:nth-child(4).stamp-earned .stamp-circle { animation-delay: 0.26s; }
-.stamp-slot:nth-child(5).stamp-earned .stamp-circle { animation-delay: 0.33s; }
-.stamp-slot:nth-child(6).stamp-earned .stamp-circle { animation-delay: 0.40s; }
-.stamp-slot:nth-child(7).stamp-earned .stamp-circle { animation-delay: 0.47s; }
-
-/* Respect reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  .stamp-slot.stamp-earned .stamp-circle { animation: none; }
-}
-
-/* Hover lift on earned stamps — feels interactive */
-.stamp-slot.earned .stamp-circle {
+/* Earned stamps fly in + lift on hover */
+.sb-slot.earned .sb-slot-circle {
+  animation: stamp-fly-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
   transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s;
-  cursor: pointer;
 }
-
-.stamp-slot.earned .stamp-circle:hover {
-  transform: scale(1.1) translateY(-4px);
+.sb-slot.earned:hover .sb-slot-circle {
+  transform: scale(1.08) translateY(-3px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+@media (prefers-reduced-motion: reduce) {
+  .sb-slot.earned .sb-slot-circle { animation: none; }
 }
 
 /* ── Bottom nav image icons ── */
@@ -204,4 +211,13 @@
   width: 30px;
   height: 30px;
   object-fit: contain;
+}
+
+/* ── Responsive: stack region title above its slot row on small screens ── */
+@media (max-width: 600px) {
+  .sb-progress-card { flex-direction: column; align-items: flex-start; gap: var(--sp-sm); }
+  .sb-prog-big { align-self: flex-end; }
+  .sb-region { flex-direction: column; align-items: flex-start; gap: var(--sp-sm); }
+  .sb-region-head { width: auto; flex-direction: row; align-items: baseline; gap: var(--sp-sm); }
+  .sb-region-slots { justify-content: flex-start; width: 100%; }
 }

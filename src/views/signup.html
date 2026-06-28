@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Create Account — LokaLearn</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Fredoka+One&family=Ribeye&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/auth.css">
+</head>
+<body>
+
+<div class="app-container">
+  <main class="auth-screen">
+
+   <div class="auth-split">
+
+    <!-- ── Mascot side (left half) — signup.js swaps it to cheer on success ── -->
+    <aside class="auth-mascot-side" aria-hidden="true">
+      <div class="auth-mascot-bubble auth-mascot-bubble--side" id="signup-bubble">
+        Yay, a new friend! Let's make your explorer! 🐯
+      </div>
+      <div class="auth-mascot-fig auth-mascot-fig--lg">
+        <img src="../assets/characters/rimau_happy.png" alt="" id="signup-mascot-img">
+      </div>
+    </aside>
+
+    <div class="auth-card">
+
+      <a class="auth-back" href="login.html" aria-label="Back to login">&#8249;</a>
+
+      <!-- ════════════════════ STEP: create account form ════════════════════ -->
+      <div id="view-form">
+        <h1 class="auth-title">Create Account</h1>
+        <p class="auth-sub">A new Explorer joins the adventure!</p>
+
+        <form id="form-signup" class="auth-form" novalidate>
+
+          <!-- Step 1: grade -->
+          <label class="auth-label">1. Pick your grade</label>
+          <div class="grade-select" id="signup-grade" role="group" aria-label="Select your grade">
+            <button type="button" class="grade-btn" data-grade="1-2">Grade 1&ndash;2</button>
+            <button type="button" class="grade-btn" data-grade="3-4">Grade 3&ndash;4</button>
+            <button type="button" class="grade-btn" data-grade="5-6">Grade 5&ndash;6</button>
+          </div>
+
+          <!-- Step 2: name -->
+          <label class="auth-label" for="signup-name">2. Your name</label>
+          <input type="text" id="signup-name" class="auth-input"
+                 placeholder="Letters only, max 20" maxlength="20"
+                 autocomplete="username" required>
+
+          <!-- Step 3: password (Grade 3+ only) -->
+          <label class="auth-label" id="signup-pw-label" for="signup-password">3. Make a password</label>
+          <input type="password" id="signup-password" class="auth-input"
+                 placeholder="At least 6 characters" autocomplete="new-password">
+          <p class="auth-hint hidden" id="signup-pw-auto">
+            🎉 Grade 1&ndash;2 gets an <strong>automatic password</strong> — we'll show it
+            to you after you sign up. No need to type one!
+          </p>
+
+          <!-- Step 4: secret icons -->
+          <label class="auth-label">4. Pick 2 secret icons</label>
+          <p class="auth-instruction">
+            Remember the <strong>order</strong>! You'll tap these if you ever forget your password.
+          </p>
+          <div class="icon-picker" id="signup-icons" role="group" aria-label="Pick two secret icons"></div>
+          <p class="auth-counter">Chosen: <span id="signup-count">0</span> of 2</p>
+
+          <p class="form-error hidden" id="signup-error" role="alert"></p>
+
+          <button type="submit" class="auth-submit" id="btn-signup">Create Account &#127775;</button>
+          <a class="auth-link" href="login.html">Already have an account? <strong>Log in</strong></a>
+        </form>
+      </div>
+
+      <!-- ════════════════════ STEP: success + avatar pick ════════════════════ -->
+      <div id="view-done" class="auth-done">
+        <h1 class="auth-title">Account Created!</h1>
+
+        <!-- Grade 1–2 auto-password reveal (hidden for Grade 3+) -->
+        <div class="autopw-box hidden" id="autopw-box">
+          <p class="autopw-label">Your automatic password is:</p>
+          <p class="autopw-value" id="autopw-value">—</p>
+          <p class="autopw-note">✏️ Write it down or ask your teacher to keep it safe!</p>
+        </div>
+
+        <p class="auth-sub" style="margin-bottom:var(--sp-xs)">Now pick your character:</p>
+        <div class="avatar-grid" id="signup-avatars" role="listbox" aria-label="Choose your avatar"></div>
+
+        <button type="button" class="auth-submit" id="btn-start" disabled>
+          Start Exploring! 🗺️
+        </button>
+      </div>
+
+    </div><!-- end .auth-card -->
+
+   </div><!-- end .auth-split -->
+  </main>
+</div>
+
+<script type="module" src="../js/signup.js"></script>
+</body>
+</html>

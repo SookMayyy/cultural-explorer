@@ -8,17 +8,19 @@
    Warm parchment background that feels like aged map paper.
    The journey path sits on top of this. */
 .app-container {
-  background: var(--clr-bg);
+  background: #8FD3F4;
   overflow: hidden; /* no horizontal scroll leak */
 }
 
-/* ── Topbar: rich purple for the map screen ─────────────────────────────── */
+/* ── Topbar: transparent so it floats over the sky scene ─────────────────── */
 .map-topbar {
-  background: var(--clr-purple) !important;
-  box-shadow: 0 3px 0 var(--clr-purple-deep), 0 4px 12px rgba(107,80,206,0.30);
+  background: transparent !important;
+  box-shadow: none;
 }
 
-/* ── Map main area: scrollable journey canvas ───────────────────────────── */
+.map-topbar .topbar-title { color: #1c5fb8; text-shadow: 0 1px 2px rgba(255,255,255,0.6); }
+
+/* ── Map main area: sky → green-hills scene (matches the design reference) ── */
 /* The <main> tag is used so the global style.css page-enter animation kicks in */
 .map-main {
   flex: 1;
@@ -26,16 +28,144 @@
   overflow-y: auto;
   overflow-x: hidden;
   padding: 0 var(--sp-md) calc(var(--navbar-h) + var(--sp-xl)) var(--sp-md);
+  position: relative;
 
-  /* Layered background: warm parchment + faint batik diamond watermark.
-     The watermark is a CSS repeating pattern — no image asset needed.
-     📸 IMAGE NEEDED: swap url('') with '../assets/images/ui/map-bg-texture.png'
-     for a Loka Made–style batik/jungle illustrated background. */
+  /* Sky-blue gradient up top fading into rolling green hills at the bottom,
+     with two soft "hill" mounds. Clouds are added as ::before. */
   background:
-    radial-gradient(ellipse at 20% 10%, rgba(232,192,80,0.10) 0%, transparent 55%),
-    radial-gradient(ellipse at 85% 85%, rgba(107,80,206,0.08) 0%, transparent 50%),
-    var(--clr-bg);
+    radial-gradient(120% 70% at 15% 100%, #8FCB5B 0%, #8FCB5B 28%, transparent 30%),
+    radial-gradient(120% 80% at 90% 100%, #7BBF4F 0%, #7BBF4F 24%, transparent 26%),
+    linear-gradient(180deg, #8FD3F4 0%, #B7E2F7 45%, #CFeede 70%, #A6D86A 100%);
 }
+
+/* Drifting clouds layer */
+.map-main::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 60%;
+  pointer-events: none;
+  background-image:
+    radial-gradient(closest-side, #ffffff 92%, transparent) ,
+    radial-gradient(closest-side, #ffffff 92%, transparent),
+    radial-gradient(closest-side, #ffffff 92%, transparent);
+  background-repeat: no-repeat;
+  background-size: 120px 44px, 90px 34px, 150px 52px;
+  background-position: 12% 14%, 70% 9%, 84% 26%;
+  opacity: 0.85;
+}
+
+/* ── Interactive SVG map ──────────────────────────────────────────────────────
+   #map is an inline SVG of Malaysia; each explorable state is a <path data-state>.
+   Clicks are handled in map.js (delegated on the <svg>). */
+.map-image-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 920px;       /* much bigger map (was 540px) */
+  margin: var(--sp-md) auto var(--sp-lg);
+}
+/* On wider screens, let it fill nearly the whole frame */
+@media (min-width: 720px) {
+  .map-image-wrap { max-width: min(96%, 1100px); }
+}
+.my-map {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;      /* let the pin glyphs extend past the path edges */
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.18));
+}
+
+/* Non-prototype states: dimmed sea-grey backdrop, not interactive */
+.map-state-bg {
+  fill: #cfe3d6;
+  stroke: #ffffff;
+  stroke-width: 0.7;
+  pointer-events: none;
+}
+
+/* The 7 explorable states */
+.map-state {
+  fill: #9fd2ad;          /* default; map.js overrides with each state's colour */
+  stroke: #ffffff;
+  stroke-width: 0.9;
+  cursor: pointer;
+  transition: fill 0.15s ease, opacity 0.15s ease, transform 0.15s
+              cubic-bezier(0.34,1.56,0.64,1);
+  transform-box: fill-box;       /* scale around the path's own centre */
+  transform-origin: center;
+}
+.map-state:focus-visible {
+  outline: none;
+  stroke: var(--clr-gold);
+  stroke-width: 2;
+}
+@media (hover: hover) {
+  .map-state:hover {
+    filter: brightness(1.08);
+    transform: scale(1.03);
+  }
+}
+.map-state:active { transform: scale(0.99); }
+
+.map-state--completed { stroke: var(--clr-green); stroke-width: 1.4; }
+.map-state--locked {
+  fill: #c9c2dd !important;
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: auto;          /* still tappable → popup shows the 🔒 state */
+}
+/* Pulsing glow on the recommended-next state */
+.map-state--next {
+  animation: map-state-pulse 1.7s ease-in-out infinite;
+}
+@keyframes map-state-pulse {
+  0%, 100% { filter: drop-shadow(0 0 0 rgba(254,104,21,0)); }
+  50%      { filter: drop-shadow(0 0 6px rgba(254,104,21,0.9)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .map-state--next { animation: none; }
+}
+
+/* Status pins (✓ / 🔒 / ⭐) injected by map.js at each path's centre */
+.map-pin {
+  font-size: 13px;
+  paint-order: stroke;
+  stroke: #ffffff;
+  stroke-width: 2.4px;
+  stroke-linejoin: round;
+}
+.map-pin--completed { fill: var(--clr-green); font-weight: 800; }
+
+/* Calibration readout (legacy; harmless if shown) */
+.map-calibrate {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(0,0,0,0.78);
+  color: #fff;
+  font-family: monospace;
+  font-size: 13px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* ── "Select a state" caption (design reference) ──────────────────────────── */
+.map-caption {
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  color: #2C7BE5;
+  background: rgba(255,255,255,0.85);
+  border-radius: var(--r-pill);
+  padding: 8px var(--sp-lg);
+  margin: var(--sp-xs) auto 0;
+  max-width: 360px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+.map-caption span { color: var(--clr-orange); }
 
 /* ── Progress header row: "X/7 explored · 42%" ──────────────────────────── */
 .map-progress-header {
@@ -241,6 +371,14 @@
 }
 
 /* Touch feedback: node presses "into floor" */
+/* Gentle lift on hover (pointer devices) so nodes feel tappable/alive */
+@media (hover: hover) {
+  .journey-node:not([disabled]):hover .node-coin {
+    transform: translateY(-3px) scale(1.04);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.18);
+  }
+}
+
 .journey-node:not([disabled]):active .node-coin {
   transform: translateY(5px);
   box-shadow: 0 1px 0 rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.10);
@@ -359,7 +497,7 @@
 }
 
 /* ── Mascot area ─────────────────────────────────────────────────────────────
-   Rimau (west) or Wak (east) sits beside the headline.
+   Rimau sits beside the headline.
    Displayed as a floating character above the map. */
 .map-mascot-row {
   display: flex;
@@ -373,9 +511,9 @@
   line-height: 1;
   flex-shrink: 0;
   animation: mascot-float 3s ease-in-out infinite;
-  /* 📸 IMAGE NEEDED: replace emoji with rimau.svg / wak.svg from assets/characters/
-     These should be Loka Made–style illustrated characters */
+  /* Mascot art (Rimau poses) drops into this slot; emoji is the fallback. */
 }
+.map-mascot-figure .img-slot { width: 1.4em; height: 1.4em; }
 
 .map-mascot-bubble {
   background: #fff;

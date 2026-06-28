@@ -37,9 +37,9 @@
 
       <!-- Mascot encouragement row — floats above the question card -->
       <div class="quiz-mascot-row">
-        <!-- 📸 IMAGE NEEDED: assets/images/mascots/rimau.png (West) / wak.png (East)
+        <!-- 📸 IMAGE NEEDED: assets/images/mascots/rimau.png
              Replace the emoji span with <img> of the Loka Made–style mascot illustration. -->
-        <div class="quiz-mascot-figure" id="quiz-mascot-figure" aria-hidden="true">🦁</div>
+        <div class="quiz-mascot-figure" id="quiz-mascot-figure" aria-hidden="true">🐯</div>
         <div class="quiz-mascot-bubble" role="status" aria-live="polite">
           <p id="quiz-mascot-text">Let's test what you know! You can do it!</p>
         </div>
@@ -50,9 +50,12 @@
 
         <!-- Category / state badge in the card header -->
         <div class="quiz-card-header">
-          <!-- 📸 IMAGE NEEDED: assets/images/states/{stateId}-thumb.png
-               A small illustrated circular thumbnail of the state would go here. -->
-          <span class="quiz-state-badge" id="quiz-state-badge">State</span>
+          <div class="quiz-card-header__left">
+            <!-- State flag thumbnail — quiz.js fills it from state.emoji so each
+                 state's quiz card is visually its own. -->
+            <span class="quiz-state-flag" id="quiz-state-flag" aria-hidden="true"></span>
+            <span class="quiz-state-badge" id="quiz-state-badge">State</span>
+          </div>
           <span class="quiz-q-num" id="quiz-q-num">Q1</span>
         </div>
 
@@ -110,12 +113,13 @@
       <div class="complete-mascot-wrap">
         <!-- 📸 IMAGE NEEDED: assets/images/mascots/rimau-celebrate.png
              A Loka Made–style "jumping for joy" pose of the mascot. -->
-        <div class="complete-mascot-figure" id="complete-mascot-figure" aria-hidden="true">🦁</div>
+        <div class="complete-mascot-figure" id="complete-mascot-figure" aria-hidden="true">🐯</div>
       </div>
 
       <!-- Score tally card -->
       <div class="complete-score-card">
         <div class="complete-score-card__header">
+          <span class="complete-state-flag" id="complete-state-flag" aria-hidden="true"></span>
           <span class="complete-state-name" id="complete-state-name">State</span>
           <span class="complete-badge" id="complete-badge">Quiz Done!</span>
         </div>

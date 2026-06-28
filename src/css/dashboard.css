@@ -2,67 +2,128 @@
    DASHBOARD / STUDENT PROGRESS SCREEN
    ═══════════════════════════════════════════════════════ */
 
+/* Warm cream page background (matches the home.png reference) */
+.app-container { background: #FBF5EA; }
+
 .dashboard-screen {
   flex: 1;
   display: flex;
   flex-direction: column;
+  /* Themed dashboard art fills the content area; cream stays as the fallback. */
+  background: #FBF5EA url('../assets/images/ui/home-dashboard-background.png') center top / cover no-repeat;
 }
 
 /* ── Hero header ── */
 .dashboard-hero {
   position: relative;
-  background: linear-gradient(135deg, var(--clr-red) 0%, #8B1A1A 100%);
-  padding: var(--sp-xl) var(--sp-md) var(--sp-lg);
+  /* Clean cream hero (reference look) — dark text, no heavy colour band. */
+  background: transparent;
+  padding: var(--sp-lg) var(--sp-md) var(--sp-xs);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--sp-sm);
+  gap: 6px;
   overflow: hidden;
-  /* 📸 IMAGE NEEDED: batik-pattern.png — batik texture overlay on hero
-     Already in: src/assets/images/ui/batik-pattern.png — use as background-image */
 }
 
+/* Corner batik decorations — faint on the cream hero */
 .dash-deco {
   position: absolute;
-  width: 90px;
-  opacity: 0.5;
+  width: 78px;
+  opacity: 0.22;
   pointer-events: none;
 }
 .dash-deco--tl { top: 0; left: 0; }
 .dash-deco--tr { top: 0; right: 0; transform: scaleX(-1); }
 
 .dashboard-avatar {
-  width: 72px;
-  height: 72px;
+  width: 58px;
+  height: 58px;
   border-radius: 50%;
   background: var(--clr-yellow);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 40px;
-  border: 4px solid rgba(255,255,255,0.5);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  font-size: 32px;
+  border: 3px solid #fff;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.12);
   z-index: 1;
 }
 
 .dashboard-name {
   font-family: var(--font-display);
   font-size: var(--text-xl);
-  color: #fff;
+  color: var(--clr-text);
   margin: 0;
   z-index: 1;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
 .dashboard-level {
   font-family: var(--font-body);
   font-size: var(--text-sm);
-  color: rgba(255,255,255,0.75);
+  color: var(--clr-orange);
   z-index: 1;
   margin: 0;
-  background: rgba(0,0,0,0.2);
+  background: #FDEEDD;
   padding: 4px 14px;
   border-radius: var(--r-pill);
+}
+
+/* ── Mascot greeting (in hero) ── */
+.dash-greeting {
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  background: #fff;
+  border-radius: var(--r-pill);
+  padding: 8px var(--sp-md);
+  max-width: 90%;
+  box-shadow: var(--shadow-sm);
+  margin-top: var(--sp-xs);
+}
+.dash-greeting-mascot { font-size: 22px; flex-shrink: 0; }
+.dash-greeting-text {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--clr-text);
+  line-height: 1.3;
+}
+
+/* ── Continue Adventure — dominant primary action ── */
+.continue-btn {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  row-gap: 2px;
+  text-decoration: none;
+  margin: var(--sp-md) var(--sp-md) 0;
+  background: linear-gradient(135deg, var(--clr-gold) 0%, #FE6815 100%);
+  border-radius: var(--r-lg);
+  padding: var(--sp-md) var(--sp-lg);
+  box-shadow: 0 6px 18px rgba(254, 104, 21, 0.35);
+  transition: transform 0.12s, filter 0.12s;
+}
+.continue-btn:active { transform: scale(0.98); filter: brightness(0.97); }
+.continue-label {
+  grid-column: 1;
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.25);
+}
+.continue-sub {
+  grid-column: 1;
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: rgba(255,255,255,0.92);
+}
+.continue-arrow {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  font-size: 22px;
+  color: #fff;
+  margin-left: var(--sp-md);
 }
 
 /* ── Stats row ── */
@@ -136,6 +197,15 @@
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
 }
 .mini-stamp.earned:active { transform: scale(1.1); }
+
+.mini-stamp-hint {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--clr-text-muted);
+  line-height: 1.4;
+  margin: 0;
+}
+.mini-stamp-hint strong { color: var(--clr-red); }
 
 /* ── State score list ── */
 .state-score-list {
@@ -247,4 +317,139 @@
   width: 100%;
   text-align: center;
   color: var(--clr-red);
+}
+
+/* ── Home: journey progress bar ── */
+.home-progress {
+  margin: var(--sp-md) var(--sp-md) 0;
+  background: #fff;
+  border-radius: var(--r-lg);
+  padding: var(--sp-md);
+  box-shadow: var(--shadow-sm);
+}
+.home-progress-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: var(--sp-sm);
+}
+.home-progress-title {
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  color: var(--clr-text);
+}
+.home-progress-label {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--clr-red);
+}
+.home-progress-track {
+  height: 14px;
+  background: var(--clr-grey-light);
+  border-radius: var(--r-pill);
+  overflow: hidden;
+}
+.home-progress-fill {
+  height: 100%;
+  border-radius: var(--r-pill);
+  background: linear-gradient(90deg, var(--clr-gold), #FE6815);
+  transition: width 0.7s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+/* ── Home: section heading + four quick-access cards ── */
+.home-cards-heading {
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  color: var(--clr-text);
+  margin: var(--sp-md) var(--sp-md) 0;
+}
+.home-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--sp-md);
+  padding: var(--sp-sm) var(--sp-md) var(--sp-md);
+}
+.home-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  background: #fff;
+  border-radius: var(--r-lg);
+  padding: var(--sp-lg) var(--sp-md);
+  box-shadow: var(--shadow-sm);
+  border: 2.5px solid transparent;
+  transition: transform 0.12s, box-shadow 0.15s, border-color 0.15s;
+}
+
+/* "Coming Soon" ribbon badge (Costume Shop) */
+.home-card-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--clr-red, #E8503A);
+  border-radius: var(--r-pill);
+  padding: 2px 9px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.18);
+}
+.home-card:active { transform: scale(0.97); }
+.home-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+.home-card-icon {
+  font-size: 40px;
+  line-height: 1;
+  width: 68px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  margin-bottom: 2px;
+}
+.home-card-title {
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  color: var(--clr-text);
+  text-align: center;
+}
+.home-card-sub {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: var(--clr-text-muted);
+  text-align: center;
+}
+/* Per-card accent tints behind the icon */
+.home-card--map   { border-color: #DDEFE6; }
+.home-card--map   .home-card-icon { background: #E4F5EC; }
+.home-card--stamp { border-color: #FBE6D2; }
+.home-card--stamp .home-card-icon { background: #FDEFE0; }
+.home-card--quiz  { border-color: #E5DEF9; }
+.home-card--quiz  .home-card-icon { background: #EEE8FB; }
+.home-card--shop  { border-color: #FAD9E6; }
+.home-card--shop  .home-card-icon { background: #FCE6EF; }
+
+/* Playful staggered entrance for the four cards */
+@keyframes home-card-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.96); }
+  to   { opacity: 1; transform: none; }
+}
+.home-card { animation: home-card-in 0.4s cubic-bezier(0.34, 1.4, 0.64, 1) both; }
+.home-card--map   { animation-delay: 0.05s; }
+.home-card--stamp { animation-delay: 0.12s; }
+.home-card--quiz  { animation-delay: 0.19s; }
+.home-card--shop  { animation-delay: 0.26s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .home-card { animation: none; }
+  .home-progress-fill { transition: none; }
 }

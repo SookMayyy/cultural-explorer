@@ -50,16 +50,6 @@ const DIALOGUES = {
     'Setiap negeri ada cerita sendiri — jom cari! 🏛️',
   ],
 
-  // Wak speaks with a different tone — East Malaysian, hornbill energy
-  wak: [
-    'Hello from Borneo! I\'m Wak the Hornbill! 🦜',
-    'Sabah & Sarawak are waiting for you, friend! 🌴',
-    'East Malaysia ada banyak keajaiban! Come see! 🏔️',
-    'Wak dah jelajah Borneo — sekarang giliran kamu! 🌿',
-    'Our cultures are so unique — come discover them! 🎶',
-    'Iban, Kadazan, Melanau... so many stories! 📖',
-  ],
-
   // Shown inside the login modal when "Login" tab is active
   loginGreeting: [
     'Welcome back, Explorer! Ready for more adventures? 🎉',
@@ -71,7 +61,7 @@ const DIALOGUES = {
   // Shown inside the login modal when "Register" tab is active
   registerGreeting: [
     'Yay, a new Explorer joins the adventure! 🌟',
-    'New friend! Wak is so happy to meet you! 🦜',
+    'New friend! Rimau is so happy to meet you! 🐯',
     'Welcome to the team, future Cultural Expert! 🏆',
     'Malaysia has 13 states to discover — let\'s start! 🗺️',
   ],
@@ -98,10 +88,6 @@ function pickRandom(arr) {
 //   focused on home-screen logic, not text-animation implementation.
 // ─────────────────────────────────────────────────────────────────
 
-// Track active Typewriter instances so we can stop them before starting new ones
-let twRimau = null;
-let twWak   = null;
-
 function typeMascotText(bubbleTextEl, text, delay = 0, twRef) {
   // Wrap in setTimeout to let slide-in animation finish first
   setTimeout(() => {
@@ -112,13 +98,14 @@ function typeMascotText(bubbleTextEl, text, delay = 0, twRef) {
   }, delay);
 }
 
+// Rimau is the single mascot. This wires the optional landing-screen mascot
+// (if the page provides #bubble-text-rimau / #emoji-rimau); it no-ops safely
+// on the current LokaLearn home, which shows Rimau as a static illustration.
 function initMascots(nickname = null) {
   const bubbleTextRimau = document.getElementById('bubble-text-rimau');
-  const bubbleTextWak   = document.getElementById('bubble-text-wak');
   const emojiRimau      = document.getElementById('emoji-rimau');
-  const emojiWak        = document.getElementById('emoji-wak');
 
-  if (!bubbleTextRimau || !bubbleTextWak) return;
+  if (!bubbleTextRimau) return;
 
   // Rimau greeting — if user is logged in, address them by nickname
   const rimauLine = nickname
@@ -126,22 +113,12 @@ function initMascots(nickname = null) {
     : pickRandom(DIALOGUES.rimau);
 
   const rimauRef = { current: null };
-  const wakRef   = { current: null };
-
-  // Type Rimau's line first, Wak's line shortly after (staggered)
   typeMascotText(bubbleTextRimau, rimauLine, 700, rimauRef);
-  typeMascotText(bubbleTextWak,   pickRandom(DIALOGUES.wak), 1050, wakRef);
 
-  // Clicking/tapping a mascot shows a new random line
+  // Clicking/tapping the mascot shows a new random line
   const handleRimauClick = () => typeMascotText(bubbleTextRimau, pickRandom(DIALOGUES.rimau), 0, rimauRef);
-  const handleWakClick   = () => typeMascotText(bubbleTextWak,   pickRandom(DIALOGUES.wak),   0, wakRef);
-
   emojiRimau?.addEventListener('click',   handleRimauClick);
-  emojiWak?.addEventListener('click',     handleWakClick);
-
-  // Keyboard support: Enter or Space also triggers the dialogue
   emojiRimau?.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') handleRimauClick(); });
-  emojiWak?.addEventListener('keydown',   e => { if (e.key === 'Enter' || e.key === ' ') handleWakClick(); });
 }
 
 
@@ -590,22 +567,21 @@ function init() {
   document.getElementById('link-back-login')?.addEventListener('click', showLoginView);
   document.getElementById('form-recover')?.addEventListener('submit', handleRecover);
 
-  // ── Button: "Start Exploring!" ──
-  // Registered user → skip modal and go straight to the game.
-  // Guest user     → open modal so they can sign in, register, or keep playing as guest.
-  // No session     → open modal (default new-user flow).
+  // ── Button: "START GAME" ──
+  // The auth flow now lives on dedicated screens (login.html → signup.html /
+  // recover.html) rather than the in-page modal. From the main page:
+  //   Registered user → straight to the game (map).
+  //   Guest user      → straight to the game (they chose guest already), but
+  //                     they can still log in/register from the login screen.
+  //   No session      → the login screen (which links to Sign Up + Guest).
   const startBtn = document.getElementById('btn-start');
   if (startBtn) {
-    if (session && session.type === 'registered') {
+    if (session && (session.type === 'registered' || session.type === 'guest')) {
+      // Already signed in → go to the authenticated Home (greeting + Continue).
       startBtn.textContent = 'Continue Exploring! 🗺️';
-      startBtn.addEventListener('click', enterGame);
-    } else if (session && session.type === 'guest') {
-      // Guest: button text shows they can continue, but modal lets them sign in / register too.
-      // "Play as Guest" inside the modal still lets them bypass login if they prefer.
-      startBtn.textContent = 'Continue Exploring! 🗺️';
-      startBtn.addEventListener('click', openLoginModal);
+      startBtn.addEventListener('click', () => { window.location.href = 'dashboard.html'; });
     } else {
-      startBtn.addEventListener('click', openLoginModal);
+      startBtn.addEventListener('click', () => { window.location.href = 'login.html'; });
     }
   }
 

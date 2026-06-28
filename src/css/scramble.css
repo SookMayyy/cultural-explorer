@@ -1,0 +1,210 @@
+/* ═══════════════════════════════════════════════════════
+   WORD SCRAMBLE  —  scramble.css
+   First activity in the per-state journey. Cream game stage,
+   tappable letter tiles, answer slots with correct/wrong states.
+   ═══════════════════════════════════════════════════════ */
+
+.scr-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-lg);
+  padding: var(--sp-lg) var(--sp-md) calc(var(--navbar-h) + var(--sp-xl));
+  background: linear-gradient(180deg, #FFF6E0, #F3E8C8);
+  overflow-y: auto;
+}
+
+/* ── Progress strip ── */
+.scr-strip {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  border-radius: var(--r-md);
+  padding: 10px var(--sp-md);
+  box-shadow: var(--shadow-sm);
+}
+.scr-strip-label {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  color: var(--clr-text);
+}
+.scr-strip-score {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  color: var(--clr-green);
+}
+
+/* ── Game column ── */
+.scr-game {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-lg);
+}
+
+/* ── Hint card ── */
+.scr-hint-card {
+  width: 100%;
+  background: #fff;
+  border-radius: var(--r-lg);
+  padding: var(--sp-lg);
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  border: 2px solid #E8D8A0;
+}
+.scr-hint-emoji { font-size: 44px; line-height: 1; }
+.scr-hint-label {
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  color: var(--clr-red);
+  margin: var(--sp-xs) 0 4px;
+}
+.scr-hint-text {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--clr-text-muted);
+  margin: 0;
+}
+.scr-hint-how {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: var(--clr-text-muted);
+  opacity: 0.8;
+  margin: 6px 0 0;
+}
+
+/* ── Answer slots ── */
+.scr-slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  min-height: 56px;
+}
+.scr-slot {
+  width: 44px;
+  height: 52px;
+  border-radius: var(--r-sm);
+  border: 2.5px dashed #C4A86E;
+  background: rgba(255,255,255,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  color: var(--clr-text);
+  text-transform: uppercase;
+}
+.scr-slot.filled { border-style: solid; border-color: var(--clr-purple, #6b50ce); background: #fff; }
+.scr-slot.correct { border-color: var(--clr-green); background: #E8F5E9; color: var(--clr-green); }
+.scr-slot.wrong   { border-color: var(--clr-red); background: #FFEBEE; animation: scr-shake 0.4s; }
+
+/* ── Letter tiles ── */
+.scr-tiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+.scr-tile {
+  width: 48px;
+  height: 56px;
+  border-radius: var(--r-md);
+  border: none;
+  background: linear-gradient(180deg, #8a72e0, #6b50ce);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #4a3a9e;
+  transition: transform 0.1s, box-shadow 0.1s, opacity 0.15s;
+}
+.scr-tile:active { transform: translateY(3px); box-shadow: 0 1px 0 #4a3a9e; }
+.scr-tile.used {
+  opacity: 0.25;
+  pointer-events: none;
+  box-shadow: 0 2px 0 #4a3a9e;
+}
+
+/* ── Feedback + clear ── */
+.scr-feedback {
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  color: var(--clr-text);
+  margin: 0;
+  min-height: 1.4em;
+}
+.scr-actions {
+  display: flex;
+  justify-content: center;
+  gap: var(--sp-sm);
+  flex-wrap: wrap;
+}
+.scr-clear-btn {
+  background: none;
+  border: 2px solid var(--clr-border);
+  border-radius: var(--r-pill);
+  padding: 8px var(--sp-lg);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  color: var(--clr-text-muted);
+  cursor: pointer;
+}
+.scr-clear-btn:active { transform: scale(0.96); }
+
+.scr-hint-btn {
+  background: var(--clr-gold, #FFC83D);
+  border: none;
+  border-radius: var(--r-pill);
+  padding: 8px var(--sp-lg);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  color: #6a4b00;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+}
+.scr-hint-btn:active { transform: scale(0.96); }
+.scr-hint-btn:disabled { opacity: 0.5; cursor: default; box-shadow: none; }
+
+@keyframes scr-shake {
+  0%, 100% { transform: translateX(0); }
+  25%      { transform: translateX(-5px); }
+  75%      { transform: translateX(5px); }
+}
+
+/* ── Completion ── */
+.scr-complete {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-sm);
+  text-align: center;
+  background: #fff;
+  border-radius: var(--r-lg);
+  padding: var(--sp-xl);
+  box-shadow: var(--shadow-md);
+  max-width: 420px;
+  width: 100%;
+  margin-top: var(--sp-lg);
+}
+.scr-complete-emoji { font-size: 56px; line-height: 1; }
+.scr-complete-title {
+  font-family: var(--font-title);
+  font-size: var(--text-2xl);
+  color: var(--clr-red);
+  margin: 0;
+}
+.scr-complete-sub {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--clr-text-muted);
+  margin: 0 0 var(--sp-sm);
+}
+.scr-next-btn { text-decoration: none; }

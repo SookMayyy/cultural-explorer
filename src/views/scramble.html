@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Word Scramble — Cultural Explorer MY</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Fredoka+One&family=Ribeye&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/scramble.css">
+</head>
+<body>
+
+<div class="app-container">
+
+  <!-- Topbar rendered by scramble.js via renderTopbar() -->
+  <header class="topbar" id="topbar"></header>
+
+  <main class="scr-screen">
+
+    <!-- Progress strip -->
+    <div class="scr-strip">
+      <span class="scr-strip-label" id="scr-progress">Word 1 of 3</span>
+      <span class="scr-strip-score" id="scr-score">0 pts</span>
+    </div>
+
+    <!-- Game card (hidden once all words are done) -->
+    <div class="scr-game" id="scr-game">
+
+      <!-- Hint card: emoji + instruction + hint -->
+      <div class="scr-hint-card">
+        <span class="scr-hint-emoji" id="scr-emoji" aria-hidden="true">🔤</span>
+        <p class="scr-hint-label">Unscramble the word!</p>
+        <p class="scr-hint-text" id="scr-hint">Hint…</p>
+        <p class="scr-hint-how">⌨️ Tap the letters or type on your keyboard</p>
+      </div>
+
+      <!-- Answer slots (one per letter) -->
+      <div class="scr-slots" id="scr-slots" aria-label="Your answer"></div>
+
+      <!-- Scrambled letter tiles -->
+      <div class="scr-tiles" id="scr-tiles" aria-label="Scrambled letters"></div>
+
+      <!-- Feedback line -->
+      <p class="scr-feedback" id="scr-feedback" role="status">&nbsp;</p>
+
+      <!-- Action buttons: Hint (reveals first letter + a fun fact) + Clear -->
+      <div class="scr-actions">
+        <button class="scr-hint-btn" id="scr-hint-btn" type="button">💡 Hint (−5 pts)</button>
+        <button class="scr-clear-btn" id="scr-clear" type="button">↺ Clear</button>
+      </div>
+
+    </div>
+
+    <!-- Completion overlay -->
+    <div class="scr-complete hidden" id="scr-complete">
+      <span class="scr-complete-emoji" aria-hidden="true">🎉</span>
+      <h2 class="scr-complete-title">Word Master!</h2>
+      <p class="scr-complete-sub" id="scr-complete-sub">You unscrambled every word!</p>
+      <a class="btn-primary scr-next-btn" id="scr-next" href="#">Next: Match the Culture 🍜</a>
+    </div>
+
+  </main>
+
+  <nav class="bottom-nav" id="navbar"></nav>
+
+</div>
+
+<script type="module" src="../js/scramble.js"></script>
+</body>
+</html>

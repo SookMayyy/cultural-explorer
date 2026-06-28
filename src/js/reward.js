@@ -3,6 +3,8 @@
 import Storage from './utils/storage.js';
 import { requireAuth } from './ui.js';
 import { STATES_DATA, getState, nextRecommended } from './data/states.js';
+import { pushStateComplete } from './utils/sync.js';
+import Sound from './utils/sound.js';
 
 requireAuth();
 
@@ -27,6 +29,13 @@ const subline  = document.getElementById('reward-subline');
 if (stampEarned && state) {
   // Make sure this state counts toward the "x/7" tally (idempotent).
   Storage.earnStamp(stateId);
+
+  // Persist completion to the backend so the stamp + bonus survive across
+  // devices/sessions. Best-effort (no-op for guests or when offline).
+  pushStateComplete(stateId, score);
+
+  // Juice: stamp "thunk" + sparkle on earning the stamp.
+  Sound.stamp();
 
   headline.textContent = 'Amazing! 🎉';
   document.getElementById('stamp-state-name').textContent = state.name;

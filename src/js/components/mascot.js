@@ -1,15 +1,13 @@
 // Vanilla JavaScript (ES6 modules) — mascot.js
-// js/components/mascot.js — Rimau / Wak mascot with speech bubble
+// js/components/mascot.js — Rimau mascot with speech bubble
 
 import Typewriter from './typewriter.js';
-
-const EMOJI = { rimau: '🦁', wak: '🦜' };
+import { renderMascot, setMascotPose } from '../data/mascots.js';
 
 export default class Mascot {
   constructor(containerEl, mascotId = 'rimau') {
     this._el        = containerEl;
     this._id        = mascotId;
-    this._emoji     = EMOJI[mascotId] || '🦁';
     this._tw        = null;
     this._figureEl  = null;
     this._textEl    = null;
@@ -22,12 +20,19 @@ export default class Mascot {
         <div class="mascot-bubble">
           <p class="mascot-bubble-text"></p>
         </div>
-        <div class="mascot-figure ${animate ? '' : 'no-float'}">${this._emoji}</div>
+        <div class="mascot-figure ${animate ? '' : 'no-float'}"></div>
       </div>
     `;
     this._figureEl = this._el.querySelector('.mascot-figure');
     this._textEl   = this._el.querySelector('.mascot-bubble-text');
+    renderMascot(this._figureEl, 'idle', this._id);
     if (bubbleText) this.say(bubbleText);
+    return this;
+  }
+
+  // Switch the mascot pose (idle | happy | cheer).
+  setPose(pose) {
+    setMascotPose(this._figureEl, pose, this._id);
     return this;
   }
 
@@ -50,11 +55,14 @@ export default class Mascot {
 
   celebrate() {
     if (!this._figureEl) return;
+    this.setPose('cheer');
     this._figureEl.style.animation = 'none';
     void this._figureEl.offsetWidth;
     this._figureEl.style.animation = 'mascot-celebrate 0.8s ease';
     setTimeout(() => {
-      if (this._figureEl) this._figureEl.style.animation = 'mascot-float 3s ease-in-out infinite';
+      if (!this._figureEl) return;
+      this._figureEl.style.animation = 'mascot-float 3s ease-in-out infinite';
+      this.setPose('idle');
     }, 800);
   }
 

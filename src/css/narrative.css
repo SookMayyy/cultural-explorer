@@ -209,9 +209,9 @@
   line-height: 1;
   animation: mascot-float 3s ease-in-out infinite;
   user-select: none;
-  /* 📸 IMAGE NEEDED: assets/images/mascots/rimau.png (West) / wak.png (East)
-     Swap the emoji for a <img> of the Loka Made–style mascot illustration. */
+  /* Mascot art slot: drop in assets/characters/rimau.png. */
 }
+.narrative-mascot-figure .img-slot { width: 1.4em; height: 1.4em; }
 
 /* Speech bubbles — warm white with the tail on the correct side */
 .narrative-story-bubble,
@@ -375,6 +375,14 @@
 
   /* Spring entrance: each postcard pops in staggered on tab open */
   animation: postcard-enter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  transition: box-shadow 0.18s ease;
+}
+
+/* Deepen the card shadow on hover for a tactile, "real card" feel */
+@media (hover: hover) {
+  .postcard:hover {
+    box-shadow: var(--shadow-md), 0 3px 0 var(--clr-border-warm);
+  }
 }
 
 @keyframes postcard-enter {

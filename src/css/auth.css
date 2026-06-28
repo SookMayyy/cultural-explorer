@@ -1,0 +1,469 @@
+/* ═══════════════════════════════════════════════════════════════════
+   AUTH SCREENS  —  auth.css
+   Shared by the standalone Login (login.html) and Sign Up (signup.html)
+   screens. Card-on-warm-gradient layout, consistent with recover.css.
+   UI is intentionally functional-first; polish later from the Figma
+   frames (Login 298:87, Create Account 334:14).
+   ═══════════════════════════════════════════════════════════════════ */
+
+.auth-screen {
+  flex: 1;
+  min-height: 100vh;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-lg);
+  /* Jungle scene behind the card; a soft dark wash keeps the chrome readable. */
+  background:
+    linear-gradient(rgba(18, 60, 40, 0.28), rgba(18, 60, 40, 0.42)),
+    url('../assets/images/ui/jungle-background.jpg') center / cover no-repeat;
+  overflow-y: auto;
+}
+
+/* Batik corner decorations (optional art, falls back to nothing) */
+.auth-deco {
+  position: absolute;
+  width: 110px;
+  pointer-events: none;
+  opacity: 0.4;
+}
+.auth-deco--tl { top: 0; left: 0; }
+.auth-deco--tr { top: 0; right: 0; transform: scaleX(-1); }
+
+/* ── Card ── */
+.auth-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 440px;
+  background: var(--clr-card);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--sp-xl) var(--sp-lg) var(--sp-lg);
+  margin: auto;
+}
+
+.auth-back {
+  position: absolute;
+  top: var(--sp-md);
+  left: var(--sp-md);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--clr-bg);
+  color: var(--clr-text);
+  font-size: 22px;
+  text-decoration: none;
+}
+
+/* ── Header (mascot + titles) ── */
+.auth-mascot {
+  font-size: 56px;
+  text-align: center;
+  line-height: 1;
+  margin-bottom: var(--sp-xs);
+}
+
+/* ── Rimau mascot + speech bubble (login / sign-up greeting) ── */
+.auth-mascot-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  margin-bottom: var(--sp-md);
+}
+.auth-mascot-fig {
+  width: 86px;
+  flex-shrink: 0;
+}
+.auth-mascot-fig img {
+  width: 100%;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.22));
+  transform-origin: bottom center;   /* breathe/sway from the feet, like standing */
+  /* Two layered loops: a slow chest "breath" (scale) + a gentle bob & tilt. */
+  animation:
+    auth-mascot-breathe 3.6s ease-in-out infinite,
+    auth-mascot-bob     4.8s ease-in-out infinite;
+}
+.auth-mascot-bubble {
+  position: relative;
+  flex: 1;
+  align-self: center;
+  background: #fff;
+  border: 2px solid var(--clr-border);
+  border-radius: var(--r-lg);
+  border-bottom-left-radius: 4px;
+  padding: var(--sp-sm) var(--sp-md);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  color: var(--clr-text);
+  line-height: 1.45;
+  box-shadow: var(--shadow-sm);
+}
+/* Little tail pointing toward Rimau */
+.auth-mascot-bubble::before {
+  content: '';
+  position: absolute;
+  left: -9px;
+  bottom: 16px;
+  border: 8px solid transparent;
+  border-right-color: #fff;
+}
+/* Gentle "breath": tiny vertical squash & stretch from the feet. */
+@keyframes auth-mascot-breathe {
+  0%, 100% { transform: scale(1, 1); }
+  50%      { transform: scale(1.015, 1.04); }
+}
+/* Soft idle bob + a hint of sway so Rimau feels alive. */
+@keyframes auth-mascot-bob {
+  0%, 100% { translate: 0 0;     rotate: -1.2deg; }
+  50%      { translate: 0 -5px;  rotate:  1.2deg; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .auth-mascot-fig img { animation: none; }
+}
+
+/* ── Split layout: Rimau on one side, the form card on the other ───────────── */
+.auth-split {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-xl);
+  width: 100%;
+  max-width: 920px;
+  margin: auto;
+}
+.auth-split > .auth-card {
+  margin: 0;
+  flex: 1 1 46%;
+  max-width: 460px;
+}
+
+/* Mascot half */
+.auth-mascot-side {
+  flex: 1 1 46%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-sm);
+}
+.auth-mascot-fig--lg { width: min(280px, 58vw); }
+
+/* Side speech bubble sits above Rimau, with a tail pointing DOWN at him */
+.auth-mascot-bubble--side {
+  align-self: stretch;
+  text-align: center;
+  flex: none;
+  font-size: var(--text-md);
+  border-bottom-left-radius: var(--r-lg);
+}
+.auth-mascot-bubble--side::before {
+  left: 50%;
+  bottom: -15px;
+  transform: translateX(-50%);
+  border: 8px solid transparent;
+  border-top-color: #fff;
+  border-right-color: transparent;
+}
+
+/* Stack on narrow screens: Rimau on top, card below */
+@media (max-width: 760px) {
+  .auth-split {
+    flex-direction: column;
+    gap: var(--sp-md);
+    max-width: 460px;
+  }
+  .auth-split > .auth-card,
+  .auth-mascot-side {
+    flex: none;
+    width: 100%;
+    max-width: 100%;
+  }
+  .auth-mascot-fig--lg { width: 140px; }
+  .auth-mascot-bubble--side { font-size: var(--text-sm); }
+}
+
+.auth-title {
+  font-family: var(--font-title);
+  font-size: var(--text-2xl);
+  color: var(--clr-red);
+  text-align: center;
+  margin: 0 0 4px;
+}
+.auth-sub {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--clr-text-muted);
+  text-align: center;
+  margin: 0 0 var(--sp-lg);
+}
+
+/* ── Form ── */
+.auth-form { display: flex; flex-direction: column; gap: var(--sp-sm); }
+
+.auth-label {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  color: var(--clr-text);
+  margin-top: var(--sp-xs);
+}
+
+.auth-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px var(--sp-md);
+  border: 2px solid var(--clr-border);
+  border-radius: var(--r-md);
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  color: var(--clr-text);
+  background: #fff;
+}
+.auth-input:focus {
+  outline: none;
+  border-color: var(--clr-red);
+}
+
+/* ── Grade selector ── */
+.grade-select { display: flex; gap: var(--sp-xs); }
+.grade-btn {
+  flex: 1;
+  padding: 12px 4px;
+  border: 2px solid var(--clr-border);
+  border-radius: var(--r-md);
+  background: #fff;
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  color: var(--clr-text);
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s, transform 0.1s;
+}
+.grade-btn:active { transform: scale(0.96); }
+.grade-btn.selected {
+  border-color: var(--clr-red);
+  background: #fdecea;
+  color: var(--clr-red);
+}
+
+/* ── Icon picker (12-icon recovery grid, pick 2 in order) ── */
+.auth-instruction {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--clr-text);
+  text-align: center;
+  margin: var(--sp-sm) 0 0;
+}
+
+.icon-picker {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-sm);
+  margin-top: var(--sp-xs);
+}
+.icon-pick {
+  aspect-ratio: 1;
+  min-width: 56px;          /* young-child touch target */
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  border: 2.5px solid var(--clr-border);
+  border-radius: var(--r-md);
+  background: #fff;
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.12s, background 0.12s, transform 0.12s;
+}
+.icon-pick:active { transform: scale(0.92); }
+.icon-pick.selected {
+  border-color: var(--clr-gold);
+  background: #fffbf0;
+  box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.25);
+}
+/* Order badge (1 / 2) so kids see which icon they tapped first */
+.icon-pick .pick-order {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--clr-gold);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-counter {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  color: var(--clr-text-muted);
+  text-align: center;
+  margin: 0;
+}
+.auth-counter span { color: var(--clr-red); }
+
+/* ── Hint / note ── */
+.auth-hint {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: var(--clr-text-muted);
+  margin: 0;
+}
+
+/* ── Messages ── */
+.form-error {
+  color: var(--clr-red);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  text-align: center;
+  margin: 0;
+  background: #FEF0EE;
+  border-radius: var(--r-sm);
+  padding: var(--sp-sm);
+}
+.form-success {
+  color: var(--clr-green);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  text-align: center;
+  margin: 0;
+}
+
+/* ── Buttons ── */
+.auth-submit {
+  width: 100%;
+  padding: 14px var(--sp-lg);
+  border: none;
+  border-radius: var(--r-pill);
+  background: var(--clr-red);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  cursor: pointer;
+  margin-top: var(--sp-sm);
+  transition: transform 0.1s, filter 0.12s;
+}
+.auth-submit:active:not(:disabled) { transform: scale(0.98); filter: brightness(0.96); }
+.auth-submit:disabled { background: #d9b8b3; cursor: not-allowed; }
+
+.auth-link {
+  display: block;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--clr-text-muted);
+  text-decoration: none;
+  margin-top: var(--sp-sm);
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+}
+.auth-link strong { color: var(--clr-red); }
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  margin: var(--sp-md) 0 var(--sp-sm);
+  color: var(--clr-text-muted);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+}
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--clr-border);
+}
+
+/* Secondary (guest / teacher) buttons */
+.auth-btn-ghost {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px var(--sp-md);
+  border: 2px dashed var(--clr-border);
+  border-radius: var(--r-pill);
+  background: var(--clr-grey-light);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  color: var(--clr-text-muted);
+  cursor: pointer;
+  margin-top: var(--sp-sm);
+}
+.auth-btn-ghost:active { background: var(--clr-border); }
+
+/* ── Sign-up success / auto-password panel ── */
+.auth-done { display: none; flex-direction: column; gap: var(--sp-md); text-align: center; }
+.auth-done.show { display: flex; }
+
+.autopw-box {
+  background: #fffbf0;
+  border: 2.5px dashed var(--clr-gold);
+  border-radius: var(--r-lg);
+  padding: var(--sp-md);
+}
+.autopw-box .autopw-label {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--clr-text-muted);
+  margin: 0 0 var(--sp-xs);
+}
+.autopw-box .autopw-value {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  color: var(--clr-red);
+  letter-spacing: 2px;
+  margin: 0;
+}
+.autopw-box .autopw-note {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: var(--clr-text-muted);
+  margin: var(--sp-xs) 0 0;
+}
+
+/* Avatar pick grid (reused on the sign-up success step) */
+.avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-sm);
+  max-width: 320px;
+  margin: 0 auto;
+  width: 100%;
+  max-height: 220px;
+  overflow-y: auto;
+  padding: var(--sp-xs);
+}
+.avatar-item {
+  aspect-ratio: 1;
+  font-size: 28px;
+  border-radius: var(--r-md);
+  border: 2.5px solid transparent;
+  background: var(--clr-grey-light);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s, transform 0.1s;
+}
+.avatar-item.selected {
+  border-color: var(--clr-red);
+  background: #FEF0EE;
+  transform: scale(1.08);
+}
+.avatar-item:active { transform: scale(0.95); }

@@ -1,4 +1,5 @@
-// js/dashboard.js — student progress dashboard
+// js/dashboard.js — authenticated Home: greeting, journey progress bar, and four
+// quick-access cards (Map, Stamp Book, Quiz, Costume Shop).
 
 import Storage from './utils/storage.js';
 import { renderTopbar, renderNavbar, requireAuth } from './ui.js';
@@ -7,15 +8,16 @@ import { avatarStackHTML } from './utils/avatarDisplay.js';
 
 const session = requireAuth();
 
-renderTopbar({ title: 'My Progress', showAvatar: true, showPoints: true });
-renderNavbar('dashboard');
+renderTopbar({ title: 'Home', showAvatar: true, showPoints: true, color: '#FE6815' });
+renderNavbar('home');
 
-const progress  = Storage.getProgress();
-const stamps    = Storage.getStamps();
-const points    = Storage.getPoints();
-const completed = Storage.completedCount();
-const best      = Storage.getBestScore();
-const next      = nextRecommended(progress);
+const progress   = Storage.getProgress();
+const completed  = Storage.completedCount();
+const stampsN    = Storage.stampCount();
+const points     = Storage.getPoints();
+const total      = STATES_DATA.length;
+const next       = nextRecommended(progress);
+const playerName = session.displayName || 'Explorer';
 
 function levelLabel(n) {
   if (n === 0) return '🌱 Beginner Explorer';
@@ -27,63 +29,33 @@ function levelLabel(n) {
 
 // ── Hero ──────────────────────────────────────────────────────────────────────
 document.getElementById('dash-avatar').innerHTML = avatarStackHTML(session.avatarId ?? 0);
-document.getElementById('dash-name').textContent   = session.displayName || 'Explorer';
-document.getElementById('dash-level').textContent  = levelLabel(completed);
+document.getElementById('dash-name').textContent = playerName;
+document.getElementById('dash-level').textContent = levelLabel(completed);
 
-// ── Stats ─────────────────────────────────────────────────────────────────────
-document.getElementById('stat-states').textContent = completed;
-document.getElementById('stat-stamps').textContent = stamps.length;
-document.getElementById('stat-points').textContent = points;
-
-// ── Mini stamps ───────────────────────────────────────────────────────────────
-document.getElementById('mini-stamps').innerHTML = STATES_DATA.map(state => `
-  <div class="mini-stamp ${stamps.includes(state.id) ? 'earned' : ''}"
-       title="${state.name}"
-       style="${stamps.includes(state.id) ? `background:${state.color}` : ''}">
-    ${state.emoji}
-  </div>
-`).join('');
-
-// ── State progress list ───────────────────────────────────────────────────────
-document.getElementById('state-progress-list').innerHTML = STATES_DATA.map(state => {
-  const sp   = Storage.getStateProgress(state.id);
-  const tabs = ['story','culture','activity','quiz'];
-  const done = tabs.filter(t => sp[t]).length;
-  const pct  = Math.round((done / tabs.length) * 100);
-  return `
-    <div class="state-score-row">
-      <span class="state-score-emoji" style="background:${state.colorLight}">${state.emoji}</span>
-      <div class="state-score-info">
-        <span class="state-score-name">${state.name}</span>
-        <div class="progress-track state-prog">
-          <div class="progress-fill" style="width:${pct}%; background:${state.color}"></div>
-        </div>
-      </div>
-      <span class="state-score-pct">${pct}%</span>
-    </div>
-  `;
-}).join('');
-
-// ── Recommended next ──────────────────────────────────────────────────────────
-if (next) {
-  const card = document.getElementById('dash-recommended');
-  card.style.background = `linear-gradient(135deg, ${next.color}, ${next.color}CC)`;
-  card.href = `narrative.html?state=${next.id}`;
-  card.addEventListener('click', () => Storage.setCurrentState(next.id));
-  document.getElementById('rec-emoji').textContent = next.emoji;
-  document.getElementById('rec-name').textContent  = next.name;
-  document.getElementById('rec-desc').textContent  = next.tagline;
-} else {
-  document.getElementById('section-recommended').style.display = 'none';
+const greetEl = document.getElementById('dash-greeting-text');
+if (greetEl) {
+  const lines = stampsN === 0
+    ? [`Welcome, ${playerName}! Ready for your first adventure? 🗺️`,
+       `Hi ${playerName}! Let's explore Malaysia together! 🐯`]
+    : [`Welcome back, ${playerName}! ${stampsN} stamp${stampsN > 1 ? 's' : ''} so far! 🏅`,
+       `Great to see you, ${playerName}! Let's keep exploring! ✨`];
+  greetEl.textContent = lines[Math.floor(Math.random() * lines.length)];
 }
 
-// ── Best score ────────────────────────────────────────────────────────────────
-document.getElementById('dash-best-score').textContent = `${best} pts`;
-
-// ── Logout ────────────────────────────────────────────────────────────────────
-document.getElementById('dash-logout')?.addEventListener('click', () => {
-  if (confirm('Log out? Your progress is saved.')) {
-    Storage.clearSession();
-    window.location.href = 'home.html';
-  }
+// ── Journey progress bar ────────────────────────────────────────────────────────
+document.getElementById('home-progress-label').textContent = `${completed} / ${total} states`;
+requestAnimationFrame(() => {
+  document.getElementById('home-progress-fill').style.width =
+    `${Math.round((completed / total) * 100)}%`;
 });
+
+// ── Card subtitles + quiz target ─────────────────────────────────────────────────
+document.getElementById('home-stamp-sub').textContent = `${stampsN} / ${total} collected`;
+// Costume Shop is parked as "Coming Soon" — keep the points sub honest but quiet.
+document.getElementById('home-shop-sub').textContent  = '✨ Coming soon';
+
+// The Quiz card needs a state context. Prefer the last-visited state, then the
+// recommended next, then the first state — so it never lands on "state not found".
+const quizState = Storage.getCurrentState() || next?.id || STATES_DATA[0].id;
+const quizCard = document.getElementById('home-card-quiz');
+if (quizCard) quizCard.href = `quiz.html?state=${quizState}`;
