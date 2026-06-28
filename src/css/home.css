@@ -24,7 +24,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #E7E0EC;
+  /* Themed art fills the entire screen behind the stage, so any letterbox the
+     scaled stage leaves is covered by the same background (no grey margins). */
+  background: #E7E0EC url('../assets/images/ui/home-backgrounds.png') center / cover no-repeat;
   overflow: hidden;
 }
 
@@ -34,8 +36,6 @@ body {
   width: 1104px;
   height: 682px;
   background: #FEF7FF;
-  border-radius: 18px;
-  outline: 8px solid #CAC4D0;
   overflow: hidden;
   transform-origin: center center;
   font-family: 'Rowdies', cursive;
@@ -51,7 +51,7 @@ body {
   z-index: 0;
 }
 
-/* ── Mascot illustration (element 34 — Wak the hornbill) ── */
+/* ── Mascot illustration (element 34 — Rimau the tiger) ── */
 .pb-illus {
   position: absolute;
   left: 0; bottom: 0;
@@ -73,15 +73,16 @@ body {
 /* ── LOKALEARN wordmark ── */
 .pb-logo {
   position: absolute;
-  left: 350px; top: 179px;
+  left: 320px; top: 110px;
   width: 436px;
   margin: 0;
   font-family: 'Rowdies', cursive;
-  font-weight: 700;
-  font-size: 60px;
+  font-weight: 900;
+  font-size: 70px;
   line-height: 1;
   white-space: nowrap;
   z-index: 2;
+  -webkit-text-stroke: 4px white;
 }
 .pb-loka, .pb-learn {
   -webkit-background-clip: text;
@@ -95,7 +96,7 @@ body {
 /* ── Subtitle ── */
 .pb-subtitle {
   position: absolute;
-  left: 403px; top: 255px;
+  left: 403px; top: 210px;
   width: 307px;
   margin: 0;
   color: #145DA0;
@@ -109,7 +110,7 @@ body {
 /* ── Description ── */
 .pb-desc {
   position: absolute;
-  left: 324px; top: 299px;
+  left: 324px; top: 270px;
   width: 484px;
   margin: 0;
   text-align: center;
@@ -142,9 +143,23 @@ body {
   z-index: 2;
   transition: transform 0.1s ease, filter 0.12s ease;
 }
-.pb-btn:active { transform: translateY(2px); filter: brightness(0.96); }
-.pb-start { top: 419px; background: #FE6815; border: 2px solid #D68356; }
-.pb-how   { top: 526px; background: #02A2F8; box-shadow: 0 9px 9px 2px rgba(0,0,0,0.25); }
+.pb-btn:active { 
+  transform: translateY(2px); 
+  filter: brightness(0.96); 
+}
+
+.pb-start { 
+  top: 370px; 
+  background: #FE6815; 
+  border: 2px solid #D68356; 
+  box-shadow: 0 9px 9px 2px rgba(0,0,0,0.25);
+}
+
+.pb-how   { 
+  top: 490px;
+  background: #02A2F8; 
+  box-shadow: 0 9px 9px 2px rgba(0,0,0,0.25); 
+}
 
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -599,6 +614,7 @@ body {
   flex-shrink: 0;
   animation: mascot-float 3s ease-in-out infinite;
 }
+.modal-mascot-emoji .img-slot { width: 1em; height: 1em; }
 
 /* Speech bubble pointing LEFT toward the mascot emoji */
 .modal-speech {

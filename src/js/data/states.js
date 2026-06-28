@@ -48,6 +48,18 @@ export const STATES_DATA = [
         // Export from Figma → Cards/Penang/Festival — Thaipusam kavadi carrier illustration
         image: null,
       },
+      {
+        id: 'penang-4',
+        category: 'Dialect',
+        icon: '💬',
+        title: 'Penang Hokkien',
+        desc: 'People in Penang speak a special dialect called Penang Hokkien. It mixes Hokkien Chinese with Malay and English words, so it sounds different from Chinese spoken anywhere else in the world!',
+        funFact: 'Penang Hokkien borrows many Malay words — like "sabun" for soap and "roti" for bread!',
+        mascotLine: 'Penang Hokkien is like a language smoothie — so many flavours mixed into one!',
+        // 📸 IMAGE NEEDED: penang-hokkien.png
+        // Export from Figma → Cards/Penang/Dialect — Penang Hokkien speech-bubble illustration
+        image: null,
+      },
     ],
     // Curated drag-match pairs for the "Match the Culture!" activity.
     // food = the chip the player taps; state = the descriptor zone they match it to.
@@ -112,6 +124,18 @@ export const STATES_DATA = [
         // Export from Figma → Cards/Melaka/Heritage — Peranakan culture illustration
         image: null,
       },
+      {
+        id: 'melaka-4',
+        category: 'Tradition',
+        icon: '🛺',
+        title: 'Jonker Street',
+        desc: 'Jonker Street is the heart of Melaka\'s old Chinatown. At night it turns into a lively market full of food stalls, antiques, games, and people singing on stage. It is always full of fun!',
+        funFact: 'Jonker Street is famous for its colourful trishaws decorated with flowers, lights, and cartoon characters that play music as they ride!',
+        mascotLine: 'Jonker Street at night is buzzing with food and music — let\'s explore!',
+        // 📸 IMAGE NEEDED: melaka-jonker-street.png
+        // Export from Figma → Cards/Melaka/Tradition — Jonker Street night market illustration
+        image: null,
+      },
     ],
     dragPairs: [
       { food: '🍱 Nyonya Cuisine', state: 'Chinese-Malay food' },
@@ -172,6 +196,18 @@ export const STATES_DATA = [
         mascotLine: 'The soup is cooked for hours — that is why it tastes so rich and special!',
         // 📸 IMAGE NEEDED: selangor-bak-kut-teh.png
         // Export from Figma → Cards/Selangor/Food — Bak Kut Teh soup illustration
+        image: null,
+      },
+      {
+        id: 'selangor-4',
+        category: 'Landmark',
+        icon: '🕌',
+        title: 'Blue Mosque, Shah Alam',
+        desc: 'The Sultan Salahuddin Abdul Aziz Mosque in Shah Alam is nicknamed the "Blue Mosque" for its beautiful blue-and-silver dome. It is one of the largest mosques in Southeast Asia!',
+        funFact: 'Its four towering minarets are among the tallest in the world — the big dome can be seen from far away!',
+        mascotLine: 'The Blue Mosque\'s dome shines like a giant blue jewel against the sky!',
+        // 📸 IMAGE NEEDED: selangor-blue-mosque.png
+        // Export from Figma → Cards/Selangor/Landmark — Shah Alam Blue Mosque illustration
         image: null,
       },
     ],
@@ -236,6 +272,18 @@ export const STATES_DATA = [
         // Export from Figma → Cards/Johor/Nature — Desaru beach illustration
         image: null,
       },
+      {
+        id: 'johor-4',
+        category: 'Tradition',
+        icon: '🐎',
+        title: 'Kuda Kepang',
+        desc: 'Kuda Kepang is a traditional Johor dance. Performers "ride" flat horses made of woven bamboo, moving to the beat of drums and gongs. The dance tells stories of brave warriors!',
+        funFact: 'The horses in Kuda Kepang are woven flat from bamboo — but skilled dancers make them look like they are really galloping!',
+        mascotLine: 'Watch the dancers gallop on their bamboo horses — what an amazing show!',
+        // 📸 IMAGE NEEDED: johor-kuda-kepang.png
+        // Export from Figma → Cards/Johor/Tradition — Kuda Kepang bamboo-horse dance illustration
+        image: null,
+      },
     ],
     dragPairs: [
       { food: '🍝 Laksa Johor',     state: 'Spaghetti laksa'      },
@@ -296,6 +344,18 @@ export const STATES_DATA = [
         mascotLine: 'Every batik pattern tells a story — it\'s like wearing a beautiful piece of art!',
         // 📸 IMAGE NEEDED: kelantan-batik.png
         // Export from Figma → Cards/Kelantan/Craft — batik fabric pattern illustration
+        image: null,
+      },
+      {
+        id: 'kelantan-4',
+        category: 'Food',
+        icon: '🍚',
+        title: 'Nasi Kerabu',
+        desc: 'Nasi Kerabu is a famous Kelantan dish where the rice is naturally blue! It is served with fish or chicken, fresh herbs, salted egg, and a spicy sauce. It is as healthy as it is colourful.',
+        funFact: 'The blue colour comes from real butterfly-pea flowers called "bunga telang" — no artificial colouring at all!',
+        mascotLine: 'Blue rice?! Kelantan\'s Nasi Kerabu is as tasty as it is colourful!',
+        // 📸 IMAGE NEEDED: kelantan-nasi-kerabu.png
+        // Export from Figma → Cards/Kelantan/Food — blue Nasi Kerabu illustration
         image: null,
       },
     ],
@@ -360,6 +420,18 @@ export const STATES_DATA = [
         // Export from Figma → Cards/Sabah/Festival — Kaamatan harvest festival illustration
         image: null,
       },
+      {
+        id: 'sabah-4',
+        category: 'Costume',
+        icon: '👘',
+        title: 'Kadazan-Dusun Costume',
+        desc: 'The Kadazan-Dusun people wear beautiful black costumes decorated with gold trim and colourful beads. Women wear a "tangkong" belt made of silver coins, worn proudly during the Sumazau dance.',
+        funFact: 'The Sumazau is a graceful dance where dancers spread their arms and move like a bird flying — performed at the Kaamatan harvest festival!',
+        mascotLine: 'The Kadazan-Dusun costumes sparkle with gold — perfect for the Sumazau dance!',
+        // 📸 IMAGE NEEDED: sabah-kadazan-costume.png
+        // Export from Figma → Cards/Sabah/Costume — Kadazan-Dusun traditional attire illustration
+        image: null,
+      },
     ],
     dragPairs: [
       { food: '🏔️ Mount Kinabalu', state: 'Highest peak'          },
@@ -393,7 +465,7 @@ export const STATES_DATA = [
         title: 'Rhinoceros Hornbill',
         desc: 'The Rhinoceros Hornbill is Sarawak\'s state bird. It is a large, beautiful bird with a curved "casque" on its beak that looks like a horn. It plays an important role in Iban culture and legends. Seeing one in the wild is very special!',
         funFact: 'Hornbills mate for life and the female seals herself inside a tree hole to lay eggs — only a small opening remains for the male to pass her food!',
-        mascotLine: 'Wak here is a hornbill just like this! The casque on my beak is my pride!',
+        mascotLine: 'Look at that magnificent casque on its beak — the hornbill is Sarawak\'s proud symbol!',
         // 📸 IMAGE NEEDED: sarawak-hornbill.png
         // Export from Figma → Cards/Sarawak/Wildlife — Rhinoceros Hornbill illustration
         image: null,
@@ -420,6 +492,18 @@ export const STATES_DATA = [
         mascotLine: 'Millions of bats flying out at sunset looks like a giant dark river in the sky!',
         // 📸 IMAGE NEEDED: sarawak-mulu.png
         // Export from Figma → Cards/Sarawak/Nature — Mulu caves illustration
+        image: null,
+      },
+      {
+        id: 'sarawak-4',
+        category: 'Food',
+        icon: '🍜',
+        title: 'Sarawak Laksa',
+        desc: 'Sarawak Laksa is a famous noodle soup with a rich, spicy broth made from special spices, coconut milk, and prawns. It is topped with chicken, prawns, egg, and fresh herbs — yum!',
+        funFact: 'Sarawak Laksa is so loved that a world-famous chef once called it the "breakfast of the gods"!',
+        mascotLine: 'Sarawak Laksa for breakfast? Yes please — it is bursting with flavour!',
+        // 📸 IMAGE NEEDED: sarawak-laksa.png
+        // Export from Figma → Cards/Sarawak/Food — Sarawak Laksa illustration
         image: null,
       },
     ],

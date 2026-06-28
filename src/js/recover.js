@@ -6,6 +6,8 @@
 
 // The 12 secret icons — order matters: index+1 maps to icon_key values 1–12
 // stored at registration. Keep this in sync with ICONS in home.js.
+import { showError as popup } from './components/popup.js';
+
 const ICONS = ['🌺','🦋','⭐','🌙','🐘','🦜','🍃','🎈','🐠','🌈','🦁','🌻'];
 
 let recoverGrade = null;
@@ -23,9 +25,8 @@ const form       = document.getElementById('form-recover');
 
 // ── Small helpers ─────────────────────────────────────────────────────────────
 function showError(msg) {
-  errorEl.textContent = msg;
-  errorEl.classList.remove('hidden');
   successEl.classList.add('hidden');
+  popup(msg);                 // friendly popup instead of inline red text
 }
 function clearError() { errorEl.classList.add('hidden'); }
 
@@ -105,7 +106,7 @@ form.addEventListener('submit', async e => {
       ? `✅ Success! Your password is: ${data.revealed_password}`
       : '✅ Password updated! You can log in now.';
     document.getElementById('recover-submit').disabled = true;
-    setTimeout(() => { window.location.href = 'home.html'; }, 4000);
+    setTimeout(() => { window.location.href = 'login.html'; }, 4000);
   } catch {
     showError('❌ Could not reach the server. Is it running (npm start)?');
   }

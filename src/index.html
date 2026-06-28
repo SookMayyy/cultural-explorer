@@ -2,10 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="refresh" content="0; url=views/home.html">
   <title>Cultural Explorer MY</title>
+  <script>
+    // Session-aware entry: returning players (a stored session) resume at the
+    // authenticated dashboard; everyone else sees the public landing page. Keep
+    // this in plain inline JS so it runs before any module loads. This file is
+    // served at the site root, so paths point into views/.
+    (function () {
+      var dest = 'views/home.html';
+      try {
+        if (localStorage.getItem('ce_session')) dest = 'views/dashboard.html';
+      } catch (e) { /* storage blocked — fall back to landing */ }
+      location.replace(dest);
+    })();
+  </script>
+  <noscript><meta http-equiv="refresh" content="0; url=views/home.html"></noscript>
 </head>
 <body>
-  <p>Loading... <a href="views/home.html">Click here</a> if not redirected.</p>
+  <p>Loading… <a href="views/home.html">Click here</a> if not redirected.</p>
 </body>
 </html>

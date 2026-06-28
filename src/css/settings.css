@@ -102,6 +102,21 @@
 .logout-btn:active { transform: scale(0.97); }
 .logout-btn:disabled { opacity: 0.6; cursor: default; }
 
+/* Subtle, low-emphasis reset link (destructive — kept visually quiet) */
+.reset-link {
+  margin-top: var(--sp-sm);
+  width: 100%;
+  background: none;
+  border: none;
+  color: var(--clr-text-muted);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.reset-link:hover    { color: #e74c3c; }
+.reset-link:disabled { opacity: 0.6; cursor: default; }
+
 .profile-level {
   font-family: var(--font-body);
   font-size: var(--text-sm);

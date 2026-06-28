@@ -17,6 +17,40 @@ router.get('/', requireLogin, async (req, res, next) => {
   }
 });
 
+// POST /api/progress/points — add earned points (e.g. quiz/mini-game) to the
+// logged-in user, so points persist across devices. Additive only (delta > 0);
+// spending is handled by the costume-unlock route. Single path segment, so it
+// does not collide with /:stateId/complete.
+router.post('/points', requireLogin, async (req, res, next) => {
+  try {
+    const delta = parseInt(req.body.delta) || 0;
+    if (delta > 0) {
+      await pool.execute('UPDATE users SET points = points + ? WHERE id = ?', [delta, req.session.user.id]);
+      req.session.user.points = (req.session.user.points || 0) + delta;
+    }
+    res.json({ ok: true, points: req.session.user.points });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/progress/reset — wipe the current user's progress (states, stamps,
+// costumes) and reset points. Single segment, so no conflict with the routes
+// below. Used by Settings → Reset Progress (double-confirmed in the UI).
+router.post('/reset', requireLogin, async (req, res, next) => {
+  try {
+    const uid = req.session.user.id;
+    await pool.execute('DELETE FROM user_progress WHERE user_id = ?', [uid]);
+    await pool.execute('DELETE FROM user_costumes WHERE user_id = ?', [uid]);
+    await pool.execute('UPDATE users SET points = 0, avatar_costume_id = 1 WHERE id = ?', [uid]);
+    req.session.user.points = 0;
+    req.session.user.avatar_costume_id = 1;
+    res.json({ ok: true });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // POST /api/progress/:stateId/complete — mark state complete, award stamp + points.
 // The +20 completion bonus is paid ONCE, on first completion. Replaying a finished
 // state refreshes the score but does not re-award points (and keeps the original stamp).

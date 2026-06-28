@@ -14,15 +14,8 @@
 
 <div class="app-container">
 
-  <header class="topbar topbar--purple">
-    <div class="topbar-left">
-      <img src='../assets/images/ui/stamp-icon.png'><span class="topbar-title">My Stamp Book</span>
-    </div>
-    <div class="topbar-right">
-      <div class="topbar-points">⭐ 150 pts</div>
-      <div class="topbar-avatar">P</div>
-    </div>
-  </header>
+  <!-- Topbar — rendered by stampbook.js -->
+  <header id="topbar" class="topbar topbar--purple"></header>
 
   <main class="sb-main">
 
@@ -32,95 +25,29 @@
 
     <div class="sb-inner">
 
-      <!-- Progress strip -->
+      <!-- Collection Progress card (Figma 38:7) -->
       <div class="sb-progress-card">
-        <span class="sb-title">My Collection</span>
-        <div class="sb-track">
-          <div class="sb-fill" style="width:43%"></div>
+        <div class="sb-prog-left">
+          <span class="sb-prog-label">Collection Progress</span>
+          <div class="sb-track">
+            <div class="sb-fill" id="sb-fill" style="width:0%"></div>
+          </div>
+          <span class="sb-prog-sub" id="sb-count">0 of 7 stamps earned</span>
         </div>
-        <span class="sb-count">3 / 7 Stamps</span>
+        <div class="sb-prog-big" id="sb-big">0/7</div>
       </div>
 
-      <!-- Stamp grid — 7 states -->
-      <div class="stamp-grid">
-
-        <div class="stamp-slot earned">
-          <div class="stamp-circle" style="--stamp-clr:#E67E22">
-            <img src="../assets/flags/penang-flag.png" alt="Penang" class="stamp-img">
-          </div>
-          <span class="stamp-label">Penang</span>
-        </div>
-
-        <div class="stamp-slot earned">
-          <div class="stamp-circle" style="--stamp-clr:#8E44AD">
-            <span class="stamp-emoji">🏛️</span>
-          </div>
-          <span class="stamp-label">Melaka</span>
-        </div>
-
-        <div class="stamp-slot earned">
-          <div class="stamp-circle" style="--stamp-clr:#1A5276">
-            <img src="../assets/flags/selangor-flag.png" alt="Selangor" class="stamp-img">
-          </div>
-          <span class="stamp-label">Selangor</span>
-        </div>
-
-        <div class="stamp-slot locked">
-          <div class="stamp-circle-locked">
-            <img src="../assets/images/ui/upcoming_stamp.png" alt="" class="stamp-upcoming">
-          </div>
-          <span class="stamp-label muted">Johor</span>
-        </div>
-
-        <div class="stamp-slot locked">
-          <div class="stamp-circle-locked">
-            <img src="../assets/images/ui/upcoming_stamp.png" alt="" class="stamp-upcoming">
-          </div>
-          <span class="stamp-label muted">Kelantan</span>
-        </div>
-
-        <div class="stamp-slot locked">
-          <div class="stamp-circle-locked">
-            <img src="../assets/images/ui/upcoming_stamp.png" alt="" class="stamp-upcoming">
-          </div>
-          <span class="stamp-label muted">Sabah</span>
-        </div>
-
-        <div class="stamp-slot locked">
-          <div class="stamp-circle-locked">
-            <img src="../assets/images/ui/upcoming_stamp.png" alt="" class="stamp-upcoming">
-          </div>
-          <span class="stamp-label muted">Sarawak</span>
-        </div>
-
-      </div>
+      <!-- Region sections (West / East Malaysia) — rendered by stampbook.js -->
+      <div id="sb-sections"></div>
 
     </div>
   </main>
 
-  <nav class="bottom-nav">
-    <a href="home.html" class="map-nav-item">
-      <img src="../assets/images/ui/home-icon.png"   alt="" class="nav-icon">
-      <span>Home</span>
-    </a>
-    <a href="map.html" class="map-nav-item">
-      <img src="../assets/images/ui/my-map-icon.png" alt="" class="nav-icon">
-      <span>Map</span>
-    </a>
-    <a href="stampbook.html" class="map-nav-item active">
-      <img src="../assets/images/ui/stamp-icon.png"  alt="" class="nav-icon">
-      <span>Stamps</span>
-    </a>
-    <a href="quiz.html" class="map-nav-item">
-      <img src="../assets/images/ui/quiz-icon.png"   alt="" class="nav-icon">
-      <span>Quiz</span>
-    </a>
-    <a href="settings.html" class="map-nav-item">
-      <img src="../assets/images/ui/setting-icon.png" alt="" class="nav-icon">
-      <span>Me</span>
-    </a>
-  </nav>
+  <!-- Bottom navbar — rendered by stampbook.js -->
+  <nav id="navbar"></nav>
 
 </div>
+
+<script type="module" src="../js/stampbook.js"></script>
 </body>
 </html>

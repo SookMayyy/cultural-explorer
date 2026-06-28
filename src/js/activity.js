@@ -9,6 +9,7 @@ import { requireAuth, getStateParam } from './ui.js';
 import { STATES_DATA } from './data/states.js';
 import { avatarStackHTML } from './utils/avatarDisplay.js';
 import DragMatch from './components/dragMatch.js';
+import Sound from './utils/sound.js';
 
 // ── Auth guard ───────────────────────────────────────────────────────────────
 const session = requireAuth();
@@ -89,6 +90,7 @@ let matchCount = 0;
 
 function onMatchMade() {
   matchCount++;
+  Sound.correct();
   scoreBadge.textContent = `${matchCount} matched`;
 
   // Update the mascot bubble progressively
@@ -138,18 +140,19 @@ function onComplete() {
   const bonus = 20;
   Storage.addPoints(bonus);
 
-  // Update quiz link to carry the state param
+  // Next in the journey is "Guess My State" for this state
   if (btnToQuiz && stateId) {
-    btnToQuiz.href = `quiz.html?state=${stateId}`;
+    btnToQuiz.href = `guess.html?state=${stateId}`;
   }
 
   // Update completion card text
   const sub = document.getElementById('act-complete-sub');
   if (sub) {
-    sub.textContent = `You earned +${bonus} pts! Now try the quiz to earn your stamp!`;
+    sub.textContent = `You earned +${bonus} pts! Next up: Guess My State 🔍`;
   }
 
   // Show the completion overlay
+  Sound.unlock();
   completeEl.classList.remove('hidden');
 
   // Update topbar points

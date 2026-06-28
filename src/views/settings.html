@@ -19,8 +19,8 @@
       <img src='../assets/images/ui/setting-icon.png'><span class="topbar-title">My Profile</span>
     </div>
     <div class="topbar-right">
-      <div class="topbar-points">⭐ 150 pts</div>
-      <div class="topbar-avatar">P</div>
+      <div class="topbar-points" id="set-topbar-pts">⭐ 0 pts</div>
+      <div class="topbar-avatar" id="set-topbar-avatar">👤</div>
     </div>
   </header>
 
@@ -33,23 +33,23 @@
 
       <!-- Left: Profile card -->
       <div class="profile-card">
-        <div class="profile-avatar">P</div>
-        <h2 class="profile-name">Explorer <span class="edit-btn">✏️</span></h2>
-        <p class="profile-level">🌟 Junior Explorer</p>
+        <div class="profile-avatar" id="set-avatar">👤</div>
+        <h2 class="profile-name"><span id="set-name">Explorer</span></h2>
+        <p class="profile-level" id="set-level">🌱 Beginner Explorer</p>
 
         <div class="profile-stats">
           <div class="stat-item">
-            <span class="stat-val">3</span>
+            <span class="stat-val" id="set-stamps">0</span>
             <span class="stat-key">Stamps</span>
           </div>
           <div class="stat-divider"></div>
           <div class="stat-item">
-            <span class="stat-val">7</span>
+            <span class="stat-val" id="set-quizzes">0</span>
             <span class="stat-key">Quizzes</span>
           </div>
           <div class="stat-divider"></div>
           <div class="stat-item">
-            <span class="stat-val">14%</span>
+            <span class="stat-val" id="set-complete">0%</span>
             <span class="stat-key">Complete</span>
           </div>
         </div>
@@ -57,6 +57,7 @@
         <button class="logout-btn" id="btn-logout">
           <span aria-hidden="true">🚪</span> Log Out
         </button>
+        <button class="reset-link" id="btn-reset">↺ Reset Progress</button>
       </div>
 
       <!-- Right: Menu cards 2×2 -->
@@ -88,13 +89,19 @@
           <span class="menu-arrow">&#8250;</span>
         </button>
 
+        <button class="menu-card" id="btn-sound">
+          <span class="menu-icon menu-icon--emoji" id="sound-icon" aria-hidden="true">🔊</span>
+          <span class="menu-label" id="sound-label">Sound: On</span>
+          <span class="menu-arrow" id="sound-state">›</span>
+        </button>
+
       </div>
 
     </div>
   </main>
 
   <nav class="bottom-nav">
-    <a href="home.html" class="map-nav-item">
+    <a href="dashboard.html" class="map-nav-item">
       <img src="../assets/images/ui/home-icon.png"   alt="" class="nav-icon">
       <span>Home</span>
     </a>

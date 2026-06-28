@@ -24,9 +24,9 @@
       <!-- Page background image (element 33 — placeholder in Figma) -->
       <img class="pb-bg" src="../assets/images/ui/home-backgrounds.png" alt="">
 
-      <!-- Mascot illustration (element 34 — Wak the hornbill) -->
+      <!-- Mascot illustration (element 34 — Rimau the tiger) -->
       <div class="pb-illus" aria-hidden="true">
-        <img src="../assets/characters/wak-mascot.png" alt="">
+        <img src="../assets/characters/rimau_happy.png" alt="">
       </div>
 
       <!-- LOKALEARN wordmark -->
@@ -55,7 +55,13 @@
       <button class="modal-close" id="btn-modal-close" aria-label="Close">&#10005;</button>
 
       <div class="modal-mascot-row">
-        <span class="modal-mascot-emoji" aria-hidden="true">&#129409;</span>
+        <span class="modal-mascot-emoji" aria-hidden="true">
+          <span class="img-slot">
+            <img class="img-slot__img" src="../assets/characters/rimau_idle.png" alt=""
+                 onload="this.closest('.img-slot').classList.add('is-loaded')">
+            <span class="img-slot__fb">&#129409;</span>
+          </span>
+        </span>
         <div class="modal-speech">
           <p id="modal-greeting" class="modal-greeting-text"></p>
         </div>
@@ -174,12 +180,14 @@
 
   <script type="module" src="../js/home.js"></script>
 
-  <!-- Scale the fixed 1104×682 stage to fit the viewport (never upscale) -->
+  <!-- Scale the fixed 1104×682 stage to fill the viewport (allows upscaling so
+       the landing page never leaves grey margins; the viewport's cover
+       background fills any remaining letterbox on odd aspect ratios). -->
   <script>
     (function () {
       var stage = document.getElementById('proto-stage');
       function fit() {
-        var s = Math.min(window.innerWidth / 1120, window.innerHeight / 698, 1);
+        var s = Math.min(window.innerWidth / 1120, window.innerHeight / 698);
         stage.style.transform = 'scale(' + s + ')';
       }
       window.addEventListener('resize', fit);

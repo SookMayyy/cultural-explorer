@@ -34,11 +34,12 @@
 
       <div class="hints-header">
         <h2 class="hints-title">Who am I?</h2>
-        <!-- Updates as hints are revealed: "Worth 30 pts" → "20 pts" → "10 pts" -->
-        <span class="hints-points" id="hints-points">Worth 30 pts</span>
+        <!-- Updates as clues are revealed: "Worth 20 pts" → 15 → 10 → 5 -->
+        <span class="hints-points" id="hints-points">Worth 20 pts</span>
       </div>
 
-      <!-- Three hints — only hint-0 is visible at start; others have .hidden -->
+      <!-- Four clues — only hint-0 is visible at start; others have .hidden.
+           Clues 1–3 reveal freely; clue 4 is the paid "extra hint". -->
       <ul class="hints-list" id="hints-list" aria-live="polite">
 
         <li class="hint-item" id="hint-0">
@@ -56,19 +57,22 @@
           <span class="hint-text" id="hint-text-2"></span>
         </li>
 
+        <li class="hint-item hidden" id="hint-3">
+          <span class="hint-number" aria-hidden="true">4</span>
+          <span class="hint-text" id="hint-text-3"></span>
+        </li>
+
       </ul>
 
-      <!-- Clicking this reveals the next hint at the cost of max points -->
-      <button class="reveal-btn" id="reveal-btn" type="button">
-        Reveal next hint (−10 pts)
-      </button>
+      <!-- No reveal button: clues unlock automatically as the player guesses
+           wrong (handled in guess.js). -->
 
     </div>
 
     <!-- Right panel: answer options + feedback -->
     <div class="options-panel">
 
-      <p class="options-label">Which state am I?</p>
+      <p class="options-label">Which state am I? Wrong guesses unlock more clues!</p>
 
       <!-- JS renders three <button> elements here, one per option -->
       <div class="guess-options" id="guess-options" role="group" aria-label="State options"></div>

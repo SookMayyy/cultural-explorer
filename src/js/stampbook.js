@@ -1,69 +1,86 @@
-// js/stampbook.js — stamp book page
+// js/stampbook.js — stamp book page (dynamic; reflects real progress)
 
 import Storage from './utils/storage.js';
 import { renderTopbar, renderNavbar, requireAuth, showToast } from './ui.js';
 import { STATES_DATA } from './data/states.js';
 
 requireAuth();
-renderTopbar({ title: 'Stamp Book', showPoints: true, showAvatar: true });
+renderTopbar({ title: 'My Stamp Book', showBack: true, backHref: 'dashboard.html', showPoints: true, color: '#6b50ce' });
 renderNavbar('stampbook');
 
-const stamps    = Storage.getStamps();
-const earned    = stamps.length;
-const total     = STATES_DATA.length;
+const stamps = Storage.getStamps();
+const earned = stamps.length;
+const total  = STATES_DATA.length;
 
-// Update header
-document.getElementById('stamp-count-badge').textContent = `${earned} / ${total} stamps`;
-document.getElementById('stamp-progress-fill').style.width = `${Math.round((earned/total)*100)}%`;
+// ── Collection Progress card ─────────────────────────────────────────────────
+document.getElementById('sb-fill').style.width = `${total ? Math.round((earned / total) * 100) : 0}%`;
+document.getElementById('sb-count').textContent = `${earned} of ${total} stamps earned`;
+document.getElementById('sb-big').textContent   = `${earned}/${total}`;
 
-// Footer message
-const footer = document.getElementById('stamp-footer-msg');
-if (earned === total) {
-  footer.className    = 'stamp-all-collected';
-  footer.textContent  = '🏆 Wow! You\'ve collected ALL stamps! You\'re a true Cultural Explorer!';
+// ── Region sections (West / East Malaysia) ───────────────────────────────────
+// Mirrors Figma 38:7: each region is a cream card with a title block and a row
+// of circular stamp slots. Earned → coloured circle with the state's flag + ✓;
+// not yet earned → a dashed "?" mystery circle linking into that state's story.
+const REGIONS = [
+  { id: 'west', label: 'WEST<br>MALAYSIA' },
+  { id: 'east', label: 'EAST<br>MALAYSIA' },
+];
+
+function slotHTML(state) {
+  const isEarned = stamps.includes(state.id);
+  if (isEarned) {
+    const inner = state.emoji.includes('<img')
+      ? state.emoji.replace('<img', '<img class="sb-slot-img"')
+      : `<span class="sb-slot-emoji">${state.emoji}</span>`;
+    return `<div class="sb-slot earned" data-state="${state.id}" data-name="${state.name}"
+                 role="button" tabindex="0" aria-label="${state.name} — collected" title="${state.name}">
+              <div class="sb-slot-circle" style="--stamp-clr:${state.color}">${inner}</div>
+              <span class="sb-slot-check" aria-hidden="true">✓</span>
+            </div>`;
+  }
+  return `<div class="sb-slot locked" data-state="${state.id}" data-name="${state.name}"
+               role="button" tabindex="0" aria-label="${state.name} — not collected yet" title="${state.name}">
+            <div class="sb-slot-circle">?</div>
+          </div>`;
 }
 
-// ── Render stamps ─────────────────────────────────────────────────────────────
-function renderStamps(containerId, regionFilter) {
-  const el = document.getElementById(containerId);
-  if (!el) return;
+const sectionsEl = document.getElementById('sb-sections');
+sectionsEl.innerHTML = REGIONS.map(region => {
+  const states = STATES_DATA.filter(s => s.region === region.id);
+  const got    = states.filter(s => stamps.includes(s.id)).length;
+  return `<div class="sb-region">
+            <div class="sb-region-head">
+              <h2 class="sb-region-title">${region.label}</h2>
+              <span class="sb-region-count">${got} / ${states.length} Stamps</span>
+            </div>
+            <div class="sb-region-slots">
+              ${states.map(slotHTML).join('')}
+            </div>
+          </div>`;
+}).join('');
 
-  el.innerHTML = STATES_DATA
-    .filter(s => s.region === regionFilter)
-    .map(state => {
-      const isEarned = stamps.includes(state.id);
-      return `
-        <div class="stamp-shape ${isEarned ? 'stamp-earned' : 'stamp-unearned'} stamp-${state.id}"
-             data-state="${state.id}" data-name="${state.name}"
-             style="${isEarned ? `--stamp-color:${state.color}` : ''}"
-             role="button" tabindex="0">
-          <!-- 📸 IMAGE NEEDED: assets/images/stamps/${state.id}.png
-               Export from Figma → Stamps/${state.name}
-               Replace inner content with: <img src="assets/images/stamps/${state.id}.png" alt="${state.name} stamp"> -->
-          <div class="stamp-inner">
-            <span class="stamp-emoji">${state.emoji}</span>
-            <span class="stamp-state-name">${state.name}</span>
-            ${isEarned ? '<span class="stamp-check">✓</span>' : '<span class="stamp-lock">🔒</span>'}
-          </div>
-        </div>
-      `;
-    }).join('');
+// ── Footer celebration when all collected ───────────────────────────────────
+if (earned === total && earned > 0) {
+  showToast('🏆 Wow! You collected ALL stamps — a true Cultural Explorer!', 3500);
 }
 
-renderStamps('west-stamps', 'west');
-renderStamps('east-stamps', 'east');
+// ── Interaction ─────────────────────────────────────────────────────────────
+// Earned → little confirmation toast. Locked → jump into that state's story so
+// the player can go earn it (never a dead end).
+function handle(slot) {
+  const id   = slot.dataset.state;
+  const name = slot.dataset.name;
+  if (stamps.includes(id)) {
+    showToast(`${name} stamp collected! ✅`);
+  } else {
+    Storage.setCurrentState(id);
+    window.location.href = `narrative.html?state=${id}`;
+  }
+}
 
-// ── Stamp click ───────────────────────────────────────────────────────────────
-document.querySelectorAll('.stamp-shape').forEach(stamp => {
-  stamp.addEventListener('click', () => {
-    const id       = stamp.dataset.state;
-    const isEarned = stamps.includes(id);
-
-    if (isEarned) {
-      showToast(`${stamp.dataset.name} stamp collected! ✅`);
-    } else {
-      Storage.setCurrentState(id);
-      window.location.href = `narrative.html?state=${id}`;
-    }
+sectionsEl.querySelectorAll('.sb-slot').forEach(slot => {
+  slot.addEventListener('click', () => handle(slot));
+  slot.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handle(slot); }
   });
 });

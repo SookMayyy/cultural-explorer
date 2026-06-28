@@ -8,9 +8,12 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import Storage from './utils/storage.js';
-import { renderTopbar, renderNavbar, requireAuth, getStateParam } from './ui.js';
+import { renderTopbar, renderNavbar, requireAuth, getStateParam, flyPoints } from './ui.js';
 import { getState } from './data/states.js';
+import { renderMascot, setMascotPose } from './data/mascots.js';
 import { QUIZ_QUESTIONS } from './data/quizzes.js';
+import { showPopup } from './components/popup.js';
+import Sound from './utils/sound.js';
 
 // ── Auth guard ────────────────────────────────────────────────────────────────
 requireAuth();
@@ -19,8 +22,12 @@ const stateId = getStateParam();
 const state   = getState(stateId);
 
 if (!state) {
-  document.querySelector('main').innerHTML =
-    '<p style="padding:2rem;text-align:center">State not found. <a href="map.html">Back to map</a></p>';
+  showPopup({
+    title: 'State not found',
+    emoji: '🧭',
+    message: "We couldn't find that state. Let's go back to the map and pick one!",
+    actions: [{ label: 'Back to Map', value: 'map', style: 'primary' }],
+  }).then(() => { window.location.href = 'map.html'; });
   throw new Error('State not found: ' + stateId);
 }
 
@@ -44,16 +51,22 @@ renderNavbar('quiz');
 const quizMain = document.getElementById('quiz-main');
 if (quizMain && state.color) {
   quizMain.style.setProperty('--state-color', state.color);
+  // The light tint colours the whole question card so each state's card is its own.
+  if (state.colorLight) quizMain.style.setProperty('--state-color-light', state.colorLight);
 }
 
+// Drop the state flag into the question-card header so each state's quiz is
+// visually distinct. state.emoji is an <img> of the state flag.
+const stateFlagEl = document.getElementById('quiz-state-flag');
+if (stateFlagEl) stateFlagEl.innerHTML = state.emoji;
+
 // ── Build question pool ───────────────────────────────────────────────────────
-// LOGIC UNCHANGED: inline state quizQuestion first, then state-specific from
-// QUIZ_QUESTIONS, then shuffled others, all sliced to 4 questions max.
+// PER-STATE ONLY: the inline state.quizQuestion first, then this state's own
+// questions from QUIZ_QUESTIONS. No padding with other states' questions —
+// every state has at least 4 of its own (see data/quizzes.js).
 const POINTS_PER_Q = 10;
 
 const stateQs = QUIZ_QUESTIONS.filter(q => q.stateId === stateId);
-const others  = QUIZ_QUESTIONS.filter(q => q.stateId !== stateId)
-                               .sort(() => Math.random() - 0.5);
 
 // Always include the per-state inline question first
 const mainQ = {
@@ -64,7 +77,7 @@ const mainQ = {
   explain: state.quizQuestion.explain,
 };
 
-const pool = [mainQ, ...stateQs, ...others].slice(0, 4);
+const pool = [mainQ, ...stateQs].slice(0, 4);
 
 // ── State variables ───────────────────────────────────────────────────────────
 let qIdx     = 0;   // current question index
@@ -84,10 +97,16 @@ const feedbackIcon  = document.getElementById('feedback-icon');
 const mascotEl      = document.getElementById('quiz-mascot-text');
 const scoreEl       = document.getElementById('quiz-score-display');
 
-// Mascot figure — West Malaysia uses Rimau 🦁, East uses Wak 🦅
+// Mascot figure — Rimau guides every state (starts in the idle pose)
 const mascotFig = document.getElementById('quiz-mascot-figure');
-if (mascotFig) {
-  mascotFig.textContent = state.region === 'east' ? '🦅' : '🦁';
+renderMascot(mascotFig, 'idle');
+
+// Play a one-shot mascot reaction (removes + re-adds the class so it retriggers).
+function react(el, cls) {
+  if (!el) return;
+  el.classList.remove('react-happy', 'react-sad', 'react-cheer');
+  void el.offsetWidth;
+  el.classList.add(cls);
 }
 
 // ── Load a question ───────────────────────────────────────────────────────────
@@ -110,7 +129,7 @@ function loadQuestion(idx) {
   // Reset option buttons — remove feedback classes, re-enable, update text
   optionBtns.forEach((btn, i) => {
     btn.disabled = false;
-    btn.classList.remove('correct', 'wrong');
+    btn.classList.remove('correct', 'wrong', 'burst', 'shake');
     const textEl = document.getElementById(`opt-${i}`);
     if (textEl) textEl.textContent = q.opts[i] ?? '—';
 
@@ -143,8 +162,13 @@ function evaluate(chosen) {
   // Disable all buttons so the player can't tap again before auto-advance
   optionBtns.forEach((btn, i) => {
     btn.disabled = true;
-    if (i === q.ans)                   btn.classList.add('correct');
-    else if (i === chosen && !correct) btn.classList.add('wrong');
+    if (i === q.ans) {
+      btn.classList.add('correct');
+      btn.classList.add('burst');             // satisfying scale + green glow
+    } else if (i === chosen && !correct) {
+      btn.classList.add('wrong');
+      btn.classList.add('shake');             // wrong pick wobbles
+    }
   });
 
   // Show the feedback panel with the right colour and explanation text
@@ -157,11 +181,19 @@ function evaluate(chosen) {
     resultEl.textContent  = `Correct! +${POINTS_PER_Q} pts`;
     explainEl.textContent = q.explain;
 
+    // Juice: happy sound + mascot bounce, switched to the cheering pose
+    Sound.correct();
+    setMascotPose(mascotFig, 'happy');
+    react(mascotFig, 'react-happy');
+
     // Score bookkeeping
     score++;
     earned += POINTS_PER_Q;
     Storage.addPoints(POINTS_PER_Q);
-    if (scoreEl) scoreEl.textContent = earned;
+    if (scoreEl) {
+      scoreEl.textContent = earned;
+      flyPoints(scoreEl, POINTS_PER_Q);       // "+10" floats up from the score
+    }
 
     // Mascot says something encouraging
     mascotEl.textContent = [
@@ -176,6 +208,11 @@ function evaluate(chosen) {
     if (feedbackIcon)    feedbackIcon.textContent = '❌';
     resultEl.textContent  = 'Not quite!';
     explainEl.textContent = q.explain;
+
+    // Juice: gentle sound + mascot wobble, back to the neutral idle pose
+    Sound.wrong();
+    setMascotPose(mascotFig, 'idle');
+    react(mascotFig, 'react-sad');
 
     // Mascot is gentle about wrong answers
     mascotEl.textContent = [
@@ -234,9 +271,14 @@ function finish() {
   const completeStampSub   = document.getElementById('complete-stamp-sub');
   const completeMascotFig  = document.getElementById('complete-mascot-figure');
 
-  if (completeMascotFig) {
-    completeMascotFig.textContent = state.region === 'east' ? '🦅' : '🦁';
-  }
+  // Cheering pose for a pass, idle (gentle) otherwise.
+  renderMascot(completeMascotFig, pass ? 'cheer' : 'idle');
+
+  // Juice: celebrate a pass (mascot cheer + unlock fanfare), gentle otherwise.
+  if (pass) { react(completeMascotFig, 'react-cheer'); Sound.unlock(); }
+  else      { Sound.wrong(); }
+  const completeStateFlag = document.getElementById('complete-state-flag');
+  if (completeStateFlag) completeStateFlag.innerHTML = state.emoji;
   if (completeStateName) completeStateName.textContent = state.name;
   if (completeBadge)     completeBadge.textContent = pass ? '🏆 Passed!' : '📚 Keep trying!';
   if (completeScoreNum)  completeScoreNum.textContent = score;
