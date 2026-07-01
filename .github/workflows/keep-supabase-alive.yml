@@ -1,0 +1,29 @@
+name: Keep Supabase Alive
+
+# Supabase free-tier projects pause after 7 days of inactivity. This workflow
+# runs a trivial `SELECT 1` against the database every 3 days to reset that
+# timer. It uses the DATABASE_URL repo secret (the Session-pooler connection
+# string) — no anon key is exposed. GitHub's runners aren't affected by the
+# local ISP block on port 5432, so this connects fine from the cloud.
+
+on:
+  schedule:
+    # Every 3 days at 06:00 UTC (well inside the 7-day pause window).
+    - cron: "0 6 */3 * *"
+  # Allow a manual run from the Actions tab (handy to test the secret).
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping database (SELECT 1)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::DATABASE_URL secret is not set. Add it in Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+          # psql is preinstalled on ubuntu-latest runners.
+          psql "$DATABASE_URL" -tAc "select 'keep-alive ok ' || now();"
