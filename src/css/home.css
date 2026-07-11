@@ -925,6 +925,7 @@ body {
 }
 
 .avatar-emoji { font-size: 42px; line-height: 1; }
+.avatar-emoji .img-slot { width: 1em; height: 1em; }
 
 .avatar-name {
   font-family: var(--font-display);

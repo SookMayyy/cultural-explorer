@@ -24,15 +24,23 @@ const KEY = {
   USERS:     PREFIX + 'users',       // array of registered user objects (legacy)
   COSTUMES:  PREFIX + 'costumes',    // array of unlocked costume ids
   COSTUME:   PREFIX + 'costume',     // currently-equipped costume id
+  MISSIONS:  PREFIX + 'missions',    // { stateId: [completed mission ids] }
+  AVATARS:   PREFIX + 'avatars',     // array of OWNED avatar indices (bought/starter)
+  AVATAR:    PREFIX + 'avatar',      // currently-equipped avatar index (per account)
+  PROFILE_COLOR: PREFIX + 'profile_color', // chosen profile background colour
+  DIFFICULTY: PREFIX + 'difficulty', // chosen game difficulty level id (see data/difficulty.js)
 };
 
 // Game-data keys that get namespaced per account (everything except the global
 // session + the legacy users list).
-const NAMESPACED = [KEY.PROGRESS, KEY.POINTS, KEY.STAMPS, KEY.BEST, KEY.STATE, KEY.COSTUMES, KEY.COSTUME];
+const NAMESPACED = [KEY.PROGRESS, KEY.POINTS, KEY.STAMPS, KEY.BEST, KEY.STATE, KEY.COSTUMES, KEY.COSTUME, KEY.MISSIONS, KEY.AVATARS, KEY.AVATAR, KEY.PROFILE_COLOR, KEY.DIFFICULTY];
 
 // Free costume every player owns from the start (see data/costumes.js).
 // Matches the backend's default avatar_costume_id = 1 (School Uniform).
 const DEFAULT_COSTUME_ID = 'school-uniform';
+
+// Default profile background colour (purple) shown until the player picks one.
+export const DEFAULT_PROFILE_COLOR = '#6a32c9';
 
 const Storage = {
   // ── Account namespacing ─────────────────────────────────────────────
@@ -187,6 +195,84 @@ const Storage = {
     localStorage.setItem(this._k(KEY.COSTUME), id);
   },
 
+  // ── Missions — per-state mission completion (Mission Hub) ────────────
+  // Stored as { stateId: [missionId, …] }. Missions unlock sequentially, so
+  // the hub reads this to know which are done and which is next.
+  _getAllMissions() {
+    try { return JSON.parse(localStorage.getItem(this._k(KEY.MISSIONS))) || {}; } catch { return {}; }
+  },
+  getMissions(stateId) {
+    return this._getAllMissions()[stateId] || [];
+  },
+  isMissionDone(stateId, missionId) {
+    return this.getMissions(stateId).includes(missionId);
+  },
+  completeMission(stateId, missionId) {
+    const all = this._getAllMissions();
+    const list = all[stateId] || [];
+    if (!list.includes(missionId)) {
+      list.push(missionId);
+      all[stateId] = list;
+      localStorage.setItem(this._k(KEY.MISSIONS), JSON.stringify(all));
+    }
+  },
+
+  // ── Difficulty — chosen game level ("explorer"/"adventurer") ─────────
+  // Null when the child hasn't picked one; data/difficulty.js then falls back
+  // to their grade's default. Namespaced per account, so each child on a shared
+  // machine keeps their own choice.
+  getDifficulty() {
+    return localStorage.getItem(this._k(KEY.DIFFICULTY)) || null;
+  },
+  setDifficulty(levelId) {
+    if (levelId) localStorage.setItem(this._k(KEY.DIFFICULTY), String(levelId));
+    else localStorage.removeItem(this._k(KEY.DIFFICULTY));
+  },
+
+  // ── Avatars (owned characters) ──────────────────────────────────────
+  // The avatar picked at sign-up is free (recorded via setSessionAvatar); every
+  // other avatar must be BOUGHT with points in the shop. The currently-equipped
+  // avatar is always treated as owned so no one is ever locked out of their own.
+  getOwnedAvatars() {
+    let list;
+    try { list = JSON.parse(localStorage.getItem(this._k(KEY.AVATARS))) || []; } catch { list = []; }
+    list = list.map(Number);
+    // The currently-shown avatar is always owned. avatarId falls back to 0 (the
+    // default shown by avatarImg) so guests / not-yet-picked users still own the
+    // avatar they see, while registered users only get their sign-up pick free.
+    const cur = Number(this.getSession()?.avatarId ?? 0);
+    if (!list.includes(cur)) list = [cur, ...list];
+    return list;
+  },
+  ownsAvatar(i) {
+    return this.getOwnedAvatars().includes(Number(i));
+  },
+  // The avatar this account last equipped, saved PER ACCOUNT so it survives a
+  // logout (the global session — and its avatarId — is wiped on logout). Returns
+  // null when the account has never picked one. Used on login to restore the pick
+  // instead of falling back to avatar 0 (Lion).
+  getCurrentAvatar() {
+    const v = localStorage.getItem(this._k(KEY.AVATAR));
+    return v == null ? null : Number(v);
+  },
+  addOwnedAvatar(i) {
+    i = Number(i);
+    let list;
+    try { list = JSON.parse(localStorage.getItem(this._k(KEY.AVATARS))) || []; } catch { list = []; }
+    if (!list.map(Number).includes(i)) {
+      list.push(i);
+      localStorage.setItem(this._k(KEY.AVATARS), JSON.stringify(list));
+    }
+  },
+
+  // ── Profile background colour ────────────────────────────────────────
+  getProfileColor() {
+    return localStorage.getItem(this._k(KEY.PROFILE_COLOR)) || DEFAULT_PROFILE_COLOR;
+  },
+  setProfileColor(hex) {
+    localStorage.setItem(this._k(KEY.PROFILE_COLOR), hex);
+  },
+
   // ── Best quiz score ─────────────────────────────────────────────────
   getBestScore() {
     return parseInt(localStorage.getItem(this._k(KEY.BEST)) || '0', 10);
@@ -222,6 +308,13 @@ const Storage = {
     if (!session) return;
     session.avatarId = avatarId;
     this.setSession(session);
+    // Persist the equipped avatar PER ACCOUNT too — the global session is wiped
+    // on logout, so this is what restores the pick on the next login (otherwise
+    // it defaulted to avatar 0 / Lion).
+    localStorage.setItem(this._k(KEY.AVATAR), String(Number(avatarId)));
+    // Equipping an avatar also records it as owned (the starter pick becomes
+    // free-owned; bought avatars are added at purchase time).
+    this.addOwnedAvatar(avatarId);
     if (session.username) {
       const users = this.getUsers();
       const user = users.find(u => u.username === session.username);

@@ -1,0 +1,171 @@
+/* ═══════════════════════════════════════════════
+   Activities Hub — replayable mini-games grid
+   Mirrors the "ACTIVITIES HUB" prototype: cream panel,
+   title + subtitle, 2×2 grid of chunky game cards.
+   All artwork is an emoji placeholder for now.
+   ═══════════════════════════════════════════════ */
+
+/* Full-screen batik background (body letterbox margins + the frame). */
+:root { --screen-bg: var(--clr-bg) url('../assets/images/ui/batick_background.png') center / cover no-repeat fixed; }
+
+/* Purple topbar override (same pattern as quiz/narrative). */
+.topbar.activities-topbar {
+  background: var(--clr-purple) !important;
+}
+
+/* Per-state accent, defaults to heritage purple until JS sets --state-color. */
+.act-main {
+  --state-color:       var(--clr-purple);
+  --state-color-light: #F0ECFB;
+
+  /* Batik fills the WHOLE screen via --screen-bg (body + frame); the main itself
+     is transparent so that full-screen background shows through. */
+  background: transparent;
+  /* Centre the panel between the floating top bar and the fixed bottom nav.
+     The generous top/bottom padding keeps it clear of BOTH bars (the navbar is
+     position:fixed, so without this the panel would slide under it). */
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100dvh;
+  padding: 72px var(--sp-md) calc(var(--navbar-h) + var(--sp-lg));
+}
+
+/* Transparent panel so the batik background shows through behind the cards. */
+.act-panel {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-radius: var(--r-lg);
+  padding: var(--sp-xl) var(--sp-lg) calc(var(--sp-xl) + var(--sp-sm));
+  box-shadow: none;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.act-heading {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  color: var(--clr-text);
+  text-align: center;
+  letter-spacing: 0.5px;
+  margin: var(--sp-xs) 0 2px;
+}
+
+.act-subhead {
+  text-align: center;
+  color: var(--clr-text-muted);
+  font-size: var(--text-base);
+  font-weight: 600;
+  margin: 0 0 var(--sp-lg);
+}
+
+/* ── 2×2 game grid ─────────────────────────────────────────── */
+.act-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--sp-lg);
+}
+
+/* ── Game card ─────────────────────────────────────────────── */
+.act-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-sm);
+  text-decoration: none;
+  background: var(--clr-card);
+  border: 3px solid var(--clr-border-warm);
+  border-radius: var(--r-md);
+  padding: var(--sp-xl) var(--sp-sm);
+  min-height: 172px;
+  box-shadow: 0 4px 0 rgba(44, 24, 16, 0.10), var(--shadow-sm);
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  /* staggered pop-in (delay set inline per card) */
+  opacity: 0;
+  animation: act-pop 0.36s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.act-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 7px 0 rgba(44, 24, 16, 0.10), var(--shadow-md);
+}
+.act-card:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 0 rgba(44, 24, 16, 0.10), var(--shadow-sm);
+}
+
+/* Icon slot — a rounded pastel square holding the placeholder emoji. */
+.act-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  border-radius: var(--r-md);
+  background: var(--clr-grey-light);
+}
+.act-card-emoji {
+  font-size: 42px;
+  line-height: 1;
+}
+
+/* Pastel tile variants per game. */
+.act-tile--yellow { background: #FFF3C9; }
+.act-tile--blue   { background: #D9ECFB; }
+.act-tile--purple { background: #EAE3FB; }
+.act-tile--green  { background: #DEF3E2; }
+
+.act-card-label {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: var(--text-md);
+  color: var(--clr-text);
+  text-align: center;
+  line-height: 1.15;
+}
+
+/* ── Locked card (Guess the State before 3 states explored) ── */
+.act-card.is-locked {
+  cursor: not-allowed;
+  background: var(--clr-grey-light);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+}
+.act-card.is-locked:hover { transform: none; }
+.act-card.is-locked .act-card-icon,
+.act-card.is-locked .act-card-label {
+  filter: grayscale(0.7);
+  opacity: 0.55;
+}
+.act-card-lock {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  font-size: 20px;
+}
+.act-card-note {
+  font-size: var(--text-xs);
+  color: var(--clr-text-muted);
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.2;
+  margin-top: 2px;
+}
+
+@keyframes act-pop {
+  0%   { opacity: 0; transform: translateY(10px) scale(0.94); }
+  100% { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+/* ── Small screens ─────────────────────────────────────────── */
+@media (max-width: 360px) {
+  .act-card { min-height: 124px; padding: var(--sp-md) var(--sp-xs); }
+  .act-card-icon { width: 56px; height: 56px; }
+  .act-card-emoji { font-size: 28px; }
+  .act-heading { font-size: var(--text-xl); }
+}

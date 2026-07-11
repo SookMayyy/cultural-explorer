@@ -14,11 +14,11 @@ const DEMO = {
   pin:      '123456',
   name:     'Year 5 Bestari',
   students: [
-    { name: 'Ahmad Rifqi',  stamps: ['penang','melaka','selangor'],           points: 130 },
+    { name: 'Ahmad Rifqi',  stamps: ['penang','selangor','kedah'],            points: 130 },
     { name: 'Siti Nurul',   stamps: ['penang','kelantan'],                    points: 80  },
-    { name: 'Raj Kumar',    stamps: ['penang','melaka','johor','selangor'],   points: 170 },
+    { name: 'Raj Kumar',    stamps: ['penang','selangor','kelantan','sabah'], points: 170 },
     { name: 'Priya Devi',   stamps: ['penang'],                              points: 40  },
-    { name: 'Hafiz Izzat',  stamps: ['penang','melaka'],                      points: 90  },
+    { name: 'Hafiz Izzat',  stamps: ['penang','selangor'],                    points: 90  },
     { name: 'Mei Ling',     stamps: [],                                      points: 10  },
   ],
 };

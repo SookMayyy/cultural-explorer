@@ -1,6 +1,5 @@
 const express = require('express');
 const pool    = require('../db/connection');
-const { requireLogin } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -11,7 +10,8 @@ router.get('/', async (req, res, next) => {
       'SELECT * FROM states ORDER BY sort_order ASC'
     );
 
-    // If logged in, overlay with user progress
+    // Free exploration: no state is ever locked. We still overlay completion
+    // status for logged-in users so the map can show ✓ on finished states.
     if (req.session?.user) {
       const userId = req.session.user.id;
       const [progress] = await pool.execute(
@@ -19,17 +19,16 @@ router.get('/', async (req, res, next) => {
         [userId]
       );
       const completedSet = new Set(progress.filter(p => p.is_completed).map(p => p.state_id));
-      const westCompleted = states.filter(s => s.region === 'west' && completedSet.has(s.id)).length;
 
       states.forEach(s => {
         s.is_completed = completedSet.has(s.id);
-        s.is_locked    = s.is_locked_default && westCompleted < s.unlock_after;
+        s.is_locked    = false;
       });
     } else {
-      // Guest: first state unlocked, all else default-locked
-      states.forEach((s, i) => {
+      // Guest: everything open, nothing completed yet.
+      states.forEach(s => {
         s.is_completed = false;
-        s.is_locked    = i > 0;
+        s.is_locked    = false;
       });
     }
 

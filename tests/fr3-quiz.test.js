@@ -34,7 +34,7 @@ const LETTERS = ['a', 'b', 'c', 'd'];
 
 beforeAll(async () => {
   const reg = await agent.post('/api/auth/register').send({
-    display_name: NAME, grade_group: '3-4', password: 'pass123', icon_key_1: 2, icon_key_2: 8,
+    display_name: NAME, grade_group: '4-6', password: 'pass123', icon_key_1: 2, icon_key_2: 8,
   });
   expect(reg.status).toBe(201);
   userId = (await agent.get('/api/auth/me')).body.user.id;

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Pick a State — Cultural Explorer MY</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Fredoka+One&family=Ribeye&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/activities.css">
+  <link rel="stylesheet" href="../css/activity-states.css">
+</head>
+<body>
+
+<div class="app-container">
+
+  <!-- Purple topbar — rendered by activity-states.js. -->
+  <header id="topbar" class="topbar activities-topbar"></header>
+
+  <!-- ════════════════════════════════════════════════════════════════════
+       Activity → State picker. After choosing a game on the hub, the player
+       lands here to pick which state to play it for. A cream panel with a
+       heading and a grid of unlocked-state cards (completed ones badged).
+       ════════════════════════════════════════════════════════════════════ -->
+  <main class="act-main has-navbar" id="act-main">
+
+    <div class="act-panel">
+      <h1 class="act-heading" id="as-heading">Pick a State</h1>
+      <p class="act-subhead">Choose which state to play!</p>
+
+      <!-- State cards — filled by activity-states.js. -->
+      <div class="as-grid" id="as-grid"></div>
+    </div>
+
+  </main>
+
+  <!-- Bottom navbar — active tab: Activities -->
+  <nav id="navbar"></nav>
+
+</div>
+
+<script type="module" src="../js/activity-states.js"></script>
+</body>
+</html>

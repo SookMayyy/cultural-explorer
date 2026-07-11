@@ -17,7 +17,8 @@
 
 import Storage    from './utils/storage.js';
 import Typewriter from './components/typewriter.js';
-import { AVATARS } from './data/avatars.js';
+import { AVATARS, avatarImg } from './data/avatars.js';
+import { showPopup } from './components/popup.js';
 
 // ── Auth config (backend integration) ────────────────────────────
 // The 12 secret icons map to icon_key_1 / icon_key_2 (values 1–12) in the
@@ -153,7 +154,7 @@ function buildAvatarGrid() {
     btn.setAttribute('aria-selected', 'false');
     btn.dataset.id = index;
     btn.innerHTML = `
-      <span class="avatar-emoji">${avatar.emoji}</span>
+      <span class="avatar-emoji">${avatarImg(index)}</span>
       <span class="avatar-name">${avatar.name}</span>
     `;
 
@@ -226,9 +227,9 @@ function openAvatarModal() {
 
 function closeAvatarModal() { closeModal(avatarModal); }
 
-// Navigate into the game
+// Navigate into the game — land on the authenticated dashboard (home) page.
 function enterGame() {
-  window.location.href = 'map.html';
+  window.location.href = 'dashboard.html';
 }
 
 
@@ -292,17 +293,28 @@ async function handleLogin(e) {
       return showError('login-error', '❌ ' + (data.error || 'Login failed.'));
     }
 
-    // Preserve a previously-picked avatar/points if this browser has one.
+    // Establish the session first (with grade_group) so per-account storage
+    // resolves to the SAME namespace this account used at sign-up.
     const prev = Storage.getSession();
     Storage.setSession({
       type:        'registered',
       displayName: name,
-      avatarId:    prev?.avatarId ?? null,
-      points:      prev?.points   ?? 0,
+      grade_group: loginGrade,
+      avatarId:    null,
+      points:      prev?.points ?? 0,
     });
 
-    if (prev?.avatarId == null) openAvatarModal();
-    else                        enterGame();
+    // Restore the avatar this account last equipped (saved per-account, so it
+    // survives logout). If none was ever picked, prompt to choose one.
+    const savedAvatar = Storage.getCurrentAvatar();
+    if (savedAvatar != null) {
+      const s = Storage.getSession();
+      s.avatarId = savedAvatar;
+      Storage.setSession(s);
+      enterGame();
+    } else {
+      openAvatarModal();
+    }
   } catch (err) {
     showError('login-error', '❌ Could not reach the server. Is it running (npm start)?');
   }
@@ -323,7 +335,7 @@ async function handleRegister(e) {
                                    return showError('reg-error', '❌ Name must be letters only (max 20).');
   if (!regGrade)                   return showError('reg-error', '❌ Please choose your grade.');
   if (selectedIcons.length !== 2)  return showError('reg-error', '❌ Pick exactly 2 secret icons.');
-  if (regGrade !== '1-2' && password.length < 6)
+  if (regGrade !== '1-3' && password.length < 6)
                                    return showError('reg-error', '❌ Password must be at least 6 characters.');
 
   const body = {
@@ -332,7 +344,7 @@ async function handleRegister(e) {
     icon_key_1:   selectedIcons[0],
     icon_key_2:   selectedIcons[1],
   };
-  if (regGrade !== '1-2') body.password = password;
+  if (regGrade !== '1-3') body.password = password;
 
   try {
     const res = await fetch('/api/auth/register', {
@@ -347,12 +359,24 @@ async function handleRegister(e) {
       return showError('reg-error', '❌ ' + (data.error || 'Registration failed.'));
     }
 
-    // Grade 1–2: reveal the auto-generated password once.
+    // Grade 1–3: reveal the auto-generated password once. Await so the child
+    // (or teacher) reads and writes it down before the avatar picker opens.
     if (data.auto_password) {
-      alert(`Account created! 🎉\n\nYour automatic password is:\n\n   ${data.auto_password}\n\nWrite it down — you'll use it to log in next time!`);
+      await showPopup({
+        title: 'Account created! 🎉',
+        emoji: '🔑',
+        message: `Your automatic password is<br>
+          <strong style="font-size:22px; letter-spacing:1px;">${data.auto_password}</strong><br><br>
+          Write it down — you'll use it to log in next time!`,
+        actions: [{ label: "Got it!", value: true, style: 'primary' }],
+      });
     }
 
-    Storage.setSession({ type: 'registered', displayName: name, avatarId: null, points: 0 });
+    Storage.setSession({ type: 'registered', displayName: name, grade_group: regGrade, avatarId: null, points: 0 });
+
+    // Brand-new account → start fresh: clear any stale local progress under this
+    // (name+grade) namespace so old points/stamps aren't inherited.
+    Storage.reset();
     openAvatarModal();   // new users pick an avatar before entering
   } catch (err) {
     showError('reg-error', '❌ Could not reach the server. Is it running (npm start)?');
@@ -417,8 +441,8 @@ function showLoginView() {
   clearError('recover-error');
 }
 
-// Recovery: verify name + grade + the 2 secret icons. Grade 1–2 gets their
-// password revealed; Grade 3+ sets a brand-new password.
+// Recovery: verify name + grade + the 2 secret icons. Grade 1–3 gets their
+// password revealed; Grade 4+ sets a brand-new password.
 async function handleRecover(e) {
   e.preventDefault();
   clearError('recover-error');
@@ -430,7 +454,7 @@ async function handleRecover(e) {
   if (!name)                          return showError('recover-error', '❌ Please enter your name.');
   if (!recoverGrade)                  return showError('recover-error', '❌ Please choose your grade.');
   if (recoverIcons.length !== 2)      return showError('recover-error', '❌ Tap your 2 secret icons (in order).');
-  if (recoverGrade !== '1-2' && newpw.length < 6)
+  if (recoverGrade !== '1-3' && newpw.length < 6)
                                       return showError('recover-error', '❌ New password must be at least 6 characters.');
 
   const body = {
@@ -439,7 +463,7 @@ async function handleRecover(e) {
     icon_key_1:   recoverIcons[0],
     icon_key_2:   recoverIcons[1],
   };
-  if (recoverGrade !== '1-2') body.new_password = newpw;
+  if (recoverGrade !== '1-3') body.new_password = newpw;
 
   try {
     const res = await fetch('/api/auth/recover', {
@@ -546,18 +570,18 @@ function init() {
   initGradeSelect('login-grade', g => { loginGrade = g; });
   initGradeSelect('reg-grade', g => {
     regGrade = g;
-    // Grade 1–2 gets an auto-generated password, so hide the password field.
+    // Grade 1–3 gets an auto-generated password, so hide the password field.
     const pw   = document.getElementById('reg-password');
     const hint = document.getElementById('reg-pw-hint');
-    const isAuto = g === '1-2';
+    const isAuto = g === '1-3';
     pw?.classList.toggle('hidden', isAuto);
     hint?.classList.toggle('hidden', !isAuto);
   });
   initGradeSelect('recover-grade', g => {
     recoverGrade = g;
-    // Grade 1–2 has its password revealed; Grade 3+ types a new one.
+    // Grade 1–3 has its password revealed; Grade 4+ types a new one.
     const newpw = document.getElementById('recover-newpw');
-    newpw?.classList.toggle('hidden', g === '1-2');
+    newpw?.classList.toggle('hidden', g === '1-3');
   });
   buildIconPicker('reg-icons', selectedIcons);
   buildIconPicker('recover-icons', recoverIcons);
@@ -622,10 +646,18 @@ function init() {
       enterGame();
     });
 
-  // ── How to Play (placeholder for now) ──
+  // ── How to Play ──
   document.getElementById('btn-how-to-play')
     ?.addEventListener('click', () => {
-      alert('Tutorial coming soon! 🎮\n\nFor now: explore states on the map, answer quizzes, earn stamps!');
+      showPopup({
+        title: 'How to Play',
+        emoji: '🎮',
+        message: `1. Tap a state on the map to explore it.<br>
+          2. Read the culture cards and play the mini-games.<br>
+          3. Answer quizzes to earn points.<br>
+          4. Collect a stamp for every state you finish!`,
+        actions: [{ label: "Let's go!", value: true, style: 'primary' }],
+      });
     });
 }
 

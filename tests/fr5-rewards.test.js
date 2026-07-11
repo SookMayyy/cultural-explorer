@@ -4,13 +4,14 @@
 //   npx jest tests/fr5-rewards.test.js
 //
 // FR5 contract (CLAUDE.md §3):
-//   • Points live in users.points; awarded on correct quiz answers (+10, see FR3) and on
-//     state completion (+20 bonus).
+//   • Points live in users.points. In the mission flow a state is worth exactly
+//     100 (4 missions × 25); state completion itself pays NO bonus. The standalone
+//     Activities-Hub quiz still awards +10 per correct answer (see FR3).
 //   • One stamp per state completion, stored in user_progress.stamp_earned.
 //   • Completion records is_completed + stamp_earned + last_quiz_score + completed_at.
 // (The stamp-book grid / fly-in animation is frontend — not covered here.)
 //
-// Standalone: own throwaway Grade 3-4 user, fully cleaned up. Requires `npm run seed`.
+// Standalone: own throwaway Grade 4-6 user, fully cleaned up. Requires `npm run seed`.
 
 const request = require('supertest');
 const app  = require('../server');
@@ -27,7 +28,7 @@ const progress = async () => (await agent.get('/api/progress')).body.data;
 
 beforeAll(async () => {
   const reg = await agent.post('/api/auth/register').send({
-    display_name: NAME, grade_group: '3-4', password: 'pass123', icon_key_1: 4, icon_key_2: 9,
+    display_name: NAME, grade_group: '4-6', password: 'pass123', icon_key_1: 4, icon_key_2: 9,
   });
   expect(reg.status).toBe(201);
   userId = (await agent.get('/api/auth/me')).body.user.id;
@@ -42,18 +43,18 @@ afterAll(async () => {
   await pool.pool.end();
 });
 
-describe('FR5 — Stamps & completion bonus', () => {
+describe('FR5 — Stamps & completion', () => {
   test('a fresh user has no progress and 0 points', async () => {
     expect(await progress()).toEqual([]);
     expect(await points()).toBe(0);
   });
 
-  test('completing a state earns a stamp, records the score, and pays +20', async () => {
+  test('completing a state earns a stamp and records the score, with no points bonus', async () => {
     const before = await points();
     const res = await agent.post('/api/progress/1/complete').send({ quizScore: 30 });
     expect(res.status).toBe(200);
-    expect(res.body.bonusPoints).toBe(20);
-    expect(await points()).toBe(before + 20);
+    expect(res.body.bonusPoints).toBe(0);          // points come from missions, not completion
+    expect(await points()).toBe(before);           // completion pays nothing extra
 
     const row = (await progress()).find(p => p.state_id === 1);
     expect(row.is_completed).toBe(true);
@@ -62,7 +63,7 @@ describe('FR5 — Stamps & completion bonus', () => {
     expect(row.completed_at).toBeTruthy();
   });
 
-  test('quiz points (+10) and completion bonus (+20) both accrue to users.points', async () => {
+  test('standalone quiz points (+10) accrue; completion adds no bonus', async () => {
     const q = (await agent.get('/api/quiz/state/2')).body.data[0];
     const before = await points();
 
@@ -72,7 +73,7 @@ describe('FR5 — Stamps & completion bonus', () => {
     expect(await points()).toBe(before + 10);
 
     await agent.post('/api/progress/2/complete').send({ quizScore: 40 });
-    expect(await points()).toBe(before + 30);
+    expect(await points()).toBe(before + 10);      // completion still adds nothing
   });
 
   test('the stamp count equals the number of completed states', async () => {

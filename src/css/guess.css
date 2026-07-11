@@ -23,6 +23,9 @@
   align-items: center;
   gap: var(--sp-md);
   padding: var(--sp-sm) var(--sp-lg);
+  /* Nudge the whole strip down a bit from the topbar — it sat cramped right
+     against it, giving the round counter / progress bar no breathing room. */
+  margin-top: var(--sp-sm);
   /* White strip contrasts with the lavender page */
   background: #fff;
   border-bottom: 1px solid #e0d4f7;
@@ -164,6 +167,25 @@
   line-height: 1.5;
 }
 
+/* ── Optional picture clue ──────────────────────────────────────────────────
+   Shown once every text clue is revealed — a real photo the child already saw
+   in that state's mission, as a last "does this match?" visual check. */
+.guess-clue-image {
+  display: flex;
+  justify-content: center;
+  animation: hint-slide-in 0.35s ease-out both;
+}
+.guess-clue-image.hidden { display: none; }
+.guess-clue-image img {
+  width: 100%;
+  max-width: 220px;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: var(--r-md, 16px);
+  border: 3px solid #7c3aed;
+  box-shadow: var(--shadow-sm);
+}
+
 /* ── Reveal button ── */
 .reveal-btn {
   display: block;
@@ -267,6 +289,15 @@
   font-size: 28px;
   line-height: 1;
   flex-shrink: 0;
+}
+/* State-flag image shown as an option icon (image-based guessing). */
+.option-icon img {
+  width: 46px;
+  height: 34px;
+  object-fit: cover;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  display: block;
 }
 
 .option-name {
@@ -377,7 +408,105 @@
 /* When motion is reduced, just appear instantly */
 @media (prefers-reduced-motion: reduce) {
   .hint-item,
-  .guess-feedback {
+  .guess-feedback,
+  .guess-clue-image {
     animation: none;
   }
+}
+
+/* ── Rimau entrance intro (Tourist mission) ─────────────────────────────────
+   Rimau slides in from the left with a speech bubble asking the child to guide
+   the tourist; tapping the button dismisses it and the guessing begins. */
+.guess-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 20px calc(var(--sp-xl) + 64px);
+  background: rgba(20, 12, 8, 0.55);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.guess-intro.show { opacity: 1; }
+.guess-intro.hidden { display: none; }
+
+.guess-intro-inner {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas:
+    "mascot bubble"
+    "btn    btn";
+  align-items: end;
+  gap: 12px 14px;
+  width: 100%;
+  max-width: 440px;
+}
+
+/* Rimau — slides in from the left edge. */
+.guess-intro-mascot {
+  grid-area: mascot;
+  width: 128px;
+  height: 128px;
+  transform: translateX(-160%);
+  opacity: 0;
+  animation: guess-rimau-in 0.55s cubic-bezier(0.34, 1.4, 0.64, 1) 0.15s forwards;
+}
+.guess-intro-mascot img,
+.guess-intro-mascot .img-slot { width: 100%; height: 100%; object-fit: contain; }
+
+/* Speech bubble — pops in just after Rimau arrives. */
+.guess-intro-bubble {
+  grid-area: bubble;
+  position: relative;
+  background: #fff;
+  border: 3px solid var(--clr-border-warm, #e7d9c5);
+  border-radius: 18px;
+  padding: 14px 16px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: var(--text-md);
+  line-height: 1.35;
+  color: var(--clr-text);
+  box-shadow: 0 8px 22px rgba(0,0,0,0.22);
+  transform: scale(0.7);
+  opacity: 0;
+  animation: guess-bubble-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s forwards;
+}
+.guess-intro-bubble b { color: var(--clr-purple, #7c3aed); }
+/* little tail pointing down-left toward Rimau */
+.guess-intro-bubble::after {
+  content: "";
+  position: absolute;
+  left: -10px; bottom: 16px;
+  border: 9px solid transparent;
+  border-right-color: #fff;
+}
+
+.guess-intro-btn {
+  grid-area: btn;
+  justify-self: center;
+  margin-top: 4px;
+  padding: 13px 26px;
+  border: none;
+  border-radius: var(--r-pill, 999px);
+  background: var(--clr-purple, #7c3aed);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  cursor: pointer;
+  box-shadow: 0 4px 0 rgba(44,24,16,0.22);
+  transform: translateY(14px);
+  opacity: 0;
+  animation: guess-btn-in 0.3s ease 0.7s forwards;
+}
+.guess-intro-btn:active { transform: translateY(2px); }
+
+@keyframes guess-rimau-in { to { transform: translateX(0); opacity: 1; } }
+@keyframes guess-bubble-in { to { transform: scale(1); opacity: 1; } }
+@keyframes guess-btn-in { to { transform: translateY(0); opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .guess-intro-mascot, .guess-intro-bubble, .guess-intro-btn { animation-duration: 0.01s; }
 }

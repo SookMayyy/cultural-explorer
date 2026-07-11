@@ -1,11 +1,11 @@
 // js/signup.js — standalone Create Account screen (grade-based).
 //
 // Flow:
-//   1. Pick grade  → Grade 1–2 gets an auto-generated password (no field).
+//   1. Pick grade  → Grade 1–3 gets an auto-generated password (no field).
 //   2. Enter name  (letters only, max 20 — matches backend validation).
-//   3. Grade 3+    type a password (min 6); Grade 1–2 skip this.
+//   3. Grade 4+    type a password (min 6); Grade 1–3 skip this.
 //   4. Pick 2 secret icons IN ORDER → recovery key (icon_key_1 / icon_key_2).
-//   5. POST /api/auth/register → on success, Grade 1–2 see their auto password,
+//   5. POST /api/auth/register → on success, Grade 1–3 see their auto password,
 //      then everyone picks an avatar and enters the game.
 //
 // Posts to the same backend route the home modal uses. A successful register
@@ -13,7 +13,7 @@
 // localStorage so the rest of the MPA keeps working.
 
 import Storage from './utils/storage.js';
-import { AVATARS } from './data/avatars.js';
+import { AVATARS, avatarImg } from './data/avatars.js';
 import { showError as popup } from './components/popup.js';
 
 // The 12 secret icons — index+1 maps to icon_key values 1–12 stored at
@@ -56,8 +56,8 @@ gradeWrap.querySelectorAll('.grade-btn').forEach(btn => {
     signupGrade = btn.dataset.grade;
     clearError();
 
-    // Grade 1–2 gets an auto password — hide the password field, show the note.
-    const isAuto = signupGrade === '1-2';
+    // Grade 1–3 gets an auto password — hide the password field, show the note.
+    const isAuto = signupGrade === '1-3';
     pwLabel.classList.toggle('hidden', isAuto);
     pwInput.classList.toggle('hidden', isAuto);
     pwAutoNote.classList.toggle('hidden', !isAuto);
@@ -110,7 +110,7 @@ form.addEventListener('submit', async e => {
   if (!signupGrade)                    return showError('❌ Please pick your grade.');
   if (!name)                           return showError('❌ Please enter your name.');
   if (!/^[a-zA-Z ]{1,20}$/.test(name)) return showError('❌ Name must be letters only (max 20).');
-  if (signupGrade !== '1-2' && password.length < 6)
+  if (signupGrade !== '1-3' && password.length < 6)
                                        return showError('❌ Password must be at least 6 characters.');
   if (chosenIcons.length !== 2)        return showError('❌ Pick exactly 2 secret icons (in order).');
 
@@ -120,7 +120,7 @@ form.addEventListener('submit', async e => {
     icon_key_1:   chosenIcons[0],
     icon_key_2:   chosenIcons[1],
   };
-  if (signupGrade !== '1-2') body.password = password;
+  if (signupGrade !== '1-3') body.password = password;
 
   const submitBtn = document.getElementById('btn-signup');
   submitBtn.disabled = true;
@@ -142,7 +142,12 @@ form.addEventListener('submit', async e => {
     // Session for the rest of the MPA (avatar chosen on the next step).
     Storage.setSession({ type: 'registered', displayName: name, grade_group: signupGrade, avatarId: null, points: 0 });
 
-    // Grade 1–2: reveal the auto-generated password on the success step.
+    // A brand-new account must start fresh: wipe any stale local progress left
+    // under this (name+grade) namespace from a previous/deleted account so the
+    // child doesn't inherit old points/stamps/progress.
+    Storage.reset();
+
+    // Grade 1–3: reveal the auto-generated password on the success step.
     if (data.auto_password) {
       autopwValue.textContent = data.auto_password;
       autopwBox.classList.remove('hidden');
@@ -166,7 +171,7 @@ form.addEventListener('submit', async e => {
 // ── Success step: avatar picker ──────────────────────────────────────────────
 avatarGrid.innerHTML = AVATARS.map((a, i) =>
   `<button type="button" class="avatar-item" role="option" aria-selected="false"
-           data-id="${i}" aria-label="${a.name}">${a.emoji}</button>`
+           data-id="${i}" aria-label="${a.name}">${avatarImg(i)}</button>`
 ).join('');
 
 avatarGrid.querySelectorAll('.avatar-item').forEach(btn => {

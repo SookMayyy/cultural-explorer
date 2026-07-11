@@ -36,7 +36,7 @@ const { default: pool } = await import(pathToFileURL(path.join(root, 'db', 'conn
 
 // ── Mappings ───────────────────────────────────────────────────────────────────
 // Frontend string id → DB integer id (and the canonical state catalogue).
-const STATE_ID = { penang: 1, melaka: 2, selangor: 3, johor: 4, kelantan: 5, sabah: 6, sarawak: 7 };
+const STATE_ID = { penang: 1, melaka: 2, selangor: 3, johor: 4, kelantan: 5, sabah: 6, sarawak: 7, kedah: 8 };
 
 // Frontend card category → DB card_type enum (food|landmark|tradition|dialect|costume).
 const TYPE_MAP = { Food: 'food', Landmark: 'landmark' };

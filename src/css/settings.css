@@ -1,8 +1,9 @@
 /* settings.css — My Profile page */
 
-.app-container {
-  background: #f0f7e6;
-}
+/* Nature background fills the WHOLE screen (incl. behind the transparent
+   topbar) so the top bar shares the screen background. */
+/* Full-screen background: fills the body (letterbox margins) AND the frame. */
+:root { --screen-bg: #f0f7e6 url('../assets/images/ui/setting_background.png') center / cover no-repeat fixed; }
 
 .topbar--purple {
   background: linear-gradient(to right, #7b4dff, #5a7dff);
@@ -15,16 +16,14 @@
   position: relative;
   display: flex;
   overflow: hidden;
-  background-image: url('../assets/images/ui/setting_background.png');
-  background-size: cover;
-  background-position: center;
+  background: transparent;   /* bg now lives on .app-container (covers the top bar) */
 }
 
 /* Soft overlay so cards are readable against the scene */
 .settings-overlay {
-  position: absolute;
+  /* Fixed so the frosted tint also covers the transparent top bar area. */
+  position: fixed;
   inset: 0;
-  background: rgba(230, 248, 220, 0.45);
   z-index: 0;
 }
 
@@ -35,7 +34,7 @@
   flex: 1;
   display: flex;
   gap: var(--sp-xl);
-  padding: var(--sp-xl) var(--sp-xl) calc(var(--navbar-h) + var(--sp-xl));
+  padding: calc(var(--topbar-h) + var(--sp-md)) var(--sp-xl) calc(var(--navbar-h) + var(--sp-xl));
   align-items: center;
 }
 
@@ -58,9 +57,11 @@
   width: 88px;
   height: 88px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #66bb6a, #2e7d32);
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--profile-color, #6a32c9) 82%, white),
+    var(--profile-color, #6a32c9));
   border: 5px solid #fff;
-  box-shadow: 0 4px 16px rgba(76, 175, 80, 0.45);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
   display: flex;
   align-items: center;
   justify-content: center;

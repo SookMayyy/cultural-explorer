@@ -1,5 +1,5 @@
 // js/dashboard.js — authenticated Home: greeting, journey progress bar, and four
-// quick-access cards (Map, Stamp Book, Quiz, Costume Shop).
+// quick-access cards (Map, Stamp Book, Activities, Avatar Shop).
 
 import Storage from './utils/storage.js';
 import { renderTopbar, renderNavbar, requireAuth } from './ui.js';
@@ -8,7 +8,8 @@ import { avatarStackHTML } from './utils/avatarDisplay.js';
 
 const session = requireAuth();
 
-renderTopbar({ title: 'Home', showAvatar: true, showPoints: true, color: '#FE6815' });
+// Home shows no top-bar title (per design) — just points + profile.
+renderTopbar({ showAvatar: true, showPoints: true, color: '#6b50ce' });
 renderNavbar('home');
 
 const progress   = Storage.getProgress();
@@ -51,8 +52,8 @@ requestAnimationFrame(() => {
 
 // ── Card subtitles + quiz target ─────────────────────────────────────────────────
 document.getElementById('home-stamp-sub').textContent = `${stampsN} / ${total} collected`;
-// Costume Shop is parked as "Coming Soon" — keep the points sub honest but quiet.
-document.getElementById('home-shop-sub').textContent  = '✨ Coming soon';
+// Avatar Shop is live — nudge with the points they have to spend on new avatars.
+document.getElementById('home-shop-sub').textContent  = `⭐ ${points} pts to spend`;
 
 // The Quiz card needs a state context. Prefer the last-visited state, then the
 // recommended next, then the first state — so it never lands on "state not found".

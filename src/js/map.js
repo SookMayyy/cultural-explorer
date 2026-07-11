@@ -32,11 +32,12 @@ const completed = Storage.completedCount();
 const unlocked  = unlockedStates(progress).map(s => s.id);
 const nextUp    = nextRecommended(progress);
 
-document.getElementById('map-completed').textContent = `${completed}/7`;
-document.getElementById('map-pts').textContent       = `${Math.round((completed / 7) * 100)}%`;
+const TOTAL = STATES_DATA.length;   // number of explorable states (drives the tally)
+document.getElementById('map-completed').textContent = `${completed}/${TOTAL}`;
+document.getElementById('map-pts').textContent       = `${Math.round((completed / TOTAL) * 100)}%`;
 requestAnimationFrame(() => {
   const fill = document.getElementById('map-progress-fill');
-  if (fill) fill.style.width = `${Math.round((completed / 7) * 100)}%`;
+  if (fill) fill.style.width = `${Math.round((completed / TOTAL) * 100)}%`;
 });
 
 // ── Mascot greeting ─────────────────────────────────────────────────────────────
@@ -45,12 +46,10 @@ const allWestDone = STATES_DATA
   .every(s => stamps.includes(s.id));
 
 const mascotGreeting = completed === 0
-  ? "Hi! I'm Rimau! Tap a state to begin your Malaysian adventure!"
-  : completed < 5
+  ? "Hi! I'm Rimau! Tap any state to begin your Malaysian adventure!"
+  : completed < TOTAL
   ? `Amazing! You've explored ${completed} state${completed > 1 ? 's' : ''}! Tap another!`
-  : allWestDone
-  ? "West Malaysia conquered! Cross the sea to explore East Malaysia with me!"
-  : `Almost there! ${5 - completed} more West states before East Malaysia unlocks!`;
+  : "You've explored all of Malaysia with me! Amazing work! 🎉";
 
 const mascotFigureEl = document.getElementById('map-mascot-figure');
 const mascotTextEl   = document.getElementById('map-mascot-text');
@@ -80,33 +79,40 @@ pinsEl.setAttribute('pointer-events', 'none');
 // visible land, so nudge their pins onto the landmass here. dx = right(+)/left(−),
 // dy = down(+)/up(−). Tweak these numbers until the ✓ / 🔒 sits where you want.
 const PIN_OFFSET = {
+  kedah:   { dx: 15, dy: 0},
   sabah:   { dx: -15, dy: 12 },   // Sabah is the NE tip — nudge up toward the land
   sarawak: { dx: 30, dy:  18 },   // Sarawak is the long SW body — nudge down into it
 };
 
 STATES_DATA.forEach(state => {
-  const path = svgEl.querySelector(`path[data-state="${state.id}"]`);
-  if (!path) return;
+  // A state may be drawn as MORE THAN ONE path (e.g. Penang = mainland + island),
+  // so style every path that carries this state's id — they all share the colour,
+  // classes and click behaviour.
+  const paths = svgEl.querySelectorAll(`path[data-state="${state.id}"]`);
+  if (!paths.length) return;
 
   const ns     = nodeState(state.id);
   const locked = ns === 'locked';
   const done   = ns === 'completed';
   const isNext = nextUp && nextUp.id === state.id && !locked;
 
-  path.classList.add(`map-state--${ns}`);
-  if (isNext) path.classList.add('map-state--next');
-  // Unlocked/done states wear the state's own brand colour; locked stay grey (CSS).
-  if (state.color && !locked) path.style.fill = state.color;
+  paths.forEach(path => {
+    path.classList.add(`map-state--${ns}`);
+    if (isNext) path.classList.add('map-state--next');
+    // Unlocked/done states wear the state's own brand colour; locked stay grey (CSS).
+    if (state.color && !locked) path.style.fill = state.color;
 
-  path.setAttribute('role', 'button');
-  path.setAttribute('tabindex', locked ? '-1' : '0');
-  if (locked) path.setAttribute('aria-disabled', 'true');
-  path.setAttribute('aria-label',
-    locked ? `${state.name} — locked` : `${state.name} — ${done ? 'completed' : 'explore'}`);
+    path.setAttribute('role', 'button');
+    path.setAttribute('tabindex', locked ? '-1' : '0');
+    if (locked) path.setAttribute('aria-disabled', 'true');
+    path.setAttribute('aria-label',
+      locked ? `${state.name} — locked` : `${state.name} — ${done ? 'completed' : 'explore'}`);
+  });
 
   const pinChar = done ? '✓' : locked ? '🔒' : isNext ? '⭐' : '';
   if (pinChar) {
-    const box = path.getBBox();
+    // Pin sits on the primary (first) path — the mainland for Penang.
+    const box = paths[0].getBBox();
     const off = PIN_OFFSET[state.id] || { dx: 0, dy: 0 };
     const t = document.createElementNS(SVGNS, 'text');
     t.setAttribute('x', box.x + box.width / 2 + off.dx);
@@ -134,13 +140,91 @@ svgEl.addEventListener('keydown', e => {
   }
 });
 
+// ── Hover info-card (desktop pointer preview) ─────────────────────────────────
+// On a device with a fine pointer (mouse), hovering a state shows a floating card
+// with its flag, name, tagline and a one-line summary — so you can preview every
+// state without tapping each one. Skipped entirely on touch (no hover).
+(() => {
+  const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const hoverEl  = document.getElementById('map-hover');
+  const wrapEl   = document.getElementById('map-image-wrap');
+  if (!canHover || !hoverEl || !wrapEl) return;
+
+  const flagEl = document.getElementById('map-hover-flag');
+  const nameEl = document.getElementById('map-hover-name');
+  const tagEl  = document.getElementById('map-hover-tag');
+  const sumEl  = document.getElementById('map-hover-sum');
+
+  // A short, kid-friendly blurb: the story's first sentence, trimmed if long.
+  function shortSummary(state) {
+    const s = (state.story || '').trim();
+    if (!s) return state.tagline || '';
+    const first = s.split(/(?<=\.)\s/)[0];
+    return first.length > 120 ? first.slice(0, 117).trimEnd() + '…' : first;
+  }
+
+  let hoverId = null;
+
+  function positionHover(e) {
+    const r = wrapEl.getBoundingClientRect();
+    let x = e.clientX - r.left;
+    const y = e.clientY - r.top;
+    // Keep the card (centred above the pointer) inside the map wrap horizontally.
+    const half = hoverEl.offsetWidth / 2;
+    x = Math.max(half + 4, Math.min(x, r.width - half - 4));
+    // Near the top edge, flip the card below the pointer so it isn't clipped.
+    hoverEl.style.transform = (y - hoverEl.offsetHeight - 18 < 0)
+      ? 'translate(-50%, 18px)'
+      : 'translate(-50%, calc(-100% - 14px))';
+    hoverEl.style.left = `${x}px`;
+    hoverEl.style.top  = `${y}px`;
+  }
+
+  function showHover(stateId, e) {
+    const state = STATES_DATA.find(s => s.id === stateId);
+    if (!state) return;
+    if (stateId !== hoverId) {
+      hoverId = stateId;
+      flagEl.innerHTML   = state.emoji || '🏳️';
+      nameEl.textContent = state.name;
+      tagEl.textContent  = state.tagline || '';
+      sumEl.textContent  = shortSummary(state);
+    }
+    hoverEl.classList.remove('hidden');
+    positionHover(e);
+  }
+
+  function hideHover() {
+    hoverId = null;
+    hoverEl.classList.add('hidden');
+  }
+
+  svgEl.addEventListener('mousemove', e => {
+    const path = e.target.closest('path[data-state]');
+    if (path) showHover(path.dataset.state, e);
+    else hideHover();
+  });
+  svgEl.addEventListener('mouseleave', hideHover);
+})();
+
 // ── Popup (bottom sheet) ─────────────────────────────────────────────────────────
+// The four Discover→Play mission categories a child explores per state (see
+// js/data/missions.js TEMPLATES) — this replaces the older story/culture/
+// activity/quiz tab badges, which no longer match the mission flow.
+const POPUP_CATEGORIES = [
+  { id: 'chef',     label: 'Food',     icon: '🍳' },
+  { id: 'dancer',   label: 'Costume',  icon: '👗' },
+  { id: 'tourist',  label: 'Landmark', icon: '🗺️' },
+  { id: 'festival', label: 'Festival', icon: '🎉' },
+];
+
 function openPopup(stateId) {
   const state = STATES_DATA.find(s => s.id === stateId);
   if (!state) return;
 
-  const sp       = Storage.getStateProgress(stateId);
-  const tabs     = ['story', 'culture', 'activity', 'quiz'];
+  // Completed missions for this state — a badge ticks once its mission id is
+  // in here. Finishing all four (the whole state) naturally ticks all four.
+  const done     = Storage.getMissions(stateId);
   const isLocked = !unlocked.includes(stateId);
 
   const emojiEl = document.getElementById('popup-emoji');
@@ -149,8 +233,11 @@ function openPopup(stateId) {
   document.getElementById('popup-name').textContent    = state.name;
   document.getElementById('popup-tagline').textContent = state.tagline;
 
-  document.getElementById('popup-badges').innerHTML = tabs.map(t => `
-    <span class="popup-badge ${sp[t] ? 'done' : ''}">${sp[t] ? '✓ ' : ''}${t}</span>
+  document.getElementById('popup-badges').innerHTML = POPUP_CATEGORIES.map(m => `
+    <span class="popup-badge ${done.includes(m.id) ? 'done' : ''}">
+      <span class="popup-badge-icon" aria-hidden="true">${done.includes(m.id) ? '✓' : m.icon}</span>
+      ${m.label}
+    </span>
   `).join('');
 
   const exploreBtn = document.getElementById('popup-explore');

@@ -22,34 +22,31 @@
       <a class="av-close" href="settings.html" aria-label="Close">✕</a>
     </div>
 
-    <!-- Big avatar preview: base animal + equipped costume overlay -->
+    <!-- Big avatar preview: base animal -->
     <div class="av-stage" id="av-stage" aria-live="polite">
-      <span class="av-stage-base"    id="av-hero-base">🦧</span>
-      <span class="av-stage-costume" id="av-hero-costume">👔</span>
+      <span class="av-stage-base" id="av-hero-base">🦧</span>
     </div>
 
-    <!-- Name + edit + shuffle -->
+    <!-- Name + edit -->
     <div class="av-name-row">
       <span class="av-name" id="av-name">Explorer</span>
       <button class="av-name-edit" id="av-name-edit" aria-label="Edit name">✎</button>
-      <button class="av-shuffle" id="av-shuffle" aria-label="Surprise outfit">🎲</button>
     </div>
   </section>
 
   <!-- ════════════ Dark item panel ════════════ -->
   <main class="av-panel">
 
-    <!-- Category tabs -->
-    <div class="av-tabs" role="tablist">
-      <button class="av-tab"        data-tab="animal"  role="tab" aria-selected="true">🐾 Character</button>
-      <button class="av-tab"        data-tab="outfits" role="tab" aria-selected="false">👕 Outfits <span class="av-tab-soon">Soon</span></button>
-    </div>
+    <!-- Hint line -->
+    <p class="av-panel-hint" id="av-panel-hint">Pick your character!</p>
 
-    <!-- Hint line for the active tab -->
-    <p class="av-panel-hint" id="av-panel-hint">Pick your character — your outfit stays on top!</p>
+    <!-- Character grid (built by avatar.js) -->
+    <div class="av-items" id="av-grid" aria-label="Characters"></div>
 
-    <!-- Item grid (built by avatar.js) -->
-    <div class="av-items" id="av-grid" aria-label="Items"></div>
+    <!-- Background colour picker (built by avatar.js) -->
+    <h3 class="av-section-title">🎨 Background Colour</h3>
+    <p class="av-section-sub">This colours your profile everywhere.</p>
+    <div class="av-colors" id="av-colors" aria-label="Background colours"></div>
 
   </main>
 
@@ -64,8 +61,8 @@
     <a href="stampbook.html" class="map-nav-item">
       <img src="../assets/images/ui/stamp-icon.png"  alt="" class="nav-icon"><span>Stamps</span>
     </a>
-    <a href="quiz.html" class="map-nav-item">
-      <img src="../assets/images/ui/quiz-icon.png"   alt="" class="nav-icon"><span>Quiz</span>
+    <a href="activities.html" class="map-nav-item">
+      <img src="../assets/images/ui/quiz-icon.png"   alt="" class="nav-icon"><span>Activities</span>
     </a>
     <a href="settings.html" class="map-nav-item active">
       <img src="../assets/images/ui/setting-icon.png" alt="" class="nav-icon"><span>Me</span>

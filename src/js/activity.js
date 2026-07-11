@@ -2,82 +2,99 @@
 //
 // Pulls the current state from Storage/URL, builds 3–4 drag-match pairs
 // from that state's cards, then uses the DragMatch component to run the game.
-// On completion, shows a congratulation overlay and links to the quiz.
+// On completion, shows a congratulation overlay and links to Guess My State.
+//
+// Visual updates (Figma frame 226:323):
+//   • No orange topbar — replaced by a HUD bar in the HTML (act-hud).
+//   • Progress pill (act-matched-text) + gold bar (act-progress-fill) in HUD.
+//   • Points pill (act-points-val) in HUD.
+//   • Rimau mascot corner (act-mascot-corner) with a speech bubble.
+//   • DragMatch options.title is passed so the heading can be re-skinned.
 
 import Storage from './utils/storage.js';
 import { requireAuth, getStateParam } from './ui.js';
 import { STATES_DATA } from './data/states.js';
-import { avatarStackHTML } from './utils/avatarDisplay.js';
 import DragMatch from './components/dragMatch.js';
 import Sound from './utils/sound.js';
+import { renderMascot, setMascotPose } from './data/mascots.js';
+import { initHowToPlay } from './components/howToPlay.js';
 
-// ── Auth guard ───────────────────────────────────────────────────────────────
+// ── Auth guard ────────────────────────────────────────────────────────────────
 const session = requireAuth();
 if (!session) throw new Error('Not logged in');
 
-// ── Load state ───────────────────────────────────────────────────────────────
+// ── Load state ────────────────────────────────────────────────────────────────
 const stateId = getStateParam();
 const state   = STATES_DATA.find(s => s.id === stateId);
 
-// ── Topbar ────────────────────────────────────────────────────────────────────
-const topbar = document.getElementById('topbar');
-if (topbar && state) {
-  topbar.style.background = state.color;
-  document.getElementById('topbar-title').textContent = state.name + ' — Match!';
-  document.getElementById('topbar-back').href = `narrative.html?state=${stateId}`;
+// ── Launch context ────────────────────────────────────────────────────────────
+// Reached from the Activities Hub (replay), from a Mission (Help the Chef), or
+// the linear journey. From the hub / a mission, the back button + completion CTA
+// return there instead of advancing to the next journey game.
+const _params = new URLSearchParams(location.search);
+const fromActivities = _params.get('from') === 'activities';
+const fromMission    = _params.get('from') === 'mission';
+const missionId      = _params.get('mission');
+const activitiesHref   = `activities.html${stateId ? `?state=${stateId}` : ''}`;
+const missionsHref     = `missions.html?state=${stateId}`;
+// Finishing a mission returns into the Mission Flow's Reward stage.
+const missionsDoneHref = `mission.html?state=${stateId}&mission=${missionId}&stage=reward`;
+
+// ── HUD: back pill ────────────────────────────────────────────────────────────
+const backPill = document.getElementById('act-back');
+if (backPill) {
+  if (fromMission) {
+    backPill.href = missionsHref;
+    backPill.textContent = '🏰 BACK TO MISSIONS';
+  } else if (fromActivities) {
+    backPill.href = activitiesHref;
+    backPill.textContent = '🎮 BACK TO ACTIVITIES';
+  } else if (stateId) {
+    backPill.href = `narrative.html?state=${stateId}`;
+  }
 }
 
-document.getElementById('topbar-pts').textContent    = `⭐ ${Storage.getPoints()} pts`;
-document.getElementById('topbar-avatar').innerHTML = avatarStackHTML(session.avatarId);
+// ── HUD: points pill ──────────────────────────────────────────────────────────
+const pointsVal = document.getElementById('act-points-val');
+if (pointsVal) pointsVal.textContent = Storage.getPoints().toLocaleString();
 
-// ── Build drag pairs for this state ───────────────────────────────────────────
-// Each pair is { food, state } where "food" = the chip the player taps, and
-// "state" = the descriptor label shown in the drop zone.
-// Prefer the curated `dragPairs` authored per state in states.js; if a state
-// has none yet, fall back to deriving pairs from its cards array so the game
-// still works during development.
+// ── Build drag pairs for this state ──────────────────────────────────────────
+// Prefer the curated dragPairs authored per state in states.js; fall back to
+// deriving pairs from cards so the game still works during development.
 function buildPairs(stateData) {
   if (stateData?.dragPairs?.length) return stateData.dragPairs;
   if (!stateData?.cards?.length)    return [];
-
-  // Fallback: turn up to 4 cards into { food, state } pairs.
-  // The "food" chip shows the emoji + title; the "state" zone shows the category.
   return stateData.cards.slice(0, 4).map(card => ({
     food:  `${card.icon} ${card.title}`,
     state: card.category,
   }));
 }
 
-// ── Fallback pairs (if state has no cards or state not found) ─────────────────
-// Uses iconic Malaysian food ↔ state pairings so the game still works during dev.
 const FALLBACK_PAIRS = [
   { food: '🍜 Char Kway Teow', state: 'Penang'   },
-  { food: '🏛️ A Famosa',       state: 'Melaka'   },
   { food: '⛰️ Batu Caves',      state: 'Selangor' },
-  { food: '🎋 Johor Bahru',     state: 'Johor'    },
+  { food: '🎭 Wayang Kulit',    state: 'Kelantan' },
+  { food: '🏔️ Mount Kinabalu',  state: 'Sabah'    },
 ];
 
-const pairs = state ? buildPairs(state) : FALLBACK_PAIRS;
+const pairs      = state ? buildPairs(state) : FALLBACK_PAIRS;
+const totalPairs = pairs.length;
 
-// ── DOM references ────────────────────────────────────────────────────────────
-const gameArea      = document.getElementById('act-game-area');
-const completeEl    = document.getElementById('act-complete');
-const scoreBadge    = document.getElementById('act-score');
-const roundPill     = document.getElementById('act-round-pill');
-const gameTitle     = document.getElementById('act-game-title');
-const bubbleText    = document.getElementById('act-bubble-text');
-const btnToQuiz     = document.getElementById('btn-to-quiz');
+// ── HUD: progress bar initial state ──────────────────────────────────────────
+const matchedText  = document.getElementById('act-matched-text');
+const progressFill = document.getElementById('act-progress-fill');
 
-// ── Set up round pill + title ─────────────────────────────────────────────────
-if (state) {
-  // Find which round this state is (1-indexed position in STATES_DATA)
-  const stateIdx = STATES_DATA.findIndex(s => s.id === stateId);
-  roundPill.textContent = `Activity ${stateIdx + 1} of ${STATES_DATA.length}`;
-  gameTitle.textContent = `${state.emoji?.includes('img') ? '🏳️' : ''} ${state.name} Match!`;
-}
+if (matchedText)  matchedText.textContent = `0 / ${totalPairs} MATCHED`;
+if (progressFill) progressFill.style.width = '0%';
 
-// ── Mascot bubble messages ─────────────────────────────────────────────────────
-// Cycle through different encouraging messages as matches are made.
+// ── Mascot corner (Rimau) ─────────────────────────────────────────────────────
+const mascotFig = document.getElementById('act-mascot-fig');
+// renderMascot() swaps the emoji placeholder for the real PNG (with emoji fallback).
+if (mascotFig) renderMascot(mascotFig, 'happy');
+
+const bubbleText = document.getElementById('act-bubble-text');
+
+// ── Mascot bubble messages — cycle on each correct match ──────────────────────
 const BUBBLE_MESSAGES = [
   'Can you match each clue to the right state?',
   'Great start! Keep going!',
@@ -91,70 +108,123 @@ let matchCount = 0;
 function onMatchMade() {
   matchCount++;
   Sound.correct();
-  scoreBadge.textContent = `${matchCount} matched`;
 
-  // Update the mascot bubble progressively
+  // Update HUD progress bar and matched counter
+  if (matchedText)  matchedText.textContent = `${matchCount} / ${totalPairs} MATCHED`;
+  if (progressFill) progressFill.style.width = `${(matchCount / totalPairs) * 100}%`;
+
+  // Rimau reacts happily
+  if (mascotFig) {
+    mascotFig.classList.remove('react-happy');
+    void mascotFig.offsetWidth;          // trigger reflow to restart the animation
+    mascotFig.classList.add('react-happy');
+  }
+
+  // Cycle the mascot bubble message as the player progresses
   const msgIdx = Math.min(matchCount, BUBBLE_MESSAGES.length - 1);
-  bubbleText.textContent = BUBBLE_MESSAGES[msgIdx];
-
-  // Briefly highlight the score badge on each match
-  scoreBadge.style.background = '#d4edda';
-  setTimeout(() => { scoreBadge.style.background = ''; }, 500);
+  if (bubbleText) bubbleText.textContent = BUBBLE_MESSAGES[msgIdx];
 }
 
-// ── Build game using DragMatch component ──────────────────────────────────────
+// ── DOM references ────────────────────────────────────────────────────────────
+const gameArea   = document.getElementById('act-game-area');
+const completeEl = document.getElementById('act-complete');
+const btnToQuiz  = document.getElementById('btn-to-quiz');
+
+// ── Build game via DragMatch component ────────────────────────────────────────
 if (!pairs.length) {
   gameArea.innerHTML = `
     <p style="text-align:center;color:var(--clr-text-muted);padding:var(--sp-xl)">
       No activity data available for this state yet. Check back soon!
     </p>`;
 } else {
-  // Patch onMatchMade into the DragMatch component's _dropOnZone.
-  // We do this by extending the class so we don't modify the component file.
   const gameContainer = document.createElement('div');
   gameArea.innerHTML  = '';
   gameArea.appendChild(gameContainer);
 
-  // Create game — the third argument is the onComplete callback
-  const game = new DragMatch(gameContainer, pairs, onComplete);
+  // Pass the title as an option so future mission themes can override it.
+  const game = new DragMatch(gameContainer, pairs, onComplete, {
+    title:      'MATCH THE TREASURE!',
+    colHeading: 'TREASURES',
+  });
   game.render();
 
-  // Intercept each correct match to update the score badge.
-  // DragMatch fires onComplete when ALL pairs are done, but we want
-  // per-match feedback too. We observe the DOM for .correct-zone additions.
+  // Watch for .correct-zone class additions to trigger per-match feedback.
+  // DragMatch only fires onComplete when ALL pairs are done; we need the
+  // per-match mascot reactions and progress bar updates too.
   const matchObserver = new MutationObserver(() => {
     const corrects = gameContainer.querySelectorAll('.correct-zone').length;
     if (corrects > matchCount) {
       onMatchMade();
     }
   });
-  matchObserver.observe(gameContainer, { subtree: true, attributes: true, attributeFilter: ['class'] });
+  matchObserver.observe(gameContainer, {
+    subtree:         true,
+    attributes:      true,
+    attributeFilter: ['class'],
+  });
 }
 
 // ── Game completion handler ───────────────────────────────────────────────────
 function onComplete() {
-  // Mark the activity tab complete in Storage
+  // Persist progress — these calls are unchanged from the original
   Storage.markCompleted(stateId || 'penang', 'activity');
 
-  // Award bonus points for completing the activity
+  // In the mission flow the flat +25 mission bonus is the only reward, so the
+  // per-game bonus is NOT persisted (keeps a state worth exactly 100).
   const bonus = 20;
-  Storage.addPoints(bonus);
+  if (!fromMission) Storage.addPoints(bonus);
 
-  // Next in the journey is "Guess My State" for this state
-  if (btnToQuiz && stateId) {
-    btnToQuiz.href = `guess.html?state=${stateId}`;
+  // Wire the primary CTA: back to the mission / hub when replaying, otherwise
+  // advance the journey to the Guess My State game.
+  if (btnToQuiz) {
+    if (fromMission) {
+      btnToQuiz.href = missionsDoneHref;
+      btnToQuiz.textContent = '✅ Mission Complete!';
+    } else if (fromActivities) {
+      btnToQuiz.href = activitiesHref;
+      btnToQuiz.textContent = '🎮 Back to Activities';
+    } else if (stateId) {
+      btnToQuiz.href = `guess.html?state=${stateId}`;
+    }
   }
 
-  // Update completion card text
+  // Update completion card subtitle
   const sub = document.getElementById('act-complete-sub');
   if (sub) {
-    sub.textContent = `You earned +${bonus} pts! Next up: Guess My State 🔍`;
+    sub.textContent = (fromMission || fromActivities)
+      ? `You earned +${bonus} pts! Nice match 🎉`
+      : `You earned +${bonus} pts! Next up: Guess My State 🔍`;
   }
 
-  // Show the completion overlay
+  // Refresh points pill
+  if (pointsVal) pointsVal.textContent = Storage.getPoints().toLocaleString();
+
+  // Rimau celebrates
+  if (mascotFig) setMascotPose(mascotFig, 'cheer');
+
   Sound.unlock();
   completeEl.classList.remove('hidden');
-
-  // Update topbar points
-  document.getElementById('topbar-pts').textContent = `⭐ ${Storage.getPoints()} pts`;
 }
+
+// ── Help button ───────────────────────────────────────────────────────────────
+// A gentle tap hint: re-animate the last unmatched chip to invite interaction.
+const helpBtn = document.getElementById('act-help-btn');
+if (helpBtn) {
+  helpBtn.addEventListener('click', () => {
+    const firstUnmatched = gameArea.querySelector('.drag-chip:not(.placed)');
+    if (firstUnmatched) {
+      firstUnmatched.classList.remove('wiggle');
+      void firstUnmatched.offsetWidth;
+      firstUnmatched.classList.add('wiggle');
+    }
+    if (bubbleText) {
+      bubbleText.textContent = 'Tap a treasure card first, then tap the matching box!';
+    }
+  });
+}
+
+// ── Kid-friendly "How to Play" (first visit + a "?" button to re-open) ────────
+initHowToPlay('activity', {
+  title: 'Match the Culture!', emoji: '🧩',
+  lines: ['👆 Tap a card on the left.', '➡️ Then tap the box it matches.', '✅ Match them all to win!'],
+});

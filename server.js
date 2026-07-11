@@ -12,6 +12,12 @@ const progressRoutes = require('./routes/progress');
 
 const app = express();
 
+// Trust the hosting platform's reverse proxy (Render/Railway/Fly terminate TLS
+// in front of us). Without this, `req.secure` is false behind the proxy, so the
+// `secure: true` session cookie below is never set in production and users stay
+// "logged out" even after a 200 login. Harmless in local dev.
+app.set('trust proxy', 1);
+
 // ── Middleware ────────────────────────────────────────────────────────────────
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());

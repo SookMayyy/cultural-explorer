@@ -28,9 +28,9 @@ async function getMe() {
 }
 
 beforeAll(async () => {
-  // Register the main test user (Grade 3-4 → has a password). Register also opens a session.
+  // Register the main test user (Grade 4-6 → has a password). Register also opens a session.
   const reg = await agent.post('/api/auth/register').send({
-    display_name: TEST_NAME, grade_group: '3-4', password: 'pass123',
+    display_name: TEST_NAME, grade_group: '4-6', password: 'pass123',
     icon_key_1: 3, icon_key_2: 7,
   });
   expect(reg.status).toBe(201);
@@ -131,20 +131,20 @@ describe('FR3 — Quiz & points', () => {
   });
 });
 
-// ── FR5: Progress completion + stamps + bonus points ────────────────────────────
-describe('FR5 — Progress, stamps & completion bonus', () => {
+// ── FR5: Progress completion + stamps (no bonus) ─────────────────────────────────
+describe('FR5 — Progress, stamps & completion', () => {
   test('progress is empty before any completion', async () => {
     const res = await agent.get('/api/progress');
     expect(res.status).toBe(200);
     expect(res.body.data).toEqual([]);
   });
 
-  test('completing a state awards a stamp + 20 bonus points', async () => {
+  test('completing a state awards a stamp and records the score (no points bonus)', async () => {
     const before = (await getMe()).points;
     const res = await agent.post('/api/progress/1/complete').send({ quizScore: 30 });
     expect(res.status).toBe(200);
-    expect(res.body.bonusPoints).toBe(20);
-    expect((await getMe()).points).toBe(before + 20);
+    expect(res.body.bonusPoints).toBe(0);              // points come from missions, not completion
+    expect((await getMe()).points).toBe(before);       // completion pays nothing extra
 
     const prog = await agent.get('/api/progress');
     const row = prog.body.data.find(p => p.state_id === 1);
@@ -154,14 +154,15 @@ describe('FR5 — Progress, stamps & completion bonus', () => {
     expect(row.last_quiz_score).toBe(30);
   });
 
-  test('completing all 5 west states unlocks East Malaysia (Sabah/Sarawak)', async () => {
+  test('every state (incl. East Malaysia) is unlocked — free exploration, no gate', async () => {
     for (const id of WEST_STATES.slice(1)) {           // state 1 already done above
       await agent.post(`/api/progress/${id}/complete`).send({ quizScore: 25 });
     }
     const res = await agent.get('/api/states');
     const byId = Object.fromEntries(res.body.data.map(s => [s.id, s]));
-    expect(byId[6].is_locked).toBe(false);             // Sabah now unlocked
-    expect(byId[7].is_locked).toBe(false);             // Sarawak now unlocked
+    expect(res.body.data.every(s => s.is_locked === false)).toBe(true);  // nothing ever locked
+    expect(byId[6].is_locked).toBe(false);             // Sabah open
+    expect(byId[7].is_locked).toBe(false);             // Sarawak open
     expect(byId[1].is_completed).toBe(true);
   });
 });
@@ -177,6 +178,9 @@ describe('FR6 — Costume shop', () => {
   });
 
   test('unlocking a costume spends the right number of points', async () => {
+    // Fund the wallet directly — state completion no longer pays a bonus, so
+    // top up enough to afford the costume (points normally come from missions).
+    await agent.post('/api/progress/points').send({ delta: 100 });
     const costumes = (await agent.get('/api/progress/costumes')).body.data;
     const target = costumes.find(c => c.id === 2);     // Baju Melayu, 50 pts
     const before = (await getMe()).points;
@@ -201,7 +205,7 @@ describe('FR6 — Costume shop', () => {
   test('a user without enough points cannot unlock', async () => {
     const poor = request.agent(app);
     await poor.post('/api/auth/register').send({
-      display_name: POOR_NAME, grade_group: '3-4', password: 'pass123',
+      display_name: POOR_NAME, grade_group: '4-6', password: 'pass123',
       icon_key_1: 1, icon_key_2: 2,
     });
     poorUserId = (await poor.get('/api/auth/me')).body.user.id;

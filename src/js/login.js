@@ -1,12 +1,11 @@
-// js/login.js — standalone Log In screen (grade-based + teacher).
+// js/login.js — standalone grade-based student Log In screen.
 //
-// Posts to the same backend routes the home modal uses:
-//   POST /api/auth/login          (student: display_name + grade_group + password)
-//   POST /api/auth/teacher-login  (teacher: email + password)
+// Posts to the same backend route the home modal uses:
+//   POST /api/auth/login   (student: display_name + grade_group + password)
 // A successful login sets an httpOnly session cookie server-side; we mirror a
 // lightweight session into localStorage so the rest of the MPA (which gates on
-// Storage.getSession()) keeps working. Sign Up lives on signup.html; password
-// recovery on recover.html.
+// Storage.getSession()) keeps working, then lands on the dashboard (home) page.
+// Sign Up lives on signup.html; password recovery on recover.html.
 
 import Storage from './utils/storage.js';
 import { showError as popup } from './components/popup.js';
@@ -15,19 +14,11 @@ import { hydrateFromBackend } from './utils/sync.js';
 let loginGrade = null;   // selected grade group on the student login form
 
 // ── DOM ────────────────────────────────────────────────────────────────────
-const viewStudent = document.getElementById('view-student');
-const viewTeacher = document.getElementById('view-teacher');
-
 const nameInput   = document.getElementById('login-name');
 const gradeWrap   = document.getElementById('login-grade');
 const pwInput     = document.getElementById('login-password');
 const loginError  = document.getElementById('login-error');
 const formLogin   = document.getElementById('form-login');
-
-const teacherEmail = document.getElementById('teacher-email');
-const teacherPass  = document.getElementById('teacher-pass');
-const teacherError = document.getElementById('teacher-error');
-const formTeacher  = document.getElementById('form-teacher');
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 // Errors are shown as a friendly popup (the inline element is kept hidden for
@@ -35,7 +26,7 @@ const formTeacher  = document.getElementById('form-teacher');
 function showError(_el, msg) { popup(msg); }
 function clearError(el)      { el?.classList.add('hidden'); }
 
-function enterGame() { window.location.href = 'map.html'; }
+function enterGame() { window.location.href = 'dashboard.html'; }
 
 // ── Grade selector ───────────────────────────────────────────────────────────
 gradeWrap.querySelectorAll('.grade-btn').forEach(btn => {
@@ -72,24 +63,54 @@ formLogin.addEventListener('submit', async e => {
       return showError(loginError, '❌ ' + (data.error || 'Login failed. Try again.'));
     }
 
-    // Preserve a previously-picked avatar/points if this browser has one.
+    // Establish the session first so per-account storage resolves to this
+    // account's namespace (display name + grade).
     const prev = Storage.getSession();
     Storage.setSession({
       type:        'registered',
       displayName: name,
       grade_group: loginGrade,
-      avatarId:    prev?.avatarId ?? 0,
-      points:      prev?.points   ?? 0,
+      avatarId:    0,
+      points:      prev?.points ?? 0,
     });
 
     // Pull this account's saved progress (stamps/completed states/points) from
     // the backend so it restores even on a new device. Best-effort.
     await hydrateFromBackend();
+
+    // Restore the avatar this account last equipped. It is saved per-account, so
+    // it survives logout (which wipes the global session) — without this the
+    // avatar would reset to Lion (index 0) on every login.
+    const savedAvatar = Storage.getCurrentAvatar();
+    if (savedAvatar != null) {
+      const s = Storage.getSession();
+      s.avatarId = savedAvatar;
+      Storage.setSession(s);
+    }
     enterGame();
   } catch {
     showError(loginError, '❌ Could not reach the server. Is it running (npm start)?');
   }
 });
+
+// ── Show/hide password (image icon toggle) ───────────────────────────────────
+const PW_ICON_SHOW = '../assets/images/ui/show_password.png';
+const PW_ICON_HIDE = '../assets/images/ui/hide_password.png';
+function wirePwToggle(btnId, inputId) {
+  const btn   = document.getElementById(btnId);
+  const input = document.getElementById(inputId);
+  const icon  = btn?.querySelector('.auth-pw-icon');
+  if (!btn || !input || !icon) return;
+  btn.addEventListener('click', () => {
+    const reveal = input.type === 'password';   // true = about to reveal the password
+    input.type = reveal ? 'text' : 'password';
+    icon.src = reveal ? PW_ICON_HIDE : PW_ICON_SHOW;
+    btn.setAttribute('aria-label', reveal ? 'Hide password' : 'Show password');
+    btn.setAttribute('aria-pressed', String(reveal));
+    input.focus();
+  });
+}
+wirePwToggle('toggle-login-pw', 'login-password');
 
 // ── Forgot password → standalone recover screen ──────────────────────────────
 document.getElementById('link-forgot')?.addEventListener('click', () => {
@@ -103,48 +124,3 @@ document.getElementById('btn-guest')?.addEventListener('click', () => {
   enterGame();
 });
 
-// ── Teacher view toggle ──────────────────────────────────────────────────────
-document.getElementById('link-teacher')?.addEventListener('click', () => {
-  viewStudent.classList.add('hidden');
-  viewTeacher.classList.remove('hidden');
-});
-document.getElementById('link-back-student')?.addEventListener('click', () => {
-  viewTeacher.classList.add('hidden');
-  viewStudent.classList.remove('hidden');
-});
-
-// Deep-link: login.html?mode=teacher opens the teacher form directly.
-if (new URLSearchParams(location.search).get('mode') === 'teacher') {
-  viewStudent.classList.add('hidden');
-  viewTeacher.classList.remove('hidden');
-}
-
-// ── Teacher login ────────────────────────────────────────────────────────────
-formTeacher.addEventListener('submit', async e => {
-  e.preventDefault();
-  clearError(teacherError);
-
-  const email = teacherEmail.value.trim();
-  const pass  = teacherPass.value;
-
-  if (!email || !pass) return showError(teacherError, '❌ Please enter your email and password.');
-
-  try {
-    const res = await fetch('/api/auth/teacher-login', {
-      method:      'POST',
-      headers:     { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ email, password: pass }),
-    });
-    const data = await res.json().catch(() => ({}));
-
-    if (!res.ok || !data.ok) {
-      return showError(teacherError, '❌ ' + (data.error || 'Email or password is incorrect.'));
-    }
-
-    Storage.setSession({ type: 'teacher', displayName: email, avatarId: null, points: 0 });
-    window.location.href = 'teacher.html';
-  } catch {
-    showError(teacherError, '❌ Could not reach the server. Is it running (npm start)?');
-  }
-});

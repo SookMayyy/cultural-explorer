@@ -3,15 +3,27 @@
 import Storage from './utils/storage.js';
 import { avatarStackHTML } from './utils/avatarDisplay.js';
 
+// ── Profile colour ────────────────────────────────────────────────────────────
+// Publish the player's chosen profile background colour as a CSS variable so any
+// surface can theme itself with var(--profile-color). Called by renderTopbar
+// (covers every page with a topbar) and directly by the avatar screen.
+export function applyProfileColor() {
+  const c = Storage.getProfileColor();
+  document.documentElement.style.setProperty('--profile-color', c);
+  return c;
+}
+
 // ── Topbar ──────────────────────────────────────────────────────────────────
+// No bar container: the topbar is a transparent strip that shows only the back
+// button (when relevant, left) and the points + profile avatar (right). The
+// title / colour params are kept for backward-compatibility but no longer drawn.
 export function renderTopbar({
-  title      = 'Cultural Explorer MY',
   showBack   = false,
   backHref   = 'map.html',
-  showPoints = false,
-  showAvatar = false,
-  color      = null,
+  title      = '',
 } = {}) {
+  applyProfileColor();
+
   const el = document.getElementById('topbar');
   if (!el) return;
 
@@ -19,18 +31,24 @@ export function renderTopbar({
   const points  = Storage.getPoints();
   const avatar  = avatarStackHTML(session.avatarId ?? 0);
 
-  el.style.background = color || '';
+  // Escape the title (page-provided, may contain a state name) before injecting.
+  const safeTitle = String(title).replace(/[&<>"]/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+
+  // Force transparent so no page's colour paints a bar behind points/profile.
+  el.style.setProperty('background', 'transparent', 'important');
+  el.style.setProperty('box-shadow', 'none', 'important');
   el.innerHTML = `
     <div class="topbar-left">
       ${showBack ? `<a class="topbar-back" href="${backHref}" aria-label="Back"><img src="../assets/images/ui/back-button.png" alt=""></a>` : ''}
-      <span class="topbar-title">${title}</span>
+      ${safeTitle ? `<span class="topbar-title">${safeTitle}</span>` : ''}
     </div>
     <div class="topbar-right">
-      ${showPoints ? `<div class="topbar-points"><span class="topbar-points-star">⭐</span><span class="topbar-points-val">${points}</span></div>` : ''}
-      ${showAvatar ? `<a class="topbar-avatar" href="dashboard.html">${avatar}</a>` : ''}
+      <div class="topbar-points"><span class="topbar-points-star">⭐</span><span class="topbar-points-val">${points}</span></div>
+      <a class="topbar-avatar" href="dashboard.html" aria-label="Profile">${avatar}</a>
     </div>
   `;
-  if (showPoints) bindPointsSync();
+  bindPointsSync();
 }
 
 // Keep the topbar ⭐ badge in sync with Storage in real time. A single window
@@ -70,9 +88,12 @@ export function updateTopbarPoints() {
 const NAV_ITEMS = [
   { id: 'home',      href: 'dashboard.html', img: '../assets/images/ui/home-icon.png',    label: 'Home'    },
   { id: 'map',       href: 'map.html',       img: '../assets/images/ui/my-map-icon.png',  label: 'Map'     },
-  { id: 'stampbook', href: 'stampbook.html', img: '../assets/images/ui/stamp-icon.png',   label: 'Stamps'  },
-  { id: 'quiz',      href: 'quiz.html',      img: '../assets/images/ui/quiz-icon.png',    label: 'Quiz'    },
-  { id: 'settings',  href: 'settings.html',  img: '../assets/images/ui/setting-icon.png', label: 'Me'      },
+  { id: 'stampbook',  href: 'stampbook.html',  img: '../assets/images/ui/stamp-icon.png',   label: 'Stamps' },
+  // Activities Hub — replaces the old single "Quiz" tab. Leads to the grid of
+  // replayable mini-games for the current state (quiz-icon.png reused as a
+  // placeholder until a dedicated activities icon is exported).
+  { id: 'activities', href: 'activities.html', img: '../assets/images/ui/quiz-icon.png',    label: 'Activities' },
+  { id: 'settings',   href: 'settings.html',   img: '../assets/images/ui/setting-icon.png', label: 'Me'     },
 ];
 
 export function renderNavbar(activeId = '') {

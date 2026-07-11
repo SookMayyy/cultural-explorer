@@ -20,6 +20,11 @@ const pool = new Pool({
   // Supabase requires TLS; the pooler cert isn't in the local trust store,
   // so we don't verify the chain (fine for a dev/FYP connection).
   ssl: { rejectUnauthorized: false },
+  // Fail fast when the DB is unreachable or the Supabase project is paused,
+  // instead of hanging the request forever (which makes the frontend button
+  // look dead). The route then returns a 500 and the auth screens show their
+  // "Could not reach the server" popup.
+  connectionTimeoutMillis: 8000,
 });
 
 // mysql2-compatible execute(): `?` → `$n`, returns [rows, fields].

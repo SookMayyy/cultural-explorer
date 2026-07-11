@@ -7,7 +7,10 @@ import Storage from './utils/storage.js';
 import { renderTopbar, renderNavbar, requireAuth, getStateParam, flyPoints } from './ui.js';
 import { getState } from './data/states.js';
 import { scrambleWordsFor } from './data/scramble.js';
+import { costumeWordsFor } from './data/costumeMissions.js';
+import { paramsFor } from './data/difficulty.js';
 import { showPopup } from './components/popup.js';
+import { initHowToPlay } from './components/howToPlay.js';
 import Sound from './utils/sound.js';
 
 requireAuth();
@@ -25,21 +28,53 @@ if (!state) {
   throw new Error('State not found: ' + stateId);
 }
 
+// ── Launch context ────────────────────────────────────────────────────────────
+// From the Activities Hub (replay) the back button + finish CTA return to the
+// hub; from a Mission (Help the Dancer) they return to the Mission Hub and mark
+// the mission done; in the linear journey they go back to narrative / on to
+// Drag-Match.
+const _params = new URLSearchParams(location.search);
+const fromActivities = _params.get('from') === 'activities';
+const fromMission    = _params.get('from') === 'mission';
+const missionId      = _params.get('mission');
+const activitiesHref   = `activities.html?state=${stateId}`;
+const missionsHref     = `missions.html?state=${stateId}`;
+// Finishing a mission returns into the Mission Flow's Reward stage.
+const missionsDoneHref = `mission.html?state=${stateId}&mission=${missionId}&stage=reward`;
+const nextHref = fromMission ? missionsDoneHref
+              : fromActivities ? activitiesHref
+              : `activity.html?state=${stateId}`;
+
 // ── Chrome ──────────────────────────────────────────────────────────────────
 renderTopbar({
-  title:      state.name + ' — Word Scramble',
+  title:      'Word Scramble',
   showBack:   true,
-  backHref:   `narrative.html?state=${stateId}`,
+  backHref:   fromMission ? missionsHref : fromActivities ? activitiesHref : `narrative.html?state=${stateId}`,
   showPoints: true,
   color:      null,
 });
-renderNavbar('');
+renderNavbar('activities');
 
-// Next game in the journey carries the state param forward.
-document.getElementById('scr-next').href = `activity.html?state=${stateId}`;
+// Finish button: back to the hub/mission when replaying, else forward to Drag-Match.
+const scrNext = document.getElementById('scr-next');
+scrNext.href = nextHref;
+if (fromMission)         scrNext.textContent = '✅ Mission Complete!';
+else if (fromActivities) scrNext.textContent = '🎮 Back to Activities';
 
 // ── Data ──────────────────────────────────────────────────────────────────────
-const words = scrambleWordsFor(state);
+// Difficulty tunes the set size: Explorer plays only the shortest couple of
+// words, Adventurer plays them all. Both levels can tap letters OR type them.
+const scrParams = paramsFor('scramble');
+// The Dancer mission teaches costume: reuse the exact garment names the mission
+// spotlight just taught (Discover → Play), so unscrambling reinforces real
+// vocabulary. Everywhere else, derive words from the state's own card data.
+const costumeWords = (fromMission && missionId === 'dancer') ? costumeWordsFor(stateId) : [];
+let words = costumeWords.length ? costumeWords : scrambleWordsFor(state);
+if (scrParams.count !== 'all') {
+  words = [...words]
+    .sort((a, b) => a.answer.length - b.answer.length)
+    .slice(0, scrParams.count);
+}
 const POINTS_PER_WORD = 10;
 const HINT_COST = 5;
 
@@ -62,9 +97,9 @@ let placed   = [];     // tile indices placed into slots, in order
 let locked   = false;  // true briefly after a correct answer
 let hintUsed = false;  // one paid hint per word
 
-// If a state yields no words, skip straight to the next game.
+// If a state yields no words, skip straight to the next destination.
 if (!words.length) {
-  window.location.href = `activity.html?state=${stateId}`;
+  window.location.href = nextHref;
 }
 
 // ── Shuffle helper (avoids returning the solved order for len > 1) ─────────────
@@ -124,10 +159,15 @@ function placeTile(tile) {
   if (placed.length === words[wordIdx].answer.length) check();
 }
 
-// Remove the most recently placed letter (used by Backspace).
-function removeLast() {
-  if (locked || !placed.length) return;
-  const tileIdx = placed.pop();
+// Remove one specific placed letter, returning its tile to the tray. Used both
+// by tapping a placed (greyed) tile and — for the last letter — by Backspace.
+// The freed slot becomes the next slot placeTile() fills, so removing a letter
+// in the middle and retyping just drops back into the same gap.
+function removeTile(tileIdx) {
+  if (locked) return;
+  const pos = placed.indexOf(tileIdx);
+  if (pos === -1) return;
+  placed.splice(pos, 1);
   const slot = slotsEl.querySelector(`.scr-slot[data-tile="${tileIdx}"]`);
   if (slot) {
     slot.textContent = '';
@@ -138,13 +178,24 @@ function removeLast() {
   feedbackEl.innerHTML = '&nbsp;';
 }
 
-// Tap a tile to place it.
+// Remove the most recently placed letter (used by Backspace).
+function removeLast() {
+  if (locked || !placed.length) return;
+  removeTile(placed[placed.length - 1]);
+}
+
+// Tap a tile: an unused tile drops into the next slot; a placed (greyed) tile
+// pops back out — so tapping is both "place" and "un-place".
 tilesEl.addEventListener('click', e => {
-  placeTile(e.target.closest('.scr-tile'));
+  const tile = e.target.closest('.scr-tile');
+  if (!tile) return;
+  if (tile.classList.contains('used')) removeTile(tile.dataset.tile);
+  else placeTile(tile);
 });
 
 // Type on the keyboard: a letter fills the next slot using a matching unused
-// tile; Backspace removes the last placed letter. Case-insensitive match.
+// tile; Backspace removes the last placed letter. Both input methods (tap +
+// type) are always available. Case-insensitive match.
 document.addEventListener('keydown', e => {
   if (locked) return;
   if (e.key === 'Backspace') { e.preventDefault(); removeLast(); return; }
@@ -210,7 +261,9 @@ function check() {
     Sound.correct();
     slotsEl.querySelectorAll('.scr-slot').forEach(s => s.classList.add('correct', 'burst'));
     earned += POINTS_PER_WORD;
-    Storage.addPoints(POINTS_PER_WORD);
+    // In the mission flow the flat +25 mission bonus is the only reward, so the
+    // per-word points are NOT persisted (keeps a state worth exactly 100).
+    if (!fromMission) Storage.addPoints(POINTS_PER_WORD);
     scoreEl.textContent  = `${earned} pts`;
     flyPoints(scoreEl, POINTS_PER_WORD);       // "+N" floats up from the score
     feedbackEl.textContent = `✅ Correct! +${POINTS_PER_WORD} pts`;
@@ -239,3 +292,9 @@ function finish() {
 
 // ── Kick off ────────────────────────────────────────────────────────────────────
 if (words.length) loadWord(0);
+
+// ── Kid-friendly "How to Play" (first visit + a "?" button to re-open) ────────
+initHowToPlay('scramble', {
+  title: 'Word Scramble!', emoji: '🔤',
+  lines: ['🔀 The letters are all mixed up.', '👆 Tap them in the right order.', '📝 Spell the word to win!'],
+});

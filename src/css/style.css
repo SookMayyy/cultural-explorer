@@ -5,6 +5,10 @@
 
 /* ─── CSS Custom Properties ─── */
 :root {
+  /* Player-chosen profile background colour (default purple). Set at runtime by
+     applyProfileColor() in ui.js; themes topbars, bottom nav, and the profile. */
+  --profile-color: #6a32c9;
+
   /* ── Brand / Malaysia flag colors ── */
   --clr-red:    #CC2936;   /* Malaysia flag red — slightly warmer than pure #C0392B */
   --clr-yellow: #FCD116;   /* Malaysia flag yellow */
@@ -42,7 +46,15 @@
   --clr-text-muted: #7A6856;   /* Warm muted brown */
   --clr-grey:       #A89880;   /* Warm grey */
   --clr-grey-light: #F5EFE4;   /* Warm light grey */
-  --clr-margin-bg:  #f0eafc;   /* Warm parchment — visible on large screens */
+  --clr-margin-bg:  ;   /* Warm parchment — visible on large screens */
+
+  /* ── Drag-Match mini-game colour tokens ──
+     Kept separate so other screens can import them without coupling. */
+  --clr-dm-zone:        #27AE60;   /* Vivid jungle green for the drop zones */
+  --clr-dm-zone-deep:   #1E8449;   /* Darker edge used for zone press-shadow */
+  --clr-dm-play-bg:     #D6E8F5;   /* Soft blue-grey play-card background */
+  --clr-dm-play-border: #8AABCC;   /* Border ring on the play card */
+  --clr-dm-ink:         #1A1A1A;   /* Near-black ink for pill borders / badges */
 
   /* ── Typography ── */
   --font-display: 'Fredoka One', 'Baloo 2', cursive;
@@ -87,7 +99,7 @@
   --game-w:          1227px;
   --game-h:          650px;
   --game-max-w:      1227px;
-  --topbar-h:        56px;
+  --topbar-h:        20px;
   --navbar-h:        64px;
   --screen-side-gap: 20px;
 }
@@ -109,7 +121,13 @@ body {
   font-family: var(--font-body);
   font-size: var(--text-base);
   color: var(--clr-text);
-  background: var(--clr-margin-bg);
+  /* Full-screen background hook: a page/screen may set `--screen-bg` (an image or
+     gradient) on :root — it then fills BOTH the body (the letterbox margins on
+     wide screens) AND the .app-container (the frame), so the image covers the
+     ENTIRE viewport and the cream base colour never shows. Falls back to the
+     cream margin colour when unset. Use `... fixed` in the value so the body and
+     the frame line up seamlessly (same viewport-anchored image). */
+  background: var(--screen-bg, var(--clr-margin-bg));
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   margin: 0;
@@ -149,34 +167,38 @@ body {
 }
 
 .topbar {
-  position: relative;
+  /* No bar strip: float the back button + points + profile over the screen. */
+  position: absolute;
+  margin-top: 20px;
+  left: 0;
+  right: 0;
   z-index: 100;
-  width: 100%;
-  max-width: 100%;
-  flex-shrink: 0;
   height: var(--topbar-h);
-  background: var(--clr-red);
+  background: transparent;
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 var(--sp-md);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  box-shadow: none;
+  pointer-events: none;          /* let taps pass through the empty strip … */
 }
+.topbar-left,
+.topbar-right { pointer-events: auto; }   /* … but keep the controls tappable */
 
 .topbar-left {
   display: flex;
   align-items: center;
   gap: var(--sp-sm);
+  min-width: 0;   /* let the title truncate instead of pushing the points off-screen */
 }
 
 .topbar-back {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   background: transparent;
   color: #fff;
@@ -186,8 +208,8 @@ body {
 }
 
 .topbar-back img {
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   object-fit: contain;
   display: block;
 }
@@ -199,8 +221,16 @@ body {
 .topbar-title {
   font-family: var(--font-display);
   font-size: var(--text-lg);
-  color: #fff;
+  /* Dark text: the top bar is a transparent strip over (mostly light) page
+     content, so white was invisible. A soft white halo keeps it legible where
+     it floats over a photo/scrim. */
+  color: var(--clr-text, #2b2b2b);
   letter-spacing: 0.5px;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .topbar-right {
@@ -213,13 +243,15 @@ body {
   display: flex;
   align-items: center;
   gap: 5px;
-  background: rgba(0, 0, 0, 0.18);
-  border: 1.5px solid rgba(255, 255, 255, 0.28);
+  /* Solid purple pill so the points stay visible on any (incl. dark) background. */
+  background: var(--profile-color, #6a32c9);
+  border: 1.5px solid rgba(255, 255, 255, 0.55);
   border-radius: var(--r-pill);
-  padding: 4px 13px;
+  padding: 7px 22px;
   font-family: var(--font-display);
-  font-size: var(--text-sm);
-  color: var(--clr-yellow);
+  font-size: var(--text-xs);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
   transition: color 0.2s ease;
 }
 .topbar-points-star { font-size: 0.95em; line-height: 1; }
@@ -238,11 +270,11 @@ body {
 }
 
 .topbar-avatar {
-  width: 34px;
-  height: 34px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
-  background: var(--clr-yellow);
-  color: var(--clr-text);
+  background: var(--profile-color, #6a32c9);   /* profile background colour */
+  color: #fff;
   font-size: var(--text-md);
   display: flex;
   align-items: center;
@@ -264,6 +296,29 @@ body {
   line-height: 1;
 }
 .avatar-stack-base { line-height: 1; }
+/* The base illustration scales with the container's font-size by default. */
+.avatar-stack-base .img-slot { width: 1em; height: 1em; }
+
+/* Round avatar badges (topbar, dashboard, settings profile): the illustration
+   fills the circle. */
+.topbar-avatar,
+.dashboard-avatar,
+.profile-avatar { overflow: hidden; }
+.topbar-avatar .avatar-stack,
+.dashboard-avatar .avatar-stack,
+.profile-avatar .avatar-stack,
+.topbar-avatar .avatar-stack-base,
+.dashboard-avatar .avatar-stack-base,
+.profile-avatar .avatar-stack-base {
+  width: 100%;
+  height: 100%;
+}
+.topbar-avatar .avatar-stack-base .img-slot,
+.dashboard-avatar .avatar-stack-base .img-slot,
+.profile-avatar .avatar-stack-base .img-slot {
+  width: 100%;
+  height: 100%;
+}
 .avatar-stack-costume {
   position: absolute;
   right: -0.18em;
@@ -365,7 +420,9 @@ body {
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  background: var(--clr-bg);
+  /* Mirrors the body: when a screen sets --screen-bg the frame shows the same
+     image; otherwise it stays the warm cream base. */
+  background: var(--screen-bg, var(--clr-bg));
 }
 
 /* The center <main> is the only scrolling region, so the sticky topbar and the
@@ -430,9 +487,10 @@ body {
   padding: 7px 10px;
   /* keep clear of the iOS home indicator while staying var(--navbar-h) tall */
   padding-bottom: max(7px, env(safe-area-inset-bottom));
-  background: #6b50ce;
+  /* Wooden plank nav bar. */
+  background: url('../assets/images/ui/bottom_navi_bar.png');
   border-top: none;
-  box-shadow: 0 -3px 14px rgba(107, 80, 206, 0.28);
+  box-shadow: 0 -3px 14px rgba(0, 0, 0, 0.25);
 }
 
 .bottom-nav a {
@@ -444,7 +502,8 @@ body {
   justify-content: center;       /* centre icon+label inside the inset pill */
   gap: 2px;
   text-decoration: none;
-  color: rgba(255, 255, 255, 0.85);
+  color: #fff;                   /* white — readable on the dark wooden bar */
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
   font-family: 'Fredoka One', cursive;
   font-size: 12px;
   padding: 2px 4px;
@@ -1011,4 +1070,96 @@ input {
 .modal-input:focus {
   border-color: #6b50ce;
   box-shadow: 0 0 0 3px rgba(107, 80, 206, 0.15);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Difficulty chip — shared selector on the Missions & Activities hubs
+   (built by js/components/difficultyChip.js). Grade 1–2 get the locked badge;
+   older grades get the Explorer/Adventurer segmented toggle.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.mi-difficulty,
+.act-difficulty {
+  display: flex;
+  justify-content: center;
+  margin: 4px 0 14px;
+}
+
+.diff-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.diff-chip-label {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--clr-text-muted);
+}
+
+/* Segmented pill: an inset track with pill buttons that "fill" when active. */
+.diff-seg {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--clr-grey-light);
+  border-radius: 999px;
+  box-shadow: inset 0 1px 3px rgba(44, 24, 16, 0.10);
+}
+
+.diff-opt {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 6px 16px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--clr-text-muted);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease, transform 0.12s ease;
+}
+
+.diff-opt:hover { color: var(--clr-text); }
+.diff-opt:active { transform: scale(0.96); }
+
+.diff-opt.is-active {
+  background: var(--clr-purple);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(107, 80, 206, 0.35);
+}
+
+.diff-opt-emoji { font-size: 1.05rem; line-height: 1; }
+
+.diff-hint {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--clr-text-muted);
+}
+
+/* Locked (Grade 1–2): a friendly, non-interactive green badge. */
+.diff-chip--locked { flex-direction: row; gap: 10px; }
+
+.diff-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border-radius: 999px;
+  background: rgba(42, 157, 92, 0.12);
+  color: var(--clr-green);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .diff-opt { transition: none; }
 }

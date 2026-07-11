@@ -32,7 +32,7 @@ const path = require('node:path');
 const { pathToFileURL }  = require('node:url');
 const { execFileSync }   = require('node:child_process');
 
-const STATE_IDS = ['penang', 'melaka', 'selangor', 'johor', 'kelantan', 'sabah', 'sarawak'];
+const STATE_IDS = ['penang', 'selangor', 'kelantan', 'kedah', 'sabah', 'sarawak'];
 
 let STATES_DATA, QUIZ_QUESTIONS, GUESS_ROUNDS;
 
@@ -115,20 +115,29 @@ describe('FR3 — Drag-Match pairs (states.js dragPairs)', () => {
     }
   });
 
+  // Pairs come in two schemas (dragMatch.js supports both): the legacy
+  // emoji chip { food, state }, and the photo chip { image, icon, label,
+  // match } added for the food/costume/landmark/festival cards (Task 9).
+  // Whichever schema a pair uses, it must still resolve to a non-empty chip
+  // label and a non-empty drop-zone label.
   test('each pair has a non-empty chip + drop-zone label', () => {
     for (const s of STATES_DATA) {
       for (const p of s.dragPairs) {
-        expect(typeof p.food).toBe('string');
-        expect(p.food.length).toBeGreaterThan(0);
-        expect(typeof p.state).toBe('string');
-        expect(p.state.length).toBeGreaterThan(0);
+        const chipLabel = p.image ? p.label : p.food;
+        const zoneLabel = p.image ? p.match : p.state;
+        expect(typeof chipLabel).toBe('string');
+        expect(chipLabel.length).toBeGreaterThan(0);
+        expect(typeof zoneLabel).toBe('string');
+        expect(zoneLabel.length).toBeGreaterThan(0);
+        // Photo chips also carry a real image path.
+        if (p.image) expect(p.image.length).toBeGreaterThan(0);
       }
     }
   });
 
   test('drop-zone labels within a state are distinct (matching stays unambiguous)', () => {
     for (const s of STATES_DATA) {
-      const labels = s.dragPairs.map(p => p.state);
+      const labels = s.dragPairs.map(p => p.image ? p.match : p.state);
       expect(new Set(labels).size).toBe(labels.length);
     }
   });

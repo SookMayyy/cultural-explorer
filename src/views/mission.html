@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Mission — Cultural Explorer MY</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Fredoka+One&family=Ribeye&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/mission.css">
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- Topbar — rendered by mission.js. .mission-topbar forces purple. -->
+    <header id="topbar" class="topbar mission-topbar"></header>
+
+    <main class="mn-main" id="mn-main">
+
+      <!-- Stage badge: "MISSION 1: HELP THE CHEF (FOOD)" -->
+      <div class="mn-badge" id="mn-badge">MISSION</div>
+
+      <!-- ══ STAGE 0 · DISCOVER SPOTLIGHT (signature "learn before you play") ═
+           One big image, dimmed except a glowing hotspot. Tap 3 spots — each
+           speaks one short line + shows a caption — then Continue → the game. -->
+      <section class="mn-card mn-spot hidden" id="stage-spotlight">
+        <h1 class="mn-spot-title" id="mn-spot-title">Tap the glowing spot!</h1>
+
+        <div class="mn-spot-stage" id="mn-spot-stage">
+          <img class="mn-spot-img-bg" id="mn-spot-img-bg" alt="" aria-hidden="true">
+          <img class="mn-spot-img" id="mn-spot-img" alt="">
+          <div class="mn-spot-dim" id="mn-spot-dim"></div>
+          <div class="mn-spot-hotspots" id="mn-spot-hotspots"></div>
+        </div>
+
+        <div class="mn-spot-progress" id="mn-spot-progress" aria-hidden="true"></div>
+
+        <p class="mn-spot-caption" id="mn-spot-caption">Tap the glowing spot to discover!</p>
+
+        <div class="mn-spot-actions">
+          <button class="mn-btn mn-btn-ghost" id="mn-spot-listen" type="button">🔊 Listen</button>
+          <button class="mn-btn mn-btn-primary" id="mn-spot-continue" type="button" disabled>
+            Continue →
+          </button>
+        </div>
+      </section>
+
+      <!-- ══ STAGE 0B · SPOTLIGHT TOUR (guided landmark tour) ══════════════
+           A run of photo cards. Each speaks its lines + shows a fun activity;
+           Next → the next spot, and the last card → the mini-game. -->
+      <section class="mn-card mn-tour hidden" id="stage-tour">
+        <!-- Full-screen landmark photo as the backdrop -->
+        <img class="mn-tour-img" id="mn-tour-img" alt="">
+
+        <!-- Landmark name overlaid across the top of the photo -->
+        <h1 class="mn-tour-title" id="mn-tour-title">
+          <span class="mn-tour-emoji" id="mn-tour-emoji" aria-hidden="true">🏝️</span>
+          <span id="mn-tour-name">…</span>
+        </h1>
+
+        <!-- Description + controls sit on a scrim panel at the bottom -->
+        <div class="mn-tour-panel">
+          <div class="mn-tour-progress" id="mn-tour-progress" aria-hidden="true"></div>
+          <p class="mn-tour-vo" id="mn-tour-vo">…</p>
+          <div class="mn-tour-actions">
+            <button class="mn-btn mn-btn-ghost" id="mn-tour-listen" type="button">🔊 Listen</button>
+            <button class="mn-btn mn-btn-primary" id="mn-tour-next" type="button">Next →</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ STAGE 1 · DISCOVER ════════════════════════════════════════════ -->
+      <section class="mn-card mn-discover" id="stage-discover">
+        <h1 class="mn-discover-title" id="mn-discover-title">This is …!</h1>
+        <p class="mn-discover-sub" id="mn-discover-sub">Tap the cards to learn more.</p>
+
+        <div class="mn-hero">
+          <span class="mn-hero-emoji" id="mn-hero-emoji" aria-hidden="true">🍜</span>
+          <div class="mn-hero-mascot">
+            <span class="mn-hero-mascot-fig" id="mn-hero-mascot-fig" aria-hidden="true">🐯</span>
+          </div>
+        </div>
+
+        <!-- Tappable culture cards → open the Learn carousel -->
+        <div class="mn-items" id="mn-items" aria-label="Things to learn"></div>
+
+        <button class="mn-btn mn-btn-primary" id="mn-discover-next" type="button">
+          Let's Go! →
+        </button>
+      </section>
+
+      <!-- ══ STAGE 1A · LEARN (carousel) ═══════════════════════════════════ -->
+      <section class="mn-card mn-learn hidden" id="stage-learn">
+        <button class="mn-learn-arrow mn-learn-prev" id="mn-learn-prev" type="button" aria-label="Previous">‹</button>
+
+        <div class="mn-learn-body">
+          <h2 class="mn-learn-title" id="mn-learn-title">FISH</h2>
+          <span class="mn-learn-emoji" id="mn-learn-emoji" aria-hidden="true">🐟</span>
+          <p class="mn-learn-blurb" id="mn-learn-blurb">…</p>
+        </div>
+
+        <button class="mn-learn-arrow mn-learn-next" id="mn-learn-next" type="button" aria-label="Next">›</button>
+
+        <div class="mn-dots" id="mn-dots" aria-hidden="true"></div>
+
+        <button class="mn-btn mn-btn-primary" id="mn-learn-play" type="button">
+          🍳 Start the Game!
+        </button>
+        <button class="mn-btn mn-btn-ghost" id="mn-learn-back" type="button">← Back</button>
+      </section>
+
+      <!-- ══ STAGE 2 · MINI-GAME · COOK THE DISH (inline, food missions) ═══ -->
+      <section class="mn-card mn-cook hidden" id="stage-cook">
+        <!-- Chef mascot intro -->
+        <div class="mn-cook-intro">
+          <span class="mn-cook-mascot" id="mn-cook-mascot" aria-hidden="true">🐯</span>
+          <p class="mn-cook-prompt" id="mn-cook-prompt">Drag the correct ingredients into the pot!</p>
+        </div>
+
+        <!-- The pot (drop target) -->
+        <div class="mn-cook-pot" id="mn-cook-pot">
+          <span class="mn-cook-pot-emoji" id="mn-cook-pot-emoji" aria-hidden="true">🍲</span>
+          <span class="mn-cook-count" id="mn-cook-count">0 / 5</span>
+        </div>
+
+        <p class="mn-cook-feedback" id="mn-cook-feedback">&nbsp;</p>
+
+        <!-- Ingredient tray (correct + distractors, shuffled) -->
+        <div class="mn-cook-tray" id="mn-cook-tray" aria-label="Ingredients"></div>
+      </section>
+
+      <!-- ══ STAGE 3 · REWARD + MISSION COMPLETE (merged celebration) ═══════
+           Previously two separate stages needing two taps (Reward → Continue
+           → Complete → Back to Missions). Combined into ONE screen: what you
+           earned, how many missions are done, Rimau's thank-you, and a single
+           button back to the hub (or, the first time all 4 are done, on to
+           the Stamp Earned screen — see mission.js enterReward()). -->
+      <section class="mn-card mn-reward hidden" id="stage-reward">
+        <h1 class="mn-reward-title" id="mn-reward-title">Amazing!</h1>
+        <p class="mn-reward-line" id="mn-reward-line">You did it!</p>
+
+        <!-- Real dish/landmark photo of what was just explored (hidden when the
+             state ships no photo — no emoji fallback here). -->
+        <div class="mn-reward-photo hidden" id="mn-reward-photo"></div>
+
+        <div class="mn-reward-prize">
+          <span class="mn-reward-pts" id="mn-reward-pts">+50 ⭐</span>
+          <span class="mn-reward-congrats" id="mn-reward-congrats">Great job!</span>
+        </div>
+
+        <!-- Stamp progress: how many of this state's 4 missions are done so far. -->
+        <p class="mn-reward-progress" id="mn-reward-progress">1 of 4 missions done</p>
+
+        <a class="mn-btn mn-btn-primary" id="mn-complete-hub" href="#">Back to Missions</a>
+      </section>
+
+    </main>
+
+  </div>
+
+  <script type="module" src="../js/mission.js"></script>
+</body>
+</html>

@@ -16,8 +16,11 @@
 
   <!-- Full-screen reward — no topbar/navbar: the celebration fills the whole screen.
        Layout mirrors the Figma "Stamp Earned" frame (273:382):
-       confetti → stamp circle → headline → subline → dual-stat card → two CTAs,
-       with a mascot peeking in from the bottom-left corner. -->
+       confetti → stamp circle → headline → subline → dual-stat card → two CTAs.
+       (The corner mascot from the original frame was removed to give the
+       celebration more breathing room — see reward.css for the polish added
+       in its place: sunburst behind the stamp, sparkle burst, staggered
+       entrance.) -->
   <main class="reward-screen">
 
     <!-- Animated confetti/stars background layer -->
@@ -78,15 +81,6 @@
         </a>
       </div>
 
-    </div>
-
-    <!-- ── Corner mascot (Rimau) — cheering pose for the reward screen ── -->
-    <div class="reward-mascot" id="reward-mascot" aria-hidden="true">
-      <span class="img-slot">
-        <img class="img-slot__img" src="../assets/characters/rimau_cheer.png" alt=""
-             onload="this.closest('.img-slot').classList.add('is-loaded')">
-        <span class="img-slot__fb">&#129409;</span>
-      </span>
     </div>
 
   </main>

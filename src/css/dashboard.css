@@ -2,15 +2,16 @@
    DASHBOARD / STUDENT PROGRESS SCREEN
    ═══════════════════════════════════════════════════════ */
 
-/* Warm cream page background (matches the home.png reference) */
-.app-container { background: #FBF5EA; }
+/* Themed dashboard art fills the WHOLE screen (incl. behind the transparent
+   topbar) so the top bar shares the screen background; cream is the fallback. */
+/* Full-screen background: fills the body (letterbox margins) AND the frame. */
+:root { --screen-bg: #FBF5EA url('../assets/images/ui/home-dashboard-background.png') center top / cover no-repeat fixed; }
 
 .dashboard-screen {
   flex: 1;
   display: flex;
   flex-direction: column;
-  /* Themed dashboard art fills the content area; cream stays as the fallback. */
-  background: #FBF5EA url('../assets/images/ui/home-dashboard-background.png') center top / cover no-repeat;
+  background: transparent;
 }
 
 /* ── Hero header ── */

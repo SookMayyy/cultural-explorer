@@ -9,7 +9,11 @@
 /* ════════════ Showcase ════════════ */
 .av-showcase {
   position: relative;
-  background: radial-gradient(120% 100% at 50% 0%, #8a4ff0 0%, #6a32c9 60%, #561fb0 100%);
+  /* Themed by the player's chosen profile colour (default purple). */
+  background: radial-gradient(120% 100% at 50% 0%,
+    color-mix(in srgb, var(--profile-color, #6a32c9) 82%, white) 0%,
+    var(--profile-color, #6a32c9) 58%,
+    color-mix(in srgb, var(--profile-color, #6a32c9) 72%, black) 100%);
   padding: var(--sp-md) var(--sp-lg) var(--sp-xl);
   display: flex;
   flex-direction: column;
@@ -58,6 +62,7 @@
   filter: drop-shadow(0 10px 22px rgba(0,0,0,0.35));
 }
 .av-stage-base { font-size: 104px; line-height: 1; }
+.av-stage-base .img-slot { width: 1em; height: 1em; }
 .av-stage-costume {
   position: absolute;
   right: 8px;
@@ -254,6 +259,50 @@
   top: 6px;
   right: 8px;
   font-size: 13px;
+}
+
+/* ── Locked avatar (needs buying) ── */
+.av-item.is-locked .av-item-thumb { filter: grayscale(0.55) brightness(0.85); }
+
+/* ── Section titles in the panel ── */
+.av-section-title {
+  margin: var(--sp-lg) 0 2px;
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  color: #efecf8;
+}
+.av-section-sub {
+  margin: 0 0 var(--sp-sm);
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: #8f89a8;
+}
+
+/* ── Background colour swatches ── */
+.av-colors {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 10px;
+}
+@media (max-width: 420px) { .av-colors { grid-template-columns: repeat(4, 1fr); } }
+.av-color {
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  background: var(--sw);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: transform 0.1s, border-color 0.15s, box-shadow 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.av-color:active { transform: scale(0.92); }
+.av-color.is-selected {
+  border-color: #fff;
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.35), 0 3px 10px rgba(0,0,0,0.35);
 }
 
 /* ── Bottom nav icons ── */

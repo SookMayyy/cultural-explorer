@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Missions — Cultural Explorer MY</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Fredoka+One&family=Ribeye&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/missions.css">
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- Topbar — rendered by missions.js. .missions-topbar forces purple. -->
+    <header id="topbar" class="topbar missions-topbar"></header>
+
+    <main class="mi-main has-navbar" id="mi-main">
+
+      <section class="mi-panel">
+
+        <h1 class="mi-title" id="mi-title">Explore!</h1>
+        <p class="mi-subhead">Exploration Progress</p>
+
+        <!-- Progress bar + percentage -->
+        <div class="mi-progress">
+          <div class="mi-progress-track">
+            <div class="mi-progress-fill" id="mi-progress-fill"></div>
+          </div>
+          <span class="mi-progress-pct" id="mi-progress-pct">0%</span>
+        </div>
+
+        <!-- Difficulty selector (built by missions.js via difficultyChip.js).
+             Grade 1–3 see a locked "Explorer Mode" badge; older grades get a
+             tappable Explorer/Adventurer toggle. -->
+        <div class="mi-difficulty" id="mi-difficulty"></div>
+
+        <!-- Mission list (built by missions.js) -->
+        <ul class="mi-list" id="mi-list" aria-label="Missions"></ul>
+
+        <!-- Celebration footer — shown once all missions are done -->
+        <div class="mi-done-banner hidden" id="mi-done-banner">
+          <span class="mi-done-emoji" aria-hidden="true">🎉</span>
+          <p class="mi-done-text" id="mi-done-text">You've explored it all!</p>
+          <a class="mi-done-btn" id="mi-done-btn" href="activities.html">🎮 Play the Games!</a>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- Bottom navbar — rendered by missions.js -->
+    <nav id="navbar"></nav>
+
+  </div>
+
+  <script type="module" src="../js/missions.js"></script>
+</body>
+</html>

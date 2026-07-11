@@ -2,7 +2,7 @@
 
 import Storage from './utils/storage.js';
 import { requireAuth } from './ui.js';
-import { STATES_DATA, getState, nextRecommended } from './data/states.js';
+import { STATES_DATA, getState, nextRecommended, stampImgFor } from './data/states.js';
 import { pushStateComplete } from './utils/sync.js';
 import Sound from './utils/sound.js';
 
@@ -14,7 +14,10 @@ const stateId     = params.get('state') || Storage.getCurrentState();
 const score       = parseInt(params.get('score')  || '0', 10);
 const total       = parseInt(params.get('total')  || '4', 10);
 const earned      = parseInt(params.get('earned') || '0', 10);
-const stampEarned = params.get('stamp') === '1';
+// Stamps are earned ONLY by completing all four of a state's missions, so the
+// stamp celebration here fires solely when we arrive from that mission flow
+// (from=mission). A standalone quiz/guess reaching this page shows no stamp.
+const stampEarned = params.get('stamp') === '1' && params.get('from') === 'mission';
 
 const state = getState(stateId);
 const pass  = score >= Math.ceil(total / 2);
@@ -30,8 +33,9 @@ if (stampEarned && state) {
   // Make sure this state counts toward the "x/7" tally (idempotent).
   Storage.earnStamp(stateId);
 
-  // Persist completion to the backend so the stamp + bonus survive across
-  // devices/sessions. Best-effort (no-op for guests or when offline).
+  // Persist completion to the backend so the stamp survives across
+  // devices/sessions (completion pays no points bonus — the four missions
+  // already awarded 100). Best-effort (no-op for guests or when offline).
   pushStateComplete(stateId, score);
 
   // Juice: stamp "thunk" + sparkle on earning the stamp.
@@ -45,18 +49,20 @@ if (stampEarned && state) {
   const stampEl = document.getElementById('reward-stamp');
   if (stampEl) stampEl.style.borderColor = state.color;
 
-  // Try loading the real stamp illustration; fall back to emoji.
-  // 📸 IMAGE NEEDED: assets/images/stamps/{stateId}.png
-  const img = new Image();
-  img.onload = () => {
-    if (stampEl) {
-      stampEl.innerHTML = '';
-      img.className = 'reward-stamp-img';
-      img.alt = state.name + ' stamp';
-      stampEl.appendChild(img);
-    }
-  };
-  img.src = `assets/images/stamps/${stateId}.png`;
+  // Try loading the state's real stamp illustration; fall back to emoji.
+  const stampSrc = stampImgFor(stateId);
+  if (stampSrc) {
+    const img = new Image();
+    img.onload = () => {
+      if (stampEl) {
+        stampEl.innerHTML = '';
+        img.className = 'reward-stamp-img';
+        img.alt = state.name + ' stamp';
+        stampEl.appendChild(img);
+      }
+    };
+    img.src = stampSrc;
+  }
 } else {
   // No stamp this round — show the encouraging variant.
   headline.textContent = 'Good try! 😊';
@@ -76,23 +82,33 @@ document.getElementById('reward-stamp-count').textContent  = `${Storage.stampCou
 document.getElementById('reward-stamp-count-label').textContent =
   Storage.stampCount() === 1 ? 'Stamp collected' : 'Stamps collected';
 
-// ── "Continue Exploring!" → next recommended state, else back to map ─────────────
-const next       = nextRecommended(Storage.getProgress());
-const continueBtn = document.getElementById('reward-continue');
-if (next && continueBtn) {
-  continueBtn.href = `narrative.html?state=${next.id}`;
-  continueBtn.addEventListener('click', () => Storage.setCurrentState(next.id));
-} else if (continueBtn) {
-  // Everything explored — celebrate and send back to the map.
-  continueBtn.textContent = '🏆 All states explored! →';
-  continueBtn.href = 'map.html';
-}
+// ── Action buttons ──────────────────────────────────────────────────────────────
+const continueBtn  = document.getElementById('reward-continue');
+const secondaryBtn = document.querySelector('.reward-btn-secondary');
 
-// ── Mascot celebrate animation ──────────────────────────────────────────────────
-const mascot = document.getElementById('reward-mascot');
-if (mascot) {
-  mascot.style.animation =
-    'mascot-celebrate 0.8s ease 0.4s both, mascot-float 3s 1.2s ease-in-out infinite';
+if (params.get('from') === 'mission') {
+  // Arrived from finishing all 4 missions of a state. This IS the stamp-earned
+  // moment, so the CTAs head back to the Map or into the state's Activity Hub
+  // (replay games) rather than continuing the linear quiz journey.
+  if (continueBtn) {
+    continueBtn.textContent = '🗺️ Back to Map';
+    continueBtn.href = 'map.html';
+  }
+  if (secondaryBtn) {
+    secondaryBtn.textContent = '🎮 Activity Hub';
+    secondaryBtn.href = `activities.html?state=${stateId}`;
+  }
+} else {
+  // Linear journey: "Continue Exploring!" → next recommended state, else map.
+  const next = nextRecommended(Storage.getProgress());
+  if (next && continueBtn) {
+    continueBtn.href = `narrative.html?state=${next.id}`;
+    continueBtn.addEventListener('click', () => Storage.setCurrentState(next.id));
+  } else if (continueBtn) {
+    // Everything explored — celebrate and send back to the map.
+    continueBtn.textContent = '🏆 All states explored! →';
+    continueBtn.href = 'map.html';
+  }
 }
 
 // ── Stars / confetti dots ───────────────────────────────────────────────────────
@@ -112,20 +128,48 @@ if (starsEl) {
   }
 }
 
+// A child who has asked their device to reduce motion still gets the win —
+// just without the busy falling/bursting decoration.
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 // ── Falling confetti on a pass ──────────────────────────────────────────────────
-if (pass) {
+if (pass && !reduceMotion) {
   const COLORS = ['#C0392B', '#FCD116', '#1A3A5C', '#27AE60', '#E67E22', '#8E44AD'];
-  for (let i = 0; i < 40; i++) {
+  for (let i = 0; i < 50; i++) {
     const p = document.createElement('div');
     p.className = 'confetti-piece';
+    // Mix round "dot" confetti in with the classic square flakes for variety.
+    const round = Math.random() > 0.5;
     p.style.cssText = `
       left:${Math.random() * 100}vw;top:-10px;
       background:${COLORS[Math.floor(Math.random() * COLORS.length)]};
+      border-radius:${round ? '50%' : '2px'};
       animation-duration:${2 + Math.random() * 2}s;
       animation-delay:${Math.random()}s;
       transform:rotate(${Math.random() * 360}deg);
     `;
     document.body.appendChild(p);
     setTimeout(() => p.remove(), 4200);
+  }
+}
+
+// ── Sparkle burst radiating from the stamp on reveal ─────────────────────────────
+// A quick ring of ✨ that pops outward right as the stamp lands — extra "juice"
+// for the win moment now that the corner mascot no longer fills that space.
+if (pass && !reduceMotion) {
+  const stampContainer = document.getElementById('reward-stamp-container');
+  if (stampContainer) {
+    const SPARKLES = ['✨', '⭐', '🌟'];
+    const COUNT = 10;
+    for (let i = 0; i < COUNT; i++) {
+      const s = document.createElement('span');
+      s.className = 'reward-sparkle';
+      s.textContent = SPARKLES[Math.floor(Math.random() * SPARKLES.length)];
+      const angle = (i / COUNT) * 360;
+      s.style.setProperty('--angle', `${angle}deg`);
+      s.style.animationDelay = `${0.9 + Math.random() * 0.15}s`;
+      stampContainer.appendChild(s);
+      setTimeout(() => s.remove(), 1500);
+    }
   }
 }

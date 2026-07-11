@@ -2,7 +2,7 @@
 //
 // Mirrors the icon-based recovery flow that also lives in the home login
 // modal: identify by name + grade, tap the 2 secret icons in order, then
-// (Grade 3+) set a new password. Posts to the same /api/auth/recover route.
+// (Grade 4+) set a new password. Posts to the same /api/auth/recover route.
 
 // The 12 secret icons — order matters: index+1 maps to icon_key values 1–12
 // stored at registration. Keep this in sync with ICONS in home.js.
@@ -37,8 +37,8 @@ gradeWrap.querySelectorAll('.grade-btn').forEach(btn => {
     btn.classList.add('selected');
     recoverGrade = btn.dataset.grade;
     clearError();
-    // Grade 1–2 gets an auto-generated password — no field needed.
-    const needsPw = recoverGrade !== '1-2';
+    // Grade 1–3 gets an auto-generated password — no field needed.
+    const needsPw = recoverGrade !== '1-3';
     newpwInput.classList.toggle('hidden', !needsPw);
     newpwLabel.classList.toggle('hidden', !needsPw);
   });
@@ -77,7 +77,7 @@ form.addEventListener('submit', async e => {
   if (!name)                     return showError('❌ Please enter your name.');
   if (!recoverGrade)             return showError('❌ Please choose your grade.');
   if (recoverIcons.length !== 2) return showError('❌ Tap your 2 secret icons (in order).');
-  if (recoverGrade !== '1-2' && newpw.length < 6)
+  if (recoverGrade !== '1-3' && newpw.length < 6)
     return showError('❌ New password must be at least 6 characters.');
 
   const body = {
@@ -86,7 +86,7 @@ form.addEventListener('submit', async e => {
     icon_key_1:   recoverIcons[0],
     icon_key_2:   recoverIcons[1],
   };
-  if (recoverGrade !== '1-2') body.new_password = newpw;
+  if (recoverGrade !== '1-3') body.new_password = newpw;
 
   try {
     const res  = await fetch('/api/auth/recover', {

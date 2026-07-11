@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS users (
 
   -- Grade-based path (international / private schools)
   display_name      VARCHAR(30)  NULL,
-  grade_group       ENUM('1-2','3-4','5-6') NULL,
+  grade_group       ENUM('1-3','4-6') NULL,
   password_hash     VARCHAR(60)  NULL,   -- bcrypt; Grade 3+ only
   auto_password     VARCHAR(20)  NULL,   -- Grade 1-2 only; cleared after first login
   icon_key_1        TINYINT      NULL,   -- first recovery icon id (1–12)

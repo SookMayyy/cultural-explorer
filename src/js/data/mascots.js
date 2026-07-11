@@ -19,6 +19,7 @@ export const MASCOTS = {
       idle:  '../assets/characters/rimau_idle.png',
       happy: '../assets/characters/rimau_happy.png',
       cheer: '../assets/characters/rimau_cheer.png',
+      wave:  '../assets/characters/rimau_wave.png',
     },
   },
 };

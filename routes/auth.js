@@ -10,7 +10,7 @@ const router = express.Router();
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-// Simple memorable auto-password for Grade 1–2 (e.g. "sun7cat")
+// Simple memorable auto-password for Grade 1–3 (e.g. "sun7cat")
 const AUTO_PW_WORDS = ['sun','cat','dog','red','hat','map','fox','bee','ant','owl','cup','jam'];
 function genAutoPassword() {
   const w1 = AUTO_PW_WORDS[Math.floor(Math.random() * AUTO_PW_WORDS.length)];
@@ -49,7 +49,7 @@ router.post('/register', registerLimiter, [
     .notEmpty().withMessage('Name is required.')
     .matches(/^[a-zA-Z ]{1,20}$/).withMessage('Name must be letters only, max 20 characters.'),
   body('grade_group')
-    .isIn(['1-2','3-4','5-6']).withMessage('Please select a valid grade group.'),
+    .isIn(['1-3','4-6']).withMessage('Please select a valid grade group.'),
   body('icon_key_1')
     .isInt({ min: 1, max: 12 }).withMessage('Please pick your first secret icon.'),
   body('icon_key_2')
@@ -61,8 +61,8 @@ router.post('/register', registerLimiter, [
       return true;
     }),
   body('password')
-    .if(body('grade_group').isIn(['3-4','5-6']))
-    .notEmpty().withMessage('Password is required for Grade 3 and above.')
+    .if(body('grade_group').isIn(['4-6']))
+    .notEmpty().withMessage('Password is required for Grade 4 and above.')
     .isLength({ min: 6 }).withMessage('Password must be at least 6 characters.'),
 ], async (req, res, next) => {
   try {
@@ -70,10 +70,26 @@ router.post('/register', registerLimiter, [
 
     const { display_name, grade_group, icon_key_1, icon_key_2, password } = req.body;
 
+    // Enforce one account per (name, grade): a display name can only be
+    // registered once within a grade group. Case-insensitive so "Ali" and
+    // "ali" are treated as the same username.
+    const [existing] = await pool.execute(
+      `SELECT id FROM users
+       WHERE LOWER(display_name) = LOWER(?) AND grade_group = ? AND auth_type = 'grade_account'
+       LIMIT 1`,
+      [display_name.trim(), grade_group]
+    );
+    if (existing.length) {
+      return res.status(409).json({
+        ok: false,
+        error: 'That name is already taken for this grade. Please pick a different name.',
+      });
+    }
+
     let password_hash  = null;
     let auto_password  = null;
 
-    if (grade_group === '1-2') {
+    if (grade_group === '1-3') {
       // Generate a plain-text auto password — shown to teacher, cleared after first login
       auto_password = genAutoPassword();
     } else {
@@ -95,10 +111,18 @@ router.post('/register', registerLimiter, [
     req.session.user = sessionUser(user);
 
     const response = { ok: true };
-    if (grade_group === '1-2') response.auto_password = auto_password;
+    if (grade_group === '1-3') response.auto_password = auto_password;
 
     res.status(201).json(response);
   } catch (err) {
+    // Unique-index violation (race between the SELECT check above and INSERT):
+    // surface the same friendly "name taken" message instead of a 500.
+    if (err && err.code === '23505') {
+      return res.status(409).json({
+        ok: false,
+        error: 'That name is already taken for this grade. Please pick a different name.',
+      });
+    }
     next(err);
   }
 });
@@ -107,7 +131,7 @@ router.post('/register', registerLimiter, [
 // Grade-based login
 router.post('/login', loginLimiter, [
   body('display_name').trim().notEmpty().withMessage('Please enter your name.'),
-  body('grade_group').isIn(['1-2','3-4','5-6']).withMessage('Please select your grade.'),
+  body('grade_group').isIn(['1-3','4-6']).withMessage('Please select your grade.'),
   body('password').notEmpty().withMessage('Please enter your password.'),
 ], async (req, res, next) => {
   try {
@@ -129,8 +153,8 @@ router.post('/login', loginLimiter, [
     const user = rows[0];
     let authenticated = false;
 
-    if (grade_group === '1-2') {
-      // Grade 1–2: check against auto_password first, then password_hash if set
+    if (grade_group === '1-3') {
+      // Grade 1–3: check against auto_password first, then password_hash if set
       if (user.auto_password && user.auto_password === password) {
         authenticated = true;
         // First successful login — hash the password and clear the plain-text auto_password
@@ -146,7 +170,7 @@ router.post('/login', loginLimiter, [
         }
       }
     } else {
-      // Grade 3+: bcrypt compare
+      // Grade 4+: bcrypt compare
       if (user.password_hash) {
         authenticated = await bcrypt.compare(password, user.password_hash);
         if (authenticated) {
@@ -176,15 +200,18 @@ router.post('/moe-login', (req, res) => {
 
 // ── POST /api/auth/recover ────────────────────────────────────────────────────
 // Icon-based password recovery
-// Grade 1–2: verifies icons → reveals original password
-// Grade 3+:  verifies icons → allows setting a new password
-router.post('/recover', [
+// Grade 1–3: verifies icons → reveals original password
+// Grade 4+:  verifies icons → allows setting a new password
+// Rate-limited (loginLimiter): recovery only checks two icons (12×11 = 132
+// ordered combinations) and on success reveals/resets the password, so it is
+// the most brute-forceable endpoint — the limiter caps guesses to 10/min/IP.
+router.post('/recover', loginLimiter, [
   body('display_name').trim().notEmpty().withMessage('Please enter your name.'),
-  body('grade_group').isIn(['1-2','3-4','5-6']).withMessage('Please select your grade.'),
+  body('grade_group').isIn(['1-3','4-6']).withMessage('Please select your grade.'),
   body('icon_key_1').isInt({ min: 1, max: 12 }).withMessage('Please pick your first secret icon.'),
   body('icon_key_2').isInt({ min: 1, max: 12 }).withMessage('Please pick your second secret icon.'),
   body('new_password')
-    .if(body('grade_group').isIn(['3-4','5-6']))
+    .if(body('grade_group').isIn(['4-6']))
     .notEmpty().withMessage('Please enter your new password.')
     .isLength({ min: 6 }).withMessage('Password must be at least 6 characters.'),
 ], async (req, res, next) => {
@@ -211,8 +238,8 @@ router.post('/recover', [
       return res.status(401).json({ ok: false, error: "Those icons don't match. Try again!" });
     }
 
-    if (grade_group === '1-2') {
-      // Reveal the stored password (auto_password for Grade 1–2)
+    if (grade_group === '1-3') {
+      // Reveal the stored password (auto_password for Grade 1–3)
       // If auto_password was already cleared (first login happened), reveal from password_hash is not possible
       // In that case, reset with a new auto password
       let revealedPassword = user.auto_password;
@@ -226,7 +253,7 @@ router.post('/recover', [
       }
       return res.json({ ok: true, revealed_password: revealedPassword });
     } else {
-      // Grade 3+: set a new password
+      // Grade 4+: set a new password
       const newHash = await bcrypt.hash(new_password, 10);
       await pool.execute('UPDATE users SET password_hash = ? WHERE id = ?', [newHash, user.id]);
       return res.json({ ok: true });

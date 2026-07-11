@@ -10,7 +10,7 @@
 //   • Equip sets users.avatar_costume_id (the avatar preview); default (id 1) is free and
 //     always equippable; equipping an unowned costume is rejected.
 //
-// Standalone: own throwaway Grade 3-4 user funded via state completions; fully cleaned up.
+// Standalone: own throwaway Grade 4-6 user funded via the points route; fully cleaned up.
 // Requires `npm run seed` + the schema's seeded costume catalogue.
 
 const request = require('supertest');
@@ -39,14 +39,13 @@ const EXPECTED = {
 
 beforeAll(async () => {
   const reg = await agent.post('/api/auth/register').send({
-    display_name: NAME, grade_group: '3-4', password: 'pass123', icon_key_1: 5, icon_key_2: 11,
+    display_name: NAME, grade_group: '4-6', password: 'pass123', icon_key_1: 5, icon_key_2: 11,
   });
   expect(reg.status).toBe(201);
   userId = (await me()).id;
-  // Fund the wallet: 3 completions × +20 = 60 points (enough for a 50-pt costume).
-  for (const id of [1, 2, 3]) {
-    await agent.post(`/api/progress/${id}/complete`).send({ quizScore: 20 });
-  }
+  // Fund the wallet directly (state completion no longer pays a bonus — points
+  // come from mission play; this test just needs enough to buy a 50-pt costume).
+  await agent.post('/api/progress/points').send({ delta: 60 });
 });
 
 afterAll(async () => {
@@ -108,7 +107,7 @@ describe('FR6 — Unlocking', () => {
   test('a broke user cannot unlock → 400 (and is not charged)', async () => {
     const poor = request.agent(app);
     await poor.post('/api/auth/register').send({
-      display_name: POOR, grade_group: '3-4', password: 'pass123', icon_key_1: 1, icon_key_2: 2,
+      display_name: POOR, grade_group: '4-6', password: 'pass123', icon_key_1: 1, icon_key_2: 2,
     });
     poorId = (await poor.get('/api/auth/me')).body.user.id;
 

@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS users (
 
   -- Grade-based path (international / private schools)
   display_name      VARCHAR(30),
-  grade_group       VARCHAR(5) CHECK (grade_group IN ('1-2','3-4','5-6')),
+  grade_group       VARCHAR(5) CHECK (grade_group IN ('1-3','4-6')),
   password_hash     VARCHAR(60),         -- bcrypt; Grade 3+ only
   auto_password     VARCHAR(20),         -- Grade 1-2 only; cleared after first login
   icon_key_1        SMALLINT,            -- first recovery icon id (1–12)
@@ -33,6 +33,12 @@ CREATE TABLE IF NOT EXISTS users (
   CONSTRAINT uq_email UNIQUE (email),
   CONSTRAINT uq_moe   UNIQUE (ic_hash)
 );
+
+-- A grade-based display name can only be registered once per grade group
+-- (case-insensitive). Backend also checks this, but the index guards races.
+CREATE UNIQUE INDEX IF NOT EXISTS uq_grade_account_name
+  ON users (LOWER(display_name), grade_group)
+  WHERE auth_type = 'grade_account';
 
 -- ─────────────────────────────────────────────────────────────
 -- CLASSES  (teacher → class grouping)

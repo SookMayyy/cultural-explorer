@@ -1,6 +1,8 @@
 /* stampbook.css — My Stamp Book page (mapped to Figma 38:7) */
 
-.app-container { background: #F0EAFC; }
+/* Stamp-book art fills the whole screen (incl. behind the floating top bar). */
+/* Full-screen background: fills the body (letterbox margins) AND the frame. */
+:root { --screen-bg: #F0EAFC url('../assets/images/ui/batick_background.png') center / cover no-repeat fixed; }
 
 .topbar--purple { background: #6b50ce; }
 
@@ -12,10 +14,9 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: var(--sp-lg) var(--sp-lg) calc(var(--navbar-h) + var(--sp-lg));
+  padding: calc(var(--topbar-h) + var(--sp-lg)) var(--sp-lg) calc(var(--navbar-h) + var(--sp-lg));
   overflow-y: auto;
-  /* Themed stamp-book background; flat lavender (Figma 38:7) stays as fallback. */
-  background: #F0EAFC url('../assets/images/ui/stamp-background.jpg') center / cover no-repeat;
+  background: transparent;   /* bg now lives on .app-container (covers the top bar) */
 }
 
 /* Hibiscus corner decorations — bottom corners matching prototype */
@@ -28,8 +29,9 @@
 .sb-deco--left {
   bottom: var(--navbar-h);
   left: 0;
-  width: 167px;
-  height: 154px;
+  width: 170px;
+  height: 180px;
+  bottom: 45px;
   object-position: bottom left;
 }
 .sb-deco--right {
@@ -37,6 +39,7 @@
   right: 0;
   width: 125px;
   height: 208px;
+  bottom: 40px;
   object-position: bottom right;
 }
 
@@ -59,6 +62,7 @@
   box-shadow: var(--shadow-sm);
   display: flex;
   align-items: center;
+  margin-bottom: 50px;
   gap: var(--sp-lg);
 }
 .sb-prog-left {

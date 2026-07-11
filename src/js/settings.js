@@ -1,7 +1,7 @@
 // js/settings.js — My Profile page
 
 import Storage from './utils/storage.js';
-import { requireAuth } from './ui.js';
+import { requireAuth, applyProfileColor } from './ui.js';
 import { STATES_DATA } from './data/states.js';
 import { avatarStackHTML } from './utils/avatarDisplay.js';
 import { confirmPopup, showPopup } from './components/popup.js';
@@ -10,6 +10,8 @@ import Sound from './utils/sound.js';
 
 const session = requireAuth();
 if (!session) throw new Error('Not logged in');
+
+applyProfileColor();   // theme topbar + profile avatar with the chosen colour
 
 // ── Real profile data (was hardcoded in the mockup) ──────────────────────────
 const completed = Storage.completedCount();
@@ -46,6 +48,43 @@ soundBtn?.addEventListener('click', () => {
   Sound.setMuted(nowMuted);
   renderSound();
   if (!nowMuted) Sound.tap();   // little confirmation blip when turning on
+});
+
+// ── Game Guide — a friendly "how to play" popup ───────────────────────────────
+// No separate page needed: a single showPopup keeps it consistent with the app's
+// other dialogs. Short lines + emoji, Grade 3–6 reading level.
+document.getElementById('btn-guide')?.addEventListener('click', () => {
+  Sound.tap?.();
+  showPopup({
+    title: 'How to Play',
+    emoji: '🎮',
+    message: [
+      '🗺️ Tap a state on the Map to start exploring.',
+      '⭐ Finish its 4 missions — Cook, Word Scramble, Guess the Place, and the Festival Quiz.',
+      '🏅 Complete all 4 to earn that state\'s stamp!',
+      '🛍️ Spend your points in the Avatar Shop.',
+      '🐯 Rimau will guide you. Have fun exploring Malaysia!',
+    ].join('<br><br>'),
+    actions: [{ label: 'Got it!', value: true, style: 'primary' }],
+  });
+});
+
+// ── Student Safety — a short wellbeing / privacy reminder ──────────────────────
+// Age-appropriate: screen-time, keeping login secret, asking an adult, kindness.
+// No external links (per the project's content-safety rules).
+document.getElementById('btn-safety')?.addEventListener('click', () => {
+  Sound.tap?.();
+  showPopup({
+    title: 'Stay Safe',
+    emoji: '🛡️',
+    message: [
+      '⏰ Take a break and rest your eyes after playing.',
+      '🔒 Keep your password and secret icons private.',
+      '🙋 Ask your teacher or parent if you need help.',
+      '💛 Be kind, and enjoy learning — it is not about winning!',
+    ].join('<br><br>'),
+    actions: [{ label: 'Okay!', value: true, style: 'primary' }],
+  });
 });
 
 // ── Log out ──────────────────────────────────────────────────────────────────

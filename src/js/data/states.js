@@ -9,6 +9,8 @@ export const STATES_DATA = [
     colorLight: '#FEF0DC',
     region: 'west',
     tagline: 'Pearl of the Orient',
+    // 📸 Entry background (narrative scene + mission-flow backdrop, like Kedah).
+    entryBg: '../assets/content/Penang/penang_background.png',
     story: `Penang is a beautiful island state on the northwest coast of Malaysia. It is famous for its amazing mix of cultures — Malay, Chinese, Indian, and more! Georgetown, the capital, is a UNESCO World Heritage Site full of colourful street art and old shophouses. Penang is also known as the "Food Capital of Malaysia" because of its delicious street food!`,
     dialectWord: { word: 'Laksa', meaning: 'Spicy noodle soup unique to Penang', pronunciation: 'lak-sah' },
     cards: [
@@ -61,93 +63,21 @@ export const STATES_DATA = [
         image: null,
       },
     ],
-    // Curated drag-match pairs for the "Match the Culture!" activity.
-    // food = the chip the player taps; state = the descriptor zone they match it to.
+    // Curated drag-match pairs for the "Match the Culture!" activity — one
+    // real photo per category (food / costume / landmark / festival), matched
+    // to a short kid-friendly description. `icon` is only the <img onerror>
+    // text fallback if a photo fails to load.
     dragPairs: [
-      { food: '🍜 Char Kway Teow', state: 'Smoky fried noodles' },
-      { food: '🏛️ Georgetown',     state: 'Heritage street art' },
-      { food: '🎆 Thaipusam',       state: 'Kavadi festival'    },
-      { food: '🍲 Penang Laksa',    state: 'Spicy fish soup'    },
+      { image: '../assets/content/Penang/char_kway_teow.jpg', icon: '🍜', label: 'Char Kway Teow', match: 'The traditional food — smoky fried noodles' },
+      { image: '../assets/content/Penang/baba_nyonya_kebaya.png', icon: '👘', label: 'Baba Nyonya Kebaya', match: 'The traditional costume' },
+      { image: '../assets/content/Penang/george_town.jpg', icon: '🏛️', label: 'Georgetown', match: 'A famous place to visit' },
+      { image: '../assets/content/Penang/thaipusam_festival.jpg', icon: '🎆', label: 'Thaipusam', match: 'A special celebration' },
     ],
     quizQuestion: {
       q: 'What is Penang famous for?',
       opts: ['Its cold mountains', 'Its amazing street food', 'Its coconut farms', 'Its gold mines'],
       ans: 1,
       explain: 'Penang is called the "Food Capital of Malaysia" for its delicious street food like Char Kway Teow, Laksa, and Nasi Kandar!',
-    },
-  },
-
-  {
-    id: 'melaka',
-    name: 'Melaka',
-    emoji: '<img src="../assets/flags/melaka-flag.png" alt="Penang Icon">',
-    color: '#8E44AD',
-    colorLight: '#F5EBF9',
-    region: 'west',
-    tagline: 'Historic City of Malaysia',
-    story: `Melaka (also spelled Malacca) is one of Malaysia's most historic states. It was once a powerful trading port where merchants from China, India, Arabia, and Europe came to trade! Melaka became a UNESCO World Heritage Site along with Georgetown, Penang. The famous Jonker Street is full of antiques, food, and culture!`,
-    dialectWord: { word: 'Nyonya', meaning: 'A female descendant of Chinese-Malay heritage (Peranakan)', pronunciation: 'nyoh-nyah' },
-    cards: [
-      {
-        id: 'melaka-1',
-        category: 'Food',
-        icon: '🍱',
-        title: 'Nyonya Cuisine',
-        desc: 'Nyonya food is a special blend of Chinese and Malay cooking traditions. It uses coconut milk, lemongrass, and spices to create unique dishes like Ayam Pongteh (chicken stew) and Nyonya Laksa.',
-        funFact: 'Nyonya cooking has been passed down for hundreds of years within Peranakan families!',
-        mascotLine: 'Nyonya food is like a delicious hug from two cultures at once!',
-        // 📸 IMAGE NEEDED: melaka-nyonya-food.png
-        // Export from Figma → Cards/Melaka/Food — Nyonya cuisine illustration
-        image: null,
-      },
-      {
-        id: 'melaka-2',
-        category: 'Landmark',
-        icon: '⛵',
-        title: 'A Famosa Fort',
-        desc: 'A Famosa is an old Portuguese fort built in 1511. It is one of the oldest surviving European architectural remains in Asia! Only a small gate called "Porta de Santiago" remains today.',
-        funFact: 'A Famosa was almost completely destroyed in 1807 but British officer Stamford Raffles saved it!',
-        mascotLine: 'This fort survived for over 500 years! Imagine all the history it has seen!',
-        // 📸 IMAGE NEEDED: melaka-famosa.png
-        // Export from Figma → Cards/Melaka/Landmark — A Famosa fort gate illustration
-        image: null,
-      },
-      {
-        id: 'melaka-3',
-        category: 'Heritage',
-        icon: '🎭',
-        title: 'Baba Nyonya Culture',
-        desc: 'The Baba Nyonya (Peranakan) people are descendants of Chinese traders who married local Malays. They developed their own unique language, food, clothing, and traditions that blend Chinese and Malay cultures.',
-        funFact: 'Nyonya kebaya (traditional dress) is beautifully embroidered and is considered a work of art!',
-        mascotLine: 'The Baba Nyonya culture shows how two cultures can blend into something beautiful!',
-        // 📸 IMAGE NEEDED: melaka-baba-nyonya.png
-        // Export from Figma → Cards/Melaka/Heritage — Peranakan culture illustration
-        image: null,
-      },
-      {
-        id: 'melaka-4',
-        category: 'Tradition',
-        icon: '🛺',
-        title: 'Jonker Street',
-        desc: 'Jonker Street is the heart of Melaka\'s old Chinatown. At night it turns into a lively market full of food stalls, antiques, games, and people singing on stage. It is always full of fun!',
-        funFact: 'Jonker Street is famous for its colourful trishaws decorated with flowers, lights, and cartoon characters that play music as they ride!',
-        mascotLine: 'Jonker Street at night is buzzing with food and music — let\'s explore!',
-        // 📸 IMAGE NEEDED: melaka-jonker-street.png
-        // Export from Figma → Cards/Melaka/Tradition — Jonker Street night market illustration
-        image: null,
-      },
-    ],
-    dragPairs: [
-      { food: '🍱 Nyonya Cuisine', state: 'Chinese-Malay food' },
-      { food: '⛵ A Famosa',        state: 'Portuguese fort'    },
-      { food: '🎭 Baba Nyonya',     state: 'Peranakan culture'  },
-      { food: '🛺 Jonker Street',   state: 'Night market'       },
-    ],
-    quizQuestion: {
-      q: 'What is Melaka famous for?',
-      opts: ['Skyscrapers', 'Historic trading port', 'Tea plantations', 'Coral reefs'],
-      ans: 1,
-      explain: 'Melaka was once a powerful trading port! Ships from China, India, Arabia, and Europe came to trade there centuries ago.',
     },
   },
 
@@ -159,7 +89,15 @@ export const STATES_DATA = [
     colorLight: '#EBF5FB',
     region: 'west',
     tagline: 'State of Harmony',
-    story: `Selangor is the most developed state in Malaysia and surrounds the capital city Kuala Lumpur. It is home to many factories, shopping malls, and universities. The famous Batu Caves temple is here! Selangor is also known for its fireflies at Kuala Selangor and its delicious seafood.`,
+    // Entry scene + Rimau's spoken intro on the narrative screen.
+    entryBg: '../assets/content/Selangor/batu_caves.jpg',
+    entryDialogue: [
+      'Selamat datang to Selangor — the State of Harmony!',
+      'Selangor wraps around Kuala Lumpur and is full of famous places and yummy food',
+      'Ready to taste, dance, and explore what makes Selangor so special?',
+      "Let's go!"
+    ],
+    story: `Selangor is the most developed state in Malaysia and it wraps right around the capital city, Kuala Lumpur. It is home to the towering Batu Caves temple, the glowing fireflies and "blue tears" of Kuala Selangor, and the famous grilled Satay Kajang. The Mah Meri people of Carey Island still celebrate the Hari Moyang festival with the Main Jo-oh dance. Shah Alam is the capital city.`,
     dialectWord: { word: 'Shah Alam', meaning: 'Capital city of Selangor, meaning "realm of the king"', pronunciation: 'shah ah-lam' },
     cards: [
       {
@@ -167,135 +105,84 @@ export const STATES_DATA = [
         category: 'Landmark',
         icon: '⛰️',
         title: 'Batu Caves',
-        desc: 'Batu Caves is a famous Hindu temple built inside a huge limestone hill. There are 272 colourful steps leading up to the main cave temple. A giant golden statue of Lord Murugan stands at the entrance!',
-        funFact: 'The golden statue of Lord Murugan at Batu Caves is 42.7 metres tall — as tall as a 14-storey building!',
-        mascotLine: 'Climbing those 272 steps is quite a workout, but the view at the top is amazing!',
-        // 📸 IMAGE NEEDED: selangor-batu-caves.png
-        // Export from Figma → Cards/Selangor/Landmark — Batu Caves with golden statue
-        image: null,
+        desc: 'Batu Caves is a famous temple built inside a huge limestone hill. There are 272 colourful steps leading up to the main cave, and a giant golden statue stands at the entrance. Cheeky monkeys often play on the steps!',
+        funFact: 'The golden statue at Batu Caves is 42.7 metres tall — as tall as a 14-storey building!',
+        mascotLine: 'Climbing those 272 rainbow steps is a workout, but the view at the top is amazing!',
+        image: '../assets/content/Selangor/batu_caves.jpg',
       },
       {
         id: 'selangor-2',
-        category: 'Nature',
-        icon: '✨',
-        title: 'Kuala Selangor Fireflies',
-        desc: 'At Kampung Kuantan in Kuala Selangor, thousands of fireflies light up the mangrove trees at night. It looks like a living Christmas tree! You can see them by riding a small boat along the river.',
-        funFact: 'The fireflies at Kuala Selangor synchronise their flashes — they all blink at the same time!',
-        mascotLine: 'Imagine thousands of tiny lights twinkling in the dark trees — magical!',
-        // 📸 IMAGE NEEDED: selangor-fireflies.png
-        // Export from Figma → Cards/Selangor/Nature — fireflies in mangrove trees
-        image: null,
+        category: 'Food',
+        icon: '🍢',
+        title: 'Satay Kajang',
+        desc: 'Kajang town in Selangor is famous for satay — little skewers of meat marinated in spices and grilled over a charcoal fire. It is served with a sweet peanut sauce, ketupat (rice cakes), cucumber, and red onion.',
+        funFact: 'Kajang is nicknamed the "Satay Town" — people drive from all over just to eat satay here!',
+        mascotLine: 'Grilled satay dipped in peanut sauce — the smell alone makes my tummy rumble!',
+        image: '../assets/content/Selangor/satay_kajang.jpg',
       },
       {
         id: 'selangor-3',
-        category: 'Food',
-        icon: '🦀',
-        title: 'Klang Bak Kut Teh',
-        desc: 'Bak Kut Teh is a famous pork rib soup from Klang, Selangor. The ribs are slow-cooked in a broth of herbs and spices for hours until they are tender and flavourful. It is best eaten with rice and fried dough sticks!',
-        funFact: 'Klang is considered the "home" of Bak Kut Teh — people travel from all over Malaysia just to eat it here!',
-        mascotLine: 'The soup is cooked for hours — that is why it tastes so rich and special!',
-        // 📸 IMAGE NEEDED: selangor-bak-kut-teh.png
-        // Export from Figma → Cards/Selangor/Food — Bak Kut Teh soup illustration
-        image: null,
+        category: 'Festival',
+        icon: '🎭',
+        title: 'Hari Moyang',
+        desc: 'Hari Moyang is the ancestor festival of the Mah Meri people who live on Carey Island in Selangor. They give thanks to their ancestors by the sea with offerings, wood-carved masks, and the special Main Jo-oh dance.',
+        funFact: 'The Mah Meri are famous wood carvers — their ancestor masks and sculptures have won international awards!',
+        mascotLine: 'Dancing by the sea to thank the ancestors — Hari Moyang is a very special tradition!',
+        image: '../assets/content/Selangor/hari_moyang.jpg',
       },
       {
         id: 'selangor-4',
+        category: 'Costume',
+        icon: '👘',
+        title: 'Traditional Malay Dress',
+        desc: 'For special days, Selangor Malays wear traditional dress. Men wear the Baju Melayu with a songkok cap and a woven samping around the waist, while women wear the flowing Baju Kurung with a selendang shawl.',
+        funFact: 'Selangor\'s royal colour is yellow, so you will often see the traditional costumes in bright royal yellow!',
+        mascotLine: 'The royal-yellow Baju Melayu and Baju Kurung look so smart and elegant!',
+        image: '../assets/content/Selangor/traditional_costume_selangor.png',
+      },
+      {
+        id: 'selangor-5',
+        category: 'Nature',
+        icon: '✨',
+        title: 'Kuala Selangor',
+        desc: 'At Kuala Selangor, thousands of fireflies light up the mangrove trees at night like a living Christmas tree. Along the coast you can also see "blue tears" — tiny sea creatures that glow bright blue in the dark water!',
+        funFact: 'The fireflies at Kuala Selangor blink their lights all together at the same time — like tiny fairy lights!',
+        mascotLine: 'Glowing fireflies and blue sparkling waves — Kuala Selangor at night is pure magic!',
+        image: '../assets/content/Selangor/blue_tears.jpg',
+      },
+      {
+        id: 'selangor-6',
         category: 'Landmark',
-        icon: '🕌',
-        title: 'Blue Mosque, Shah Alam',
-        desc: 'The Sultan Salahuddin Abdul Aziz Mosque in Shah Alam is nicknamed the "Blue Mosque" for its beautiful blue-and-silver dome. It is one of the largest mosques in Southeast Asia!',
-        funFact: 'Its four towering minarets are among the tallest in the world — the big dome can be seen from far away!',
-        mascotLine: 'The Blue Mosque\'s dome shines like a giant blue jewel against the sky!',
-        // 📸 IMAGE NEEDED: selangor-blue-mosque.png
-        // Export from Figma → Cards/Selangor/Landmark — Shah Alam Blue Mosque illustration
-        image: null,
+        icon: '🗿',
+        title: 'National Monument',
+        desc: 'The National Monument (Tugu Negara) stands in Kuala Lumpur, at the edge of Selangor. It is a tall bronze statue that honours the brave people who protected Malaysia. It is one of the largest bronze statues in the world.',
+        funFact: 'The National Monument was designed by the same sculptor who made the famous Iwo Jima memorial in the USA!',
+        mascotLine: 'The National Monument reminds us to be thankful for our peaceful country.',
+        image: '../assets/content/Selangor/national_monument.jpg',
+      },
+      {
+        id: 'selangor-7',
+        category: 'Tradition',
+        icon: '💃',
+        title: 'Main Jo-oh Dance',
+        desc: 'The Main Jo-oh is a graceful dance of the Mah Meri people, performed during the Hari Moyang festival. Dancers in skirts made of woven leaves move gently to the beat of drums and gongs to honour their ancestors.',
+        funFact: 'The dancers wear costumes woven from nipah and coconut leaves — everything comes from the forest around them!',
+        mascotLine: 'Dancing in leaf skirts by the sea — the Main Jo-oh is so graceful to watch!',
+        image: '../assets/content/Selangor/mayin_jo_oh.jpg',
       },
     ],
     dragPairs: [
-      { food: '⛰️ Batu Caves',     state: '272 temple steps' },
-      { food: '✨ Kuala Selangor',  state: 'Glowing fireflies' },
-      { food: '🦴 Klang',           state: 'Bak Kut Teh'       },
-      { food: '🕌 Shah Alam',       state: 'Blue Mosque'       },
+      { image: '../assets/content/Selangor/satay_kajang.jpg', icon: '🍢', label: 'Satay Kajang', match: 'The traditional food — grilled meat skewers' },
+      { image: '../assets/content/Selangor/traditional_costume_selangor.png', icon: '👘', label: 'Traditional Malay Dress', match: 'The traditional costume' },
+      { image: '../assets/content/Selangor/batu_caves.jpg', icon: '⛰️', label: 'Batu Caves', match: 'A famous place to visit' },
+      { image: '../assets/content/Selangor/mayin_jo_oh.jpg', icon: '🎭', label: 'Hari Moyang', match: 'A special celebration' },
     ],
     quizQuestion: {
       q: 'How many steps lead up to the Batu Caves temple?',
       opts: ['100 steps', '200 steps', '272 steps', '350 steps'],
       ans: 2,
       explain: 'There are 272 colourful steps leading up to the main cave temple at Batu Caves!',
-    },
-  },
-
-  {
-    id: 'johor',
-    name: 'Johor',
-    emoji: '<img src="../assets/flags/johor-flag.png" alt="Penang Icon">',
-    color: '#1E8449',
-    colorLight: '#EAFAF1',
-    region: 'west',
-    tagline: 'Southern Gateway',
-    story: `Johor is the southernmost state in Peninsular Malaysia. It is connected to Singapore by two causeways! Johor Bahru is a vibrant city full of shopping and food. Johor is famous for its beautiful beaches at Desaru and Mersing, as well as its unique Johor dishes like Laksa Johor.`,
-    dialectWord: { word: 'Mee Bandung', meaning: 'Noodles in a rich prawn and beef broth, unique to Johor', pronunciation: 'mee ban-doong' },
-    cards: [
-      {
-        id: 'johor-1',
-        category: 'Food',
-        icon: '🍝',
-        title: 'Laksa Johor',
-        desc: 'Laksa Johor is different from other laksa because it uses spaghetti-style noodles instead of rice noodles! The broth is thick and rich, made with fish, coconut milk, and spices. It is a unique dish you can only find in Johor.',
-        funFact: 'Laksa Johor is traditionally served at royal events and weddings in Johor!',
-        mascotLine: 'Spaghetti in a Malaysian laksa? Yes! That is what makes Johor special!',
-        // 📸 IMAGE NEEDED: johor-laksa.png
-        // Export from Figma → Cards/Johor/Food — Laksa Johor illustration
-        image: null,
-      },
-      {
-        id: 'johor-2',
-        category: 'Landmark',
-        icon: '🏯',
-        title: 'Istana Bukit Serene',
-        desc: 'Istana Bukit Serene is the official palace of the Sultan of Johor. It sits on a beautiful hill by the Straits of Johor. The palace has beautiful grounds with a golf course and is surrounded by lush gardens.',
-        funFact: 'The Sultan of Johor is known as the "King of Johor" and the state has its own royal family with a rich history!',
-        mascotLine: 'Johor has a proud royal history — the sultan\'s palace is a symbol of that!',
-        // 📸 IMAGE NEEDED: johor-palace.png
-        // Export from Figma → Cards/Johor/Landmark — Johor royal palace illustration
-        image: null,
-      },
-      {
-        id: 'johor-3',
-        category: 'Nature',
-        icon: '🏖️',
-        title: 'Desaru Beach',
-        desc: 'Desaru Beach in Johor is one of the most popular beach resorts in Malaysia. The long stretch of white sand, clear blue sea, and water sports activities make it a favourite holiday spot for families!',
-        funFact: 'Desaru Beach is about 100 km from Johor Bahru and is known for its beautiful sunrise views!',
-        mascotLine: 'A perfect beach day with white sand and blue sea — that\'s Desaru for you!',
-        // 📸 IMAGE NEEDED: johor-desaru.png
-        // Export from Figma → Cards/Johor/Nature — Desaru beach illustration
-        image: null,
-      },
-      {
-        id: 'johor-4',
-        category: 'Tradition',
-        icon: '🐎',
-        title: 'Kuda Kepang',
-        desc: 'Kuda Kepang is a traditional Johor dance. Performers "ride" flat horses made of woven bamboo, moving to the beat of drums and gongs. The dance tells stories of brave warriors!',
-        funFact: 'The horses in Kuda Kepang are woven flat from bamboo — but skilled dancers make them look like they are really galloping!',
-        mascotLine: 'Watch the dancers gallop on their bamboo horses — what an amazing show!',
-        // 📸 IMAGE NEEDED: johor-kuda-kepang.png
-        // Export from Figma → Cards/Johor/Tradition — Kuda Kepang bamboo-horse dance illustration
-        image: null,
-      },
-    ],
-    dragPairs: [
-      { food: '🍝 Laksa Johor',     state: 'Spaghetti laksa'      },
-      { food: '🏯 Bukit Serene',    state: "Sultan's palace"      },
-      { food: '🏖️ Desaru',          state: 'Beach resort'         },
-      { food: '🍜 Mee Bandung',     state: 'Prawn broth noodles'  },
-    ],
-    quizQuestion: {
-      q: 'What makes Laksa Johor different from other laksa?',
-      opts: ['It has no spice', 'It uses spaghetti noodles', 'It is served cold', 'It has no coconut milk'],
-      ans: 1,
-      explain: 'Laksa Johor uses spaghetti-style noodles instead of the usual rice noodles — that makes it unique!',
+      image: '../assets/content/Selangor/batu_caves.jpg',
     },
   },
 
@@ -306,8 +193,16 @@ export const STATES_DATA = [
     color: '#C0392B',
     colorLight: '#FDEDEC',
     region: 'west',
-    tagline: 'Land of Lightning',
-    story: `Kelantan is a state on the northeast coast of Malaysia, bordering Thailand. It is known for its rich Malay culture, arts, and crafts. The people here are famous for their traditional art forms like Wayang Kulit (shadow puppets), Wau (kite flying), and Batik fabric. Kota Bharu is the capital city.`,
+    tagline: 'The Cradle of Malay Culture',
+    // Entry scene + Rimau's spoken intro on the narrative screen (3 lines shown).
+    entryBg: '../assets/content/Kelantan/perahu_kolek.jpg',
+    entryDialogue: [
+      'Selamat datang to Kelantan — the Cradle of Malay Culture!',
+      'Kelantan is famous for shadow puppets, royal costumes, and beautiful crafts',
+      'Ready to taste, dance, and explore what makes Kelantan so special?',
+      "Let's go!"
+    ],
+    story: `Kelantan is a state on the northeast coast of Malaysia, bordering Thailand. It is known as "The Cradle of Malay Culture" for its rich arts and crafts. Kelantan is famous for Wayang Kulit (shadow puppets), the royal Cik Siti Wan Kembang costume, colourful Perahu Kolek fishing boats, and the naturally blue Nasi Kerabu. Kota Bharu is the capital city.`,
     dialectWord: { word: 'Wau', meaning: 'Traditional Malay kite, often large and beautifully decorated', pronunciation: 'wow' },
     cards: [
       {
@@ -324,15 +219,13 @@ export const STATES_DATA = [
       },
       {
         id: 'kelantan-2',
-        category: 'Art',
+        category: 'Festival',
         icon: '🎭',
         title: 'Wayang Kulit',
-        desc: 'Wayang Kulit is a traditional shadow puppet show. A skilled puppeteer called a "Tok Dalang" uses flat leather puppets behind a lit screen to tell stories from ancient Hindu epics like Ramayana. The music is played live!',
+        desc: 'Wayang Kulit is a traditional shadow puppet show. A skilled puppeteer called a "Tok Dalang" moves flat leather puppets behind a lit screen to tell stories from Malay folklore. A bright lamp turns the puppets into moving shadows, and the music is played live!',
         funFact: 'A single Wayang Kulit performance can last from dusk until dawn — the whole night!',
         mascotLine: 'The shadow puppets look magical dancing on the screen — the stories come alive!',
-        // 📸 IMAGE NEEDED: kelantan-wayang-kulit.png
-        // Export from Figma → Cards/Kelantan/Art — shadow puppet performance illustration
-        image: null,
+        image: '../assets/content/Kelantan/wayang_kulit.jpg',
       },
       {
         id: 'kelantan-3',
@@ -351,25 +244,134 @@ export const STATES_DATA = [
         category: 'Food',
         icon: '🍚',
         title: 'Nasi Kerabu',
-        desc: 'Nasi Kerabu is a famous Kelantan dish where the rice is naturally blue! It is served with fish or chicken, fresh herbs, salted egg, and a spicy sauce. It is as healthy as it is colourful.',
+        desc: 'Nasi Kerabu is a famous Kelantan dish where the rice is naturally blue! It is served with grilled chicken or fish, fresh herbs, salted egg, prawn crackers, and a spicy sauce. It is as healthy as it is colourful.',
         funFact: 'The blue colour comes from real butterfly-pea flowers called "bunga telang" — no artificial colouring at all!',
         mascotLine: 'Blue rice?! Kelantan\'s Nasi Kerabu is as tasty as it is colourful!',
-        // 📸 IMAGE NEEDED: kelantan-nasi-kerabu.png
-        // Export from Figma → Cards/Kelantan/Food — blue Nasi Kerabu illustration
-        image: null,
+        image: '../assets/content/Kelantan/nasi_kerabu.png',
+      },
+      {
+        id: 'kelantan-5',
+        category: 'Costume',
+        icon: '👑',
+        title: 'Cik Siti Wan Kembang',
+        desc: 'The Cik Siti Wan Kembang attire is a royal costume inspired by a legendary 17th-century warrior queen of Kelantan. It has the Kain Kemban wrapped around the torso, a Kain Kelubung shawl, a Kain Sarong at the waist, and the Gandik — a golden crown.',
+        funFact: 'Cik Siti Wan Kembang was said to ride into battle on horseback with an army of women warriors!',
+        mascotLine: 'A queen who was also a warrior — and her golden crown sparkles like the stars!',
+        image: '../assets/content/Kelantan/cik_siti_wan_kembang.png',
+      },
+      {
+        id: 'kelantan-6',
+        category: 'Landmark',
+        icon: '🛶',
+        title: 'Perahu Kolek',
+        desc: 'Perahu Kolek are traditional wooden fishing boats from Kelantan. Local fishermen hand-paint them with beautiful colourful designs, so people call them "floating works of art"! You can also find street art and craft villages around Kota Bharu.',
+        funFact: 'Each fisherman paints his own boat, so no two Perahu Kolek look exactly the same!',
+        mascotLine: 'These boats are so colourful — they really are floating works of art!',
+        image: '../assets/content/Kelantan/perahu_kolek.jpg',
       },
     ],
     dragPairs: [
-      { food: '🪁 Wau Bulan',      state: 'Giant moon kite' },
-      { food: '🎭 Wayang Kulit',    state: 'Shadow puppets'   },
-      { food: '🧵 Batik Lukis',     state: 'Wax-dyed fabric'  },
-      { food: '👑 Kota Bharu',      state: 'Capital city'     },
+      { image: '../assets/content/Kelantan/nasi_kerabu.png', icon: '🍚', label: 'Nasi Kerabu', match: 'The traditional food — blue rice dish' },
+      { image: '../assets/content/Kelantan/cik_siti_wan_kembang.png', icon: '👑', label: 'Cik Siti Wan Kembang', match: 'The traditional costume' },
+      { image: '../assets/content/Kelantan/perahu_kolek.jpg', icon: '🛶', label: 'Perahu Kolek', match: 'A famous place to visit' },
+      { image: '../assets/content/Kelantan/wayang_kulit.jpg', icon: '🎭', label: 'Wayang Kulit', match: 'A special celebration' },
     ],
     quizQuestion: {
-      q: 'What is a "Wau"?',
-      opts: ['A type of dance', 'A traditional kite', 'A musical instrument', 'A cooking method'],
+      q: 'What are Kelantan\'s colourful hand-painted fishing boats called?',
+      opts: ['Perahu Kolek', 'Wayang Kulit', 'Nasi Kerabu', 'Cik Siti Wan Kembang'],
+      ans: 0,
+      explain: 'Perahu Kolek are Kelantan\'s hand-painted wooden fishing boats — people call them "floating works of art"!',
+      image: '../assets/content/Kelantan/perahu_kolek.jpg',
+    },
+  },
+
+  {
+    id: 'kedah',
+    name: 'Kedah',
+    emoji: '<img src="../assets/flags/kedah-flag.png" alt="Kedah Icon">',
+    color: '#B7950B',
+    colorLight: '#FBF6E3',
+    region: 'west',
+    tagline: 'Rice Bowl of Malaysia',
+    // 📸 Entry background provided: assets/content/Kedah/kedah_entry_background..avif
+    entryBg: '../assets/content/Kedah/kedah_entry_background.avif',
+    // Rimau's spoken intro on the entry screen (3 lines: greeting → story → CTA).
+    entryDialogue: [
+      'Selamat datang to Kedah — the Rice Bowl of Malaysia!',
+      'People here grow lots of rice in the beautiful paddy fields',
+      "Ready to taste, dance, and explore what makes Kedah so special?",
+      "Let's go!"
+    ],
+    story: `Kedah is a state in the northwest of Malaysia, bordering Thailand. It is known as the "Jelapang Padi" — the Rice Bowl of Malaysia — because its wide, green paddy fields grow much of the country's rice! Kedah is one of the oldest states, with the ancient Bujang Valley civilisation. Alor Setar is the capital city.`,
+    dialectWord: { word: 'Hang', meaning: 'means "you" in the Kedah dialect (loghat Kedah)', pronunciation: 'hahng' },
+    cards: [
+      {
+        id: 'kedah-1',
+        category: 'Food',
+        icon: '🍜',
+        title: 'Kedah Laksa',
+        desc: 'Kedah Laksa is a northern-style laksa with a rich, spicy and tangy fish broth poured over soft rice noodles, served with flaky fish and a medley of fresh vegetables. Locals love it any time of day!',
+        funFact: 'Kedah is also famous for sweet treats — Kek Lapis Kedah (a layered cake with beautiful patterns) and Pulut Kuning (turmeric glutinous rice served at celebrations)!',
+        mascotLine: 'Mmm, Kedah Laksa! Sour, spicy, and so fresh — let\'s cook a bowl!',
+        image: '../assets/content/Kedah/kedah_laksa.png',
+      },
+      {
+        id: 'kedah-2',
+        category: 'Landmark',
+        icon: '🌉',
+        title: 'Langkawi Sky Bridge',
+        desc: 'The Langkawi Sky Bridge is a curved walking bridge high up on Gunung Mat Cincang in the Langkawi Archipelago. It hangs about 700 metres above sea level with breathtaking views of islands and the sea!',
+        funFact: 'Langkawi is a group of 99 islands and is a UNESCO Global Geopark — full of ancient rainforests and legends!',
+        mascotLine: 'Wah, walking on a bridge in the clouds — hold on tight and enjoy the view!',
+        image: null,
+      },
+      {
+        id: 'kedah-3',
+        category: 'Tradition',
+        icon: '💃',
+        title: 'Cinta Sayang Dance',
+        desc: 'Cinta Sayang is a traditional Malay dance that comes from Kedah. It is a favourite opening dance performed at important events and celebrations across the state.',
+        funFact: 'Long ago, fishermen and farmers danced Cinta Sayang during the paddy harvest to entertain themselves after a hard day\'s work!',
+        mascotLine: 'Can you feel the rhythm? Let\'s dance the Cinta Sayang together!',
+        image: null,
+      },
+      {
+        id: 'kedah-4',
+        category: 'Costume',
+        icon: '👗',
+        title: 'Baju Kedah',
+        desc: 'Baju Kedah is a women\'s costume with a short hip-length tunic and three-quarter sleeves, worn with a matching skirt folded on one side. It is paired with a batik sarong or kain pelekat and a silver belt.',
+        funFact: 'The blouse is often made of thin cloth like floral cotton or soft voile, so the pretty silver belt shows through!',
+        mascotLine: 'Baju Kedah looks so elegant — perfect for the Cinta Sayang dance!',
+        image: null,
+      },
+      {
+        id: 'kedah-5',
+        category: 'Festival',
+        icon: '🌾',
+        title: 'Kedah Paddy Festival',
+        desc: 'The Kedah Paddy Festival, usually held in November, is a lively celebration that honours the state\'s rice harvest with music, dancing, and delicious food.',
+        funFact: 'Kedah is the "Rice Bowl of Malaysia" — its golden paddy fields grow much of the rice the whole country eats!',
+        mascotLine: 'Harvest time in Kedah means music, dance, and a big thank-you for the rice!',
+        image: null,
+      },
+    ],
+    // ⚠️ Kedah ships no dedicated Baju Kedah costume photo yet — reusing the
+    // Cinta Sayang dance photo (kedah_cinta_sayang.jpg), which shows dancers
+    // wearing the traditional costume. Swap in a real Baju Kedah photo if/when
+    // one is added to assets/content/Kedah/.
+    dragPairs: [
+      { image: '../assets/content/Kedah/kedah_laksa.png', icon: '🍜', label: 'Kedah Laksa', match: 'The traditional food — tangy fish laksa' },
+      { image: '../assets/content/Kedah/kedah_cinta_sayang.jpg', icon: '👗', label: 'Baju Kedah', match: 'The traditional costume' },
+      { image: '../assets/content/Kedah/langkawi_sky_bridge.avif', icon: '🌉', label: 'Langkawi Sky Bridge', match: 'A famous place to visit' },
+      { image: '../assets/content/Kedah/kedah_entry_background.avif', icon: '🌾', label: 'Kedah Paddy Festival', match: 'A special celebration' },
+    ],
+    quizQuestion: {
+      q: 'Why is Kedah called the "Rice Bowl of Malaysia"?',
+      opts: ['It makes the most bowls', 'It grows most of the rice', 'It is shaped like a bowl', 'It has the most restaurants'],
       ans: 1,
-      explain: 'Wau is the traditional Malay kite from Kelantan. The Wau Bulan design even appears on Malaysia\'s 50 sen coin!',
+      explain: 'Kedah is called "Jelapang Padi" — the Rice Bowl of Malaysia — because its huge paddy fields grow much of the country\'s rice!',
+      image: '../assets/content/Kedah/kedah_entry_background.avif',
     },
   },
 
@@ -381,69 +383,100 @@ export const STATES_DATA = [
     colorLight: '#E8F8F5',
     region: 'east',
     tagline: 'Land Below the Wind',
-    story: `Sabah is located in the northern part of Borneo island. It is called the "Land Below the Wind" because it sits just below the typhoon belt. Sabah is famous for its stunning natural beauty — Mount Kinabalu is the highest peak in Malaysia! Sabah also has amazing wildlife like orangutans, pygmy elephants, and proboscis monkeys.`,
-    dialectWord: { word: 'Kadazan-Dusun', meaning: 'The largest indigenous ethnic group in Sabah', pronunciation: 'ka-da-zan doo-sun' },
+    // Entry scene + Rimau's spoken intro on the narrative screen.
+    entryBg: '../assets/content/Sabah/mount_kinabalu.jpg',
+    entryDialogue: [
+      'Selamat datang to Sabah — the Land Below the Wind!',
+      'Sabah has over 40 ethnic groups, the tallest mountain in Malaysia, and amazing nature',
+      'Ready to taste, dance, and explore what makes Sabah so special?',
+      "Let's go!"
+    ],
+    story: `Sabah is on the island of Borneo, in the east of Malaysia. It is called the "Land Below the Wind" because it sits just below the typhoon belt. Sabah has over 40 ethnic groups — the largest is the Kadazandusun — each with their own beliefs and traditions. It is famous for Mount Kinabalu (the highest peak in Malaysia), the fresh-fish salad Hinava, the graceful Sumazau dance at Pesta Kaamatan, and the world's biggest flower, the Rafflesia. Kota Kinabalu is the capital city.`,
+    dialectWord: { word: 'Kadazandusun', meaning: 'The largest indigenous ethnic group in Sabah', pronunciation: 'ka-da-zan-doo-sun' },
     cards: [
       {
         id: 'sabah-1',
-        category: 'Nature',
+        category: 'Landmark',
         icon: '🏔️',
         title: 'Mount Kinabalu',
-        desc: 'Mount Kinabalu is the highest mountain in Malaysia at 4,095 metres above sea level! It is a popular hiking destination and is a UNESCO World Heritage Site. On a clear day, you can see the sea from the summit!',
-        funFact: 'Mount Kinabalu is one of the youngest non-volcanic mountains in the world — it is still growing!',
+        desc: 'Mount Kinabalu is the highest mountain in Malaysia at 4,095 metres above sea level! It is a UNESCO World Heritage Site. Climbers wake up very early to reach the top and watch the sunrise above the clouds.',
+        funFact: 'Mount Kinabalu is one of the youngest non-volcanic mountains in the world — it is still growing a little bit every year!',
         mascotLine: 'Imagine standing on the highest mountain in Malaysia — you can touch the clouds!',
-        // 📸 IMAGE NEEDED: sabah-kinabalu.png
-        // Export from Figma → Cards/Sabah/Nature — Mount Kinabalu mountain illustration
-        image: null,
+        image: '../assets/content/Sabah/mount_kinabalu.jpg',
       },
       {
         id: 'sabah-2',
-        category: 'Wildlife',
-        icon: '🦧',
-        title: 'Borneo Orangutan',
-        desc: 'Sabah is one of the last places on Earth where wild orangutans live. These gentle apes share 97% of their DNA with humans! The Sepilok Orangutan Rehabilitation Centre helps orphaned orangutans learn to survive in the wild again.',
-        funFact: 'Orangutan means "person of the forest" in Malay — orangu (person) + utan (forest/wild)!',
-        mascotLine: 'Orangutans are like our forest cousins — we must protect them!',
-        // 📸 IMAGE NEEDED: sabah-orangutan.png
-        // Export from Figma → Cards/Sabah/Wildlife — Borneo orangutan illustration
-        image: null,
+        category: 'Food',
+        icon: '🥗',
+        title: 'Hinava',
+        desc: 'Hinava is a traditional fresh-fish salad from the Kadazandusun people. Small pieces of raw fish are mixed with lime juice, onion, chili padi, and ginger. The sour lime juice "cooks" the fish without any fire!',
+        funFact: 'Hinava is sometimes called the "sushi of Sabah" because the fish is served fresh and raw!',
+        mascotLine: 'A salad where lime juice cooks the fish — no fire needed. So clever!',
+        image: '../assets/content/Sabah/hinava.png',
       },
       {
         id: 'sabah-3',
         category: 'Festival',
         icon: '🎉',
-        title: 'Kaamatan Festival',
-        desc: 'Kaamatan is the harvest festival of the Kadazan-Dusun people, celebrated at the end of May every year. It is a time to thank the rice spirit (Bambazon) for a good harvest. The festival includes traditional music, dance, and food!',
-        funFact: 'During Kaamatan, a special rice wine called "Tapai" is made from fermented rice — a traditional drink!',
-        mascotLine: 'Kaamatan is about being grateful for nature\'s gifts — what a beautiful tradition!',
-        // 📸 IMAGE NEEDED: sabah-kaamatan.png
-        // Export from Figma → Cards/Sabah/Festival — Kaamatan harvest festival illustration
-        image: null,
+        title: 'Pesta Kaamatan',
+        desc: 'Pesta Kaamatan is the harvest festival of the Kadazandusun people, celebrated in May to thank Bambaazon, the spirit of the rice. It is full of music, the graceful Sumazau dance, and the Unduk Ngadau beauty parade.',
+        funFact: 'In the Sumazau dance, dancers spread their arms and move gently like a bird flying in the sky!',
+        mascotLine: 'Kaamatan is a big thank-you to nature for the rice harvest — what a joyful festival!',
+        image: '../assets/content/Sabah/sumazau_dance.png',
       },
       {
         id: 'sabah-4',
         category: 'Costume',
         icon: '👘',
-        title: 'Kadazan-Dusun Costume',
-        desc: 'The Kadazan-Dusun people wear beautiful black costumes decorated with gold trim and colourful beads. Women wear a "tangkong" belt made of silver coins, worn proudly during the Sumazau dance.',
-        funFact: 'The Sumazau is a graceful dance where dancers spread their arms and move like a bird flying — performed at the Kaamatan harvest festival!',
-        mascotLine: 'The Kadazan-Dusun costumes sparkle with gold — perfect for the Sumazau dance!',
-        // 📸 IMAGE NEEDED: sabah-kadazan-costume.png
-        // Export from Figma → Cards/Sabah/Costume — Kadazan-Dusun traditional attire illustration
-        image: null,
+        title: 'Kadazan Penampang',
+        desc: 'The Kadazan Penampang costume is made of black velvet with red-and-gold trim. Women wear a sleeveless top (Sinuangga) and a long skirt (Gonob) with a silver coin belt, while men wear a jacket (Gaung), trousers (Souva), and a woven head cloth (Siga).',
+        funFact: 'The woman\'s belt is made from rows of real silver coins — it jingles softly when she dances!',
+        mascotLine: 'The Kadazan costumes sparkle with gold — perfect for the Sumazau dance!',
+        image: '../assets/content/Sabah/kadazan_penampang.jpg',
+      },
+      {
+        id: 'sabah-5',
+        category: 'Landmark',
+        icon: '🏡',
+        title: 'Mari Mari Cultural Village',
+        desc: 'Mari Mari Cultural Village shows how Sabah\'s tribes lived long ago. You can visit traditional wooden ethnic houses and watch people start a fire using only bamboo — one of the old ways of cooking!',
+        funFact: 'Nearby, the Desa Dairy Farm in Kundasang has green hills and cows — people call it the "New Zealand of Sabah"!',
+        mascotLine: 'Making fire with just bamboo? The old ways are amazing to watch!',
+        image: '../assets/content/Sabah/mari_mari_village.jpg',
+      },
+      {
+        id: 'sabah-6',
+        category: 'Nature',
+        icon: '🌺',
+        title: 'Rafflesia',
+        desc: 'The Rafflesia is the biggest flower in the whole world — it can grow as wide as a car tyre! It is red with white spots and blooms deep in the Sabah rainforest. Visitors can learn about it at the Rafflesia Information Centre.',
+        funFact: 'The Rafflesia smells like rotten meat — that stinky smell attracts flies to help it make seeds!',
+        mascotLine: 'The biggest flower in the world grows right here in Sabah — but pooh, it\'s stinky!',
+        image: '../assets/content/Sabah/rafflesia.jpg',
+      },
+      {
+        id: 'sabah-7',
+        category: 'Tradition',
+        icon: '👸',
+        title: 'Unduk Ngadau',
+        desc: 'Unduk Ngadau is a special beauty parade held during Pesta Kaamatan. Young women wear their finest traditional costumes and are honoured in memory of Huminodun, a kind girl from Kadazandusun folklore who gave her life so rice would grow.',
+        funFact: 'The name "Unduk Ngadau" means "girl crowned by the midday sun" — the crowning happens at the brightest time of day!',
+        mascotLine: 'The Unduk Ngadau costumes are so beautiful — it\'s a parade to remember a kind-hearted girl!',
+        image: '../assets/content/Sabah/unduk_ngadu.png',
       },
     ],
     dragPairs: [
-      { food: '🏔️ Mount Kinabalu', state: 'Highest peak'          },
-      { food: '🦧 Orangutan',       state: 'Person of the forest' },
-      { food: '🎉 Kaamatan',        state: 'Harvest festival'     },
-      { food: '🐘 Pygmy Elephant',  state: 'Borneo wildlife'      },
+      { image: '../assets/content/Sabah/hinava.png', icon: '🥗', label: 'Hinava', match: 'The traditional food — fresh-fish salad' },
+      { image: '../assets/content/Sabah/kadazan_penampang.jpg', icon: '👘', label: 'Kadazan Penampang', match: 'The traditional costume' },
+      { image: '../assets/content/Sabah/mount_kinabalu.jpg', icon: '🏔️', label: 'Mount Kinabalu', match: 'A famous place to visit' },
+      { image: '../assets/content/Sabah/sumazau_dance.png', icon: '💃', label: 'Pesta Kaamatan', match: 'A special celebration' },
     ],
     quizQuestion: {
       q: 'What is Mount Kinabalu famous for?',
       opts: ['Being the oldest volcano', 'Being the highest mountain in Malaysia', 'Being underwater', 'Being made of gold'],
       ans: 1,
       explain: 'Mount Kinabalu is 4,095 metres high — the highest mountain in Malaysia and a UNESCO World Heritage Site!',
+      image: '../assets/content/Sabah/mount_kinabalu.jpg',
     },
   },
 
@@ -455,89 +488,141 @@ export const STATES_DATA = [
     colorLight: '#EBF5FB',
     region: 'east',
     tagline: 'Land of the Hornbills',
-    story: `Sarawak is the largest state in Malaysia, located on the island of Borneo. It is called the "Land of the Hornbills" because the magnificent hornbill bird is its symbol. Sarawak has amazing rainforests, ancient caves, and over 40 different indigenous ethnic groups with their own unique cultures!`,
+    // Entry scene + Rimau's spoken intro on the narrative screen.
+    entryBg: '../assets/content/Sarawak/kuching_waterfront.jpg',
+    entryDialogue: [
+      'Selamat datang to Sarawak — the Land of the Hornbills!',
+      'Sarawak is the biggest state, with giant caves, longhouses, and the Iban people',
+      'Ready to taste, dance, and explore what makes Sarawak so special?',
+      "Let's go!"
+    ],
+    story: `Sarawak is the largest state in Malaysia, on the island of Borneo. It is called the "Land of the Hornbills" because the magnificent hornbill bird is its symbol. Sarawak is home to over 40 indigenous groups — the largest is the Iban — famous for long wooden longhouses. It has the giant caves of Gunung Mulu, the tasty dry noodles called Kolo Mee, the colourful Ngepan costume, and the lively Gawai Dayak harvest festival. Kuching, which means "cat", is the capital city.`,
     dialectWord: { word: 'Iban', meaning: 'The largest indigenous ethnic group in Sarawak', pronunciation: 'ee-ban' },
     cards: [
       {
         id: 'sarawak-1',
-        category: 'Wildlife',
-        icon: '🦜',
-        title: 'Rhinoceros Hornbill',
-        desc: 'The Rhinoceros Hornbill is Sarawak\'s state bird. It is a large, beautiful bird with a curved "casque" on its beak that looks like a horn. It plays an important role in Iban culture and legends. Seeing one in the wild is very special!',
-        funFact: 'Hornbills mate for life and the female seals herself inside a tree hole to lay eggs — only a small opening remains for the male to pass her food!',
-        mascotLine: 'Look at that magnificent casque on its beak — the hornbill is Sarawak\'s proud symbol!',
-        // 📸 IMAGE NEEDED: sarawak-hornbill.png
-        // Export from Figma → Cards/Sarawak/Wildlife — Rhinoceros Hornbill illustration
-        image: null,
+        category: 'Landmark',
+        icon: '⛰️',
+        title: 'Gunung Mulu',
+        desc: 'Gunung Mulu National Park has the largest cave system in the world! You can explore giant caves and walk on a canopy bridge high up in the treetops. Every evening, millions of bats fly out of the caves in a spectacular show.',
+        funFact: 'The Sarawak Chamber inside Mulu is so big it could fit 40 jumbo jets — the world\'s largest cave chamber!',
+        mascotLine: 'Millions of bats flying out at sunset look like a giant dark river in the sky!',
+        image: '../assets/content/Sarawak/gunung_mulu.jpg',
       },
       {
         id: 'sarawak-2',
-        category: 'Heritage',
-        icon: '🏡',
-        title: 'Iban Longhouse',
-        desc: 'The Iban people are famous for their longhouses — very long wooden houses built on stilts that can house up to 50 families! Everyone lives together in one giant connected house. Visitors are always welcomed with traditional Iban hospitality.',
-        funFact: 'Some Iban longhouses are over 300 metres long — longer than three football fields!',
-        mascotLine: 'Imagine living in a house with 50 families — it\'s like a village under one roof!',
-        // 📸 IMAGE NEEDED: sarawak-longhouse.png
-        // Export from Figma → Cards/Sarawak/Heritage — Iban longhouse illustration
-        image: null,
+        category: 'Food',
+        icon: '🍜',
+        title: 'Kolo Mee',
+        desc: 'Kolo Mee is Sarawak\'s favourite noodle dish. Springy egg noodles are tossed dry (not in soup!) and topped with minced pork and crispy fried onions, with a bowl of clear soup and soy sauce on the side.',
+        funFact: 'Some people eat Kolo Mee for breakfast every single day — it is that popular in Sarawak!',
+        mascotLine: 'Dry, springy noodles with crispy onions on top — Kolo Mee is so tasty!',
+        image: '../assets/content/Sarawak/kolo_mee.png',
       },
       {
         id: 'sarawak-3',
-        category: 'Nature',
-        icon: '🕯️',
-        title: 'Mulu Caves',
-        desc: 'Gunung Mulu National Park has the largest cave system in the world! The Sarawak Chamber inside is so big, it can fit 40 Boeing 747 aircraft! Every evening, millions of bats fly out of the caves in a spectacular show.',
-        funFact: 'The Sarawak Chamber is 600 metres long, 415 metres wide, and 80 metres high — the world\'s largest cave chamber!',
-        mascotLine: 'Millions of bats flying out at sunset looks like a giant dark river in the sky!',
-        // 📸 IMAGE NEEDED: sarawak-mulu.png
-        // Export from Figma → Cards/Sarawak/Nature — Mulu caves illustration
-        image: null,
+        category: 'Festival',
+        icon: '🎉',
+        title: 'Gawai Dayak',
+        desc: 'Gawai Dayak is the harvest festival of the Dayak people, held every June to give thanks for the rice harvest. Families decorate their longhouses, perform the Ngajat dance, and enjoy traditional games together.',
+        funFact: 'Gawai greetings sound like "Gayu Guru, Gerai Nyamai" — a wish for long life, health and happiness!',
+        mascotLine: 'Decorated longhouses, dancing and games — Gawai Dayak is a joyful harvest party!',
+        image: '../assets/content/Sarawak/decorate_longhouse.png',
       },
       {
         id: 'sarawak-4',
-        category: 'Food',
-        icon: '🍜',
-        title: 'Sarawak Laksa',
-        desc: 'Sarawak Laksa is a famous noodle soup with a rich, spicy broth made from special spices, coconut milk, and prawns. It is topped with chicken, prawns, egg, and fresh herbs — yum!',
-        funFact: 'Sarawak Laksa is so loved that a world-famous chef once called it the "breakfast of the gods"!',
-        mascotLine: 'Sarawak Laksa for breakfast? Yes please — it is bursting with flavour!',
-        // 📸 IMAGE NEEDED: sarawak-laksa.png
-        // Export from Figma → Cards/Sarawak/Food — Sarawak Laksa illustration
-        image: null,
+        category: 'Costume',
+        icon: '👘',
+        title: 'Ngepan Iban',
+        desc: 'Ngepan is the traditional dress of the Iban women. It has the Sugu Tinggi (a tall silver headdress), the Marik Empang (a beaded shoulder collar), the Rawai (shiny coin belts), and the Kain Kebat (a handwoven skirt).',
+        funFact: 'The Sugu Tinggi headdress is made of real silver and shines brightly under the light!',
+        mascotLine: 'The Ngepan sparkles with silver and beads — so beautiful for the Ngajat dance!',
+        image: '../assets/content/Sarawak/ngepan.png',
+      },
+      {
+        id: 'sarawak-5',
+        category: 'Landmark',
+        icon: '🐱',
+        title: 'Kuching, the Cat City',
+        desc: 'Kuching is the capital of Sarawak, and its name means "cat" in Malay! The city is full of cat statues and even has a whole Cat Museum. You can also stroll along the pretty Kuching Waterfront by the river.',
+        funFact: 'Kuching\'s Cat Museum has over 2,000 cat items — one of the only museums in the world all about cats!',
+        mascotLine: 'A city named "cat", with cat statues everywhere — Kuching is purr-fect!',
+        image: '../assets/content/Sarawak/cat_musuem.jpg',
+      },
+      {
+        id: 'sarawak-6',
+        category: 'Wildlife',
+        icon: '🐒',
+        title: 'Proboscis Monkey',
+        desc: 'The proboscis monkey has a big, funny nose and a round belly. It lives only on the island of Borneo and can be spotted in Bako National Park near Kuching. It is a strong swimmer and loves the mangrove forests.',
+        funFact: 'The male proboscis monkey\'s huge nose helps make his call louder — the bigger the nose, the louder the honk!',
+        mascotLine: 'What a funny long nose — the proboscis monkey lives only here on Borneo!',
+        image: '../assets/content/Sarawak/proboscis_monkeys.png',
+      },
+      {
+        id: 'sarawak-7',
+        category: 'Tradition',
+        icon: '💃',
+        title: 'Ngajat Dance',
+        desc: 'The Ngajat is a proud warrior dance of the Iban people, performed at Gawai Dayak and to welcome guests. Dancers wear tall headdresses decorated with hornbill feathers and move gracefully to the beat of drums and gongs.',
+        funFact: 'Long ago, Iban warriors danced the Ngajat before heading off on a journey — today it is a dance of welcome and celebration!',
+        mascotLine: 'The Ngajat dancers move like proud hornbills — what a graceful, powerful dance!',
+        image: '../assets/content/Sarawak/ngajat_dance.jpg',
+      },
+      {
+        id: 'sarawak-8',
+        category: 'Tradition',
+        icon: '🎯',
+        title: 'Blowpipe (Sumpit)',
+        desc: 'The blowpipe, or "sumpit", is a long wooden tube used by Borneo\'s people to hunt in the rainforest. At Gawai Dayak, there are blowpipe competitions where people show off their aim by blowing darts at a target.',
+        funFact: 'A skilled hunter can blow a dart accurately over 30 metres — that is longer than a swimming pool!',
+        mascotLine: 'Aim, breathe, and puff — the blowpipe takes a steady hand and sharp eyes!',
+        image: '../assets/content/Sarawak/blowpipe.jpg',
       },
     ],
     dragPairs: [
-      { food: '🦜 Hornbill',        state: 'State bird'          },
-      { food: '🏡 Longhouse',       state: 'Iban village home'   },
-      { food: '🕯️ Mulu Caves',      state: "World's largest cave" },
-      { food: '🐱 Kuching',         state: 'Cat city'            },
+      { image: '../assets/content/Sarawak/kolo_mee.png', icon: '🍜', label: 'Kolo Mee', match: 'The traditional food — dry egg noodles' },
+      { image: '../assets/content/Sarawak/ngepan.png', icon: '👘', label: 'Ngepan Iban', match: 'The traditional costume' },
+      { image: '../assets/content/Sarawak/gunung_mulu.jpg', icon: '⛰️', label: 'Gunung Mulu', match: 'A famous place to visit' },
+      { image: '../assets/content/Sarawak/ngajat_dance.jpg', icon: '💃', label: 'Gawai Dayak', match: 'A special celebration' },
     ],
     quizQuestion: {
-      q: 'Why is Sarawak called the "Land of the Hornbills"?',
-      opts: ['It has the most horns', 'The hornbill bird is its symbol', 'Its mountains look like horns', 'Horns are made there'],
-      ans: 1,
-      explain: 'The Rhinoceros Hornbill is Sarawak\'s state bird and symbol — that\'s why Sarawak is called the Land of the Hornbills!',
+      q: 'What does the city name "Kuching" mean?',
+      opts: ['Cat', 'River', 'Mountain', 'Hornbill'],
+      ans: 0,
+      explain: 'Kuching is Sarawak\'s capital, and its name means "cat" — the city even has a whole Cat Museum!',
+      image: '../assets/content/Sarawak/cat_musuem.jpg',
     },
   },
 ];
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
+// Per-state stamp illustrations (uploaded under assets/content/<State>/). Paths
+// keep the exact folder/file casing so they also resolve on case-sensitive hosts.
+const STAMP_FILES = {
+  penang:   'Penang/penang_stamp.png',
+  selangor: 'Selangor/selangor_stamp.png',
+  kelantan: 'Kelantan/kelantan_stamp.png',
+  kedah:    'Kedah/Kedah_stamp.png',
+  sabah:    'Sabah/sabah_stamp.png',
+  sarawak:  'Sarawak/sarawak_stamp.png',
+};
+
+// Relative path (from src/views/) to a state's stamp image, or null if none.
+export function stampImgFor(stateId) {
+  return STAMP_FILES[stateId] ? `../assets/content/${STAMP_FILES[stateId]}` : null;
+}
+
 export function getState(id) {
   return STATES_DATA.find(s => s.id === id) || null;
 }
 
 export function unlockedStates(progress = {}) {
-  const westDone = STATES_DATA
-    .filter(s => s.region === 'west')
-    .filter(s => progress[s.id]?.quiz === true).length;
-  const eastUnlocked = westDone >= 5;
-
-  return STATES_DATA.filter(s => {
-    if (s.region === 'west') return true;
-    return eastUnlocked;
-  });
+  // Free exploration: every state is open from the start — nothing is gated.
+  // (Historically East Malaysia unlocked only after all 5 West states; that
+  // gate was removed so children can explore any state whenever they like.)
+  return STATES_DATA.slice();
 }
 
 export function nextRecommended(progress = {}) {

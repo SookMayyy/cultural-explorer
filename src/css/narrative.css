@@ -1,746 +1,329 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   NARRATIVE / DISCOVERY CARDS SCREEN — narrative.css
-   "Collectible Postcards" design direction.
-   Loka Made spirit: warm card-stock, playful category badges, tactile flip.
-   Word Force polish: spring entrance, postcard snap, chunky CTA.
+   STORY-ENTRY / "ENTER STATE" SCREEN — narrative.css
+   The scene-setter before a state's missions: state name banner, Rimau in
+   costume, a welcome speech bubble, and a big "Let's Explore!" button.
+   Loka Made warmth + Word Force chunky, storybook framing.
+
+   State colour is applied by narrative.js via --state-color / --state-color-light
+   on #story-entry. Everything falls back gracefully.
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* ── Local CSS custom properties ────────────────────────────────────────────
-   State colour is applied by narrative.js via --state-color / --state-color-light
-   on the .narrative-screen element. Everything here falls back gracefully. */
-.narrative-screen {
+/* ── Topbar: always purple here ─────────────────────────────────────────────
+   Overrides the colour renderTopbar() would set, via the .narrative-topbar
+   modifier on the header. !important beats the inline style. */
+.narrative-topbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* ── Screen shell ───────────────────────────────────────────────────────────
+   Centres the scene card and clears the fixed bottom navbar. */
+.story-entry {
   --state-color:       var(--clr-orange);
   --state-color-light: #FEF0DC;
 
   flex: 1;
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
   overflow-y: auto;
   overflow-x: hidden;
-  /* Extra bottom padding to clear the fixed navbar */
-  padding-bottom: calc(var(--navbar-h) + var(--sp-lg));
-}
-
-/* ── Topbar: always purple on the narrative screen ──────────────────────────
-   Overrides whatever colour narrative.js passes (state colour) via the
-   .narrative-topbar modifier class added in narrative.html.
-   !important beats the inline style set by renderTopbar(). */
-.narrative-topbar {
-  background: var(--clr-purple) !important;
-  box-shadow: 0 3px 0 var(--clr-purple-deep), 0 4px 12px rgba(107,80,206,0.30) !important;
+  padding: var(--sp-lg) var(--sp-md)
+           calc(var(--navbar-h) + var(--sp-lg));
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   HERO BANNER
+   SCENE CARD
+   A framed storybook scene. The placeholder backdrop is a soft gradient tinted
+   with the state colour; when a real scene illustration loads, narrative.js
+   sets --scene-image and adds .has-scene to swap it in.
    ═══════════════════════════════════════════════════════════════════════════ */
-
-.narrative-hero {
+.story-scene-card {
   position: relative;
-  /* Minimum height — state colour fills this until a hero image loads */
-  min-height: 140px;
-  background: var(--state-color);
-  overflow: hidden;
-  flex-shrink: 0;
-
-  /* Warm diagonal light feel — like sunlight through a shaded kopitiam window */
-  background-image:
-    radial-gradient(ellipse at 80% 20%, rgba(255,255,255,0.18) 0%, transparent 60%),
-    radial-gradient(ellipse at 10% 90%, rgba(0,0,0,0.12) 0%, transparent 50%);
-
-  /* Entrance: hero fades in from slight upward position */
-  animation: narrative-hero-in 0.4s 0.05s ease-out both;
-}
-
-@keyframes narrative-hero-in {
-  from { opacity: 0; transform: translateY(-8px); }
-  to   { opacity: 1; transform: translateY(0);    }
-}
-
-/* Semi-transparent gradient overlay so white text stays readable */
-.narrative-hero-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    160deg,
-    rgba(0,0,0,0.08) 0%,
-    rgba(0,0,0,0.40) 100%
-  );
-  display: flex;
-  align-items: flex-end;
-  padding: var(--sp-md);
-}
-
-.narrative-hero-inner {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-md);
-}
-
-/* Flag / emoji badge — large, round, feels like a coin on a postcard */
-.narrative-hero-emoji {
-  width: 56px;
-  height: 56px;
-  border-radius: var(--r-md);
-  background: rgba(255,255,255,0.20);
-  border: 2px solid rgba(255,255,255,0.40);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 32px;
-  flex-shrink: 0;
-  overflow: hidden;
-  backdrop-filter: blur(4px);
-}
-
-/* img children from states.js emoji HTML */
-.narrative-hero-emoji img {
   width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.narrative-hero-text {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.narrative-hero-name {
-  font-family: var(--font-title);
-  font-size: var(--text-2xl);
-  color: #fff;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.45);
-  margin: 0;
-  line-height: 1.1;
-}
-
-.narrative-hero-tagline {
-  font-family: var(--font-display);
-  font-size: var(--text-sm);
-  color: rgba(255,255,255,0.85);
-  margin: 0;
-  /* Pill badge around the tagline */
-  background: rgba(255,255,255,0.20);
-  border-radius: var(--r-pill);
-  padding: 2px 10px;
-  display: inline-block;
-  backdrop-filter: blur(4px);
-  line-height: 1.6;
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   TAB STRIP
-   ═══════════════════════════════════════════════════════════════════════════ */
-
-.narrative-tabs {
-  display: flex;
-  background: #fff;
-  border-bottom: 2px solid var(--clr-border);
-  /* Stays visible below the hero as user scrolls the story content */
-  position: sticky;
-  top: 0;         /* flush under the topbar (which is not inside .narrative-screen) */
-  z-index: 10;
-  flex-shrink: 0;
-}
-
-.ntab {
-  flex: 1;
-  padding: var(--sp-sm) var(--sp-xs);
-  font-family: var(--font-display);
-  font-size: var(--text-sm);
-  color: var(--clr-text-muted);
-  background: none;
-  border: none;
-  /* Bottom indicator line — hidden until active */
-  border-bottom: 3px solid transparent;
-  cursor: pointer;
-  transition: color 0.2s ease, border-color 0.2s ease;
-  line-height: 1.3;
-  /* Large enough tap target for children */
-  min-height: 44px;
-}
-
-.ntab.active {
-  /* Active tab uses the state colour for a personalised underline */
-  color: var(--state-color);
-  border-bottom-color: var(--state-color);
-}
-
-.ntab:not(.active):hover {
-  color: var(--clr-text);
-  background: var(--clr-grey-light);
-}
-
-/* ── Tab content panels ──────────────────────────────────────────────────── */
-.ntab-content {
-  display: flex;
-  flex-direction: column;
-  padding: var(--sp-md);
-  gap: var(--sp-md);
-
-  /* Smooth entrance when tab is activated */
-  animation: tab-reveal 0.22s ease-out both;
-}
-
-.ntab-content.hidden {
-  display: none;
-}
-
-@keyframes tab-reveal {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0);   }
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   SHARED: Mascot + speech-bubble row
-   Used in both Story and Discover tabs.
-   ═══════════════════════════════════════════════════════════════════════════ */
-
-.narrative-mascot-row {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--sp-sm);
-}
-
-/* The mascot gently floats — same gentle bob as map screen */
-.narrative-mascot-figure {
-  font-size: 52px;
-  flex-shrink: 0;
-  line-height: 1;
-  animation: mascot-float 3s ease-in-out infinite;
-  user-select: none;
-  /* Mascot art slot: drop in assets/characters/rimau.png. */
-}
-.narrative-mascot-figure .img-slot { width: 1.4em; height: 1.4em; }
-
-/* Speech bubbles — warm white with the tail on the correct side */
-.narrative-story-bubble,
-.narrative-card-bubble {
-  flex: 1;
-  background: #fff;
-  border: 2px solid var(--clr-border);
-  border-radius: var(--r-lg);
-  /* Tail: no top-left radius = points to the mascot on the left */
-  border-top-left-radius: 4px;
-  padding: var(--sp-sm) var(--sp-md);
-  font-family: var(--font-body);
-  font-size: var(--text-sm);
-  color: var(--clr-text);
-  line-height: 1.55;
-  min-height: 48px;
-  box-shadow: var(--shadow-sm);
-}
-
-/* Slightly larger on the card tab so the mascot's line is prominent */
-.narrative-mascot-row--card .narrative-card-bubble {
-  font-size: var(--text-base);
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   STORY TAB
-   ═══════════════════════════════════════════════════════════════════════════ */
-
-.narrative-story-body {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-md);
-}
-
-/* "Kopitiam paper" story card — warm cream with a gentle top accent */
-.story-text-card {
-  padding: 0;
-  overflow: hidden;
-  border: 1.5px solid var(--clr-border-warm);
-}
-
-.story-text-card__header {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-sm);
-  background: var(--state-color-light, #FEF0DC);
-  padding: var(--sp-sm) var(--sp-md);
-  border-bottom: 1.5px solid var(--clr-border-warm);
-}
-
-.story-text-card__icon {
-  font-size: 20px;
-}
-
-.story-text-card__label {
-  font-family: var(--font-display);
-  font-size: var(--text-sm);
-  color: var(--state-color);
-  font-weight: 400;
-  letter-spacing: 0.3px;
-}
-
-.story-full-text {
-  font-family: var(--font-body);
-  font-size: var(--text-base);
-  color: var(--clr-text);
-  line-height: 1.75;
-  padding: var(--sp-md);
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   DISCOVER TAB — Horizontal scroll-snap postcard carousel
-   ═══════════════════════════════════════════════════════════════════════════ */
-
-/* ── Dot progress row ────────────────────────────────────────────────────── */
-.card-dots-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--sp-sm);
-  padding: 0 var(--sp-xs);
-}
-
-.card-dots {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-}
-
-/* Inactive dot: small grey circle */
-.card-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--clr-border);
-  transition: background 0.25s ease, width 0.25s ease, border-radius 0.25s ease;
-  cursor: pointer;
-  border: none;
-  padding: 0;
-  flex-shrink: 0;
-}
-
-/* Active dot: stretches into a pill, coloured with state colour */
-.card-dot.active {
-  background: var(--state-color);
-  width: 22px;
-  border-radius: 4px;
-}
-
-/* Counter pill: "2 / 3" */
-.card-counter {
-  font-family: var(--font-display);
-  font-size: var(--text-xs);
-  color: var(--clr-text-muted);
-  background: var(--clr-grey-light);
-  border-radius: var(--r-pill);
-  padding: 2px 10px;
-  white-space: nowrap;
-}
-
-/* ── Horizontal scroll-snap rail ────────────────────────────────────────────
-   Stretches edge-to-edge minus the page padding so postcards look full-width.
-   CSS scroll-snap ensures one card per "page" on mobile swipe. */
-.cards-scroll-rail {
-  display: flex;
-  gap: var(--sp-md);
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
-
-  /* Hide the scrollbar — navigation is via dots / swipe */
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-
-  /* Horizontal padding so cards don't butt right against the edges */
-  padding: var(--sp-xs) var(--sp-sm) var(--sp-sm);
-}
-
-.cards-scroll-rail::-webkit-scrollbar {
-  display: none;
-}
-
-/* ── Postcard ────────────────────────────────────────────────────────────────
-   A single collectible postcard for one cultural item.
-   Snap to the start of each card on swipe. */
-.postcard {
-  /* Fixed width based on the scroll-rail's parent width.
-     calc(100% - padding*2) lets the card fill available space minus side gaps.
-     min-width prevents collapse on very narrow screens. */
-  flex: 0 0 calc(100% - var(--sp-sm) * 2);
   max-width: 440px;
-  min-width: 260px;
-  scroll-snap-align: center;
-
-  background: var(--clr-card);
-  border-radius: var(--r-lg);
-  border: 1.5px solid var(--clr-border-warm);
-  box-shadow: var(--shadow-card), 0 2px 0 var(--clr-border-warm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-md);
+  padding: var(--sp-lg) var(--sp-md) var(--sp-xl);
+  border-radius: var(--r-xl, 24px);
+  border: 3px solid #fff;
   overflow: hidden;
 
-  /* Spring entrance: each postcard pops in staggered on tab open */
-  animation: postcard-enter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  transition: box-shadow 0.18s ease;
+  /* Placeholder backdrop: gentle sky→field gradient in the state palette. */
+  background:
+    radial-gradient(ellipse at 75% 18%, rgba(255,255,255,0.55) 0%, transparent 55%),
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--state-color) 22%, #fff) 0%,
+      var(--state-color-light) 55%,
+      color-mix(in srgb, var(--clr-green) 25%, #fff) 100%);
+
+  box-shadow: var(--shadow-card, 0 8px 24px rgba(0,0,0,0.12)),
+              0 4px 0 rgba(0,0,0,0.06);
+
+  /* Storybook entrance */
+  animation: scene-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
-/* Deepen the card shadow on hover for a tactile, "real card" feel */
-@media (hover: hover) {
-  .postcard:hover {
-    box-shadow: var(--shadow-md), 0 3px 0 var(--clr-border-warm);
-  }
+/* Real illustration loaded — layer it under the soft highlight. */
+.story-scene-card.has-scene {
+  background:
+    radial-gradient(ellipse at 75% 18%, rgba(255,255,255,0.30) 0%, transparent 55%),
+    var(--scene-image) center / cover no-repeat;
 }
 
-@keyframes postcard-enter {
-  from { opacity: 0; transform: scale(0.92) translateY(12px); }
+@keyframes scene-pop {
+  from { opacity: 0; transform: scale(0.94) translateY(10px); }
   to   { opacity: 1; transform: scale(1)    translateY(0);    }
 }
 
-/* ── Postcard: coloured header strip ────────────────────────────────────────
-   State-colour background with the icon and category badge.
-   📸 IMAGE NEEDED: This strip will be replaced by the illustrated hero image
-   once art assets are exported. See .postcard__img below. */
-.postcard__header {
+/* ── State name ribbon banner ────────────────────────────────────────────────
+   A chunky red ribbon with the state name. Folded "tails" on each side via
+   pseudo-elements give the classic award-ribbon look.
+   📸 IMAGE NEEDED (optional): assets/images/ui/ribbon.png to replace this. */
+.story-banner {
   position: relative;
-  background: var(--state-color);
-  padding: var(--sp-md);
-  display: flex;
-  align-items: center;
-  gap: var(--sp-md);
-  overflow: hidden;
-
-  /* Subtle inner highlight — makes the header feel less flat */
-  background-image: radial-gradient(
-    ellipse at 85% 15%,
-    rgba(255,255,255,0.20) 0%,
-    transparent 60%
-  );
-}
-
-/* Large icon / emoji — the card's main visual identifier */
-.postcard__icon {
-  font-size: 44px;
-  flex-shrink: 0;
-  line-height: 1;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.15);
-}
-
-.postcard__header-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-}
-
-/* Category badge: "Food", "Landmark", "Festival", etc. */
-.postcard__category {
-  display: inline-block;
-  font-family: var(--font-body);
-  font-size: var(--text-xs);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: rgba(255,255,255,0.90);
-  background: rgba(0,0,0,0.18);
+  margin-top: var(--sp-xs);
+  padding: 10px 30px;
+  background: linear-gradient(180deg, #F25C3B 0%, #D8412A 100%);
   border-radius: var(--r-pill);
-  padding: 2px 10px;
+  box-shadow: 0 4px 0 #A82E1C, 0 6px 14px rgba(0,0,0,0.22);
+  z-index: 2;
 }
 
-/* Card title */
-.postcard__title {
+.story-banner::before,
+.story-banner::after {
+  content: '';
+  position: absolute;
+  top: 60%;
+  width: 22px;
+  height: 22px;
+  background: #B6331F;
+  z-index: -1;
+}
+.story-banner::before { left: -10px;  transform: skewY(28deg);  border-bottom-left-radius: 4px;  }
+.story-banner::after  { right: -10px; transform: skewY(-28deg); border-bottom-right-radius: 4px; }
+
+.story-banner-text {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  letter-spacing: 0.5px;
+  color: #fff;
+  text-transform: uppercase;
+  text-shadow: 0 2px 0 rgba(0,0,0,0.25);
+  line-height: 1.1;
+}
+
+/* ── Tagline ────────────────────────────────────────────────────────────────
+   Sits on a frosted pill so it stays readable over any backdrop. */
+.story-tagline {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  color: var(--clr-text);
+  background: rgba(255,255,255,0.78);
+  padding: 4px 14px;
+  border-radius: var(--r-pill);
+  backdrop-filter: blur(3px);
+  text-align: center;
+  z-index: 2;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SCENE: mascot + welcome bubble
+   ═══════════════════════════════════════════════════════════════════════════ */
+.story-scene {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--sp-xs);
+  width: 100%;
+  /* Keep the dialogue column readable even when the card fills a wide shell. */
+  max-width: 480px;
+  margin-top: var(--sp-sm);
+}
+
+/* Rimau — bottom-left, gently bobbing. */
+.story-mascot {
+  font-size: 108px;
+  line-height: 1;
+  flex-shrink: 0;
+  user-select: none;
+  filter: drop-shadow(0 6px 6px rgba(0,0,0,0.22));
+  animation: mascot-float 3s ease-in-out infinite;
+}
+.story-mascot .img-slot { width: 1.3em; height: 1.3em; }
+
+/* Welcome speech bubble — warm white, tail points down-left toward Rimau. */
+.story-bubble {
+  position: relative;
+  flex: 1;
+  align-self: center;
+  background: #fff;
+  border: 2px solid var(--clr-border);
+  border-radius: var(--r-lg);
+  border-bottom-left-radius: 4px;
+  padding: var(--sp-md);
+  box-shadow: var(--shadow-md, 0 6px 16px rgba(0,0,0,0.14));
+}
+
+.story-bubble-line {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--clr-text);
+  line-height: 1.5;
+  margin: 0 0 var(--sp-xs);
+}
+.story-bubble-line:last-child { margin-bottom: 0; }
+
+/* First line — a bright greeting. */
+.story-bubble-line--hi {
+  font-family: var(--font-display);
+  color: var(--state-color);
+}
+
+/* Last line — the call to action, slightly emphasised. */
+.story-bubble-line--cta {
+  font-weight: 700;
+}
+
+/* Minimum height so the bubble doesn't jump while the middle line types in. */
+#story-line-2 { min-height: 1.5em; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   "LET'S EXPLORE!" BUTTON — chunky green 3-D CTA
+   ═══════════════════════════════════════════════════════════════════════════ */
+.story-help-btn {
+  width: 100%;
+  max-width: 320px;
+  margin-top: var(--sp-sm);
+  padding: 14px var(--sp-lg);
   font-family: var(--font-display);
   font-size: var(--text-lg);
   color: #fff;
-  margin: 0;
-  line-height: 1.2;
-  text-shadow: 0 1px 6px rgba(0,0,0,0.25);
-  /* Prevent very long titles from overflowing */
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* ── Image placeholder area ─────────────────────────────────────────────────
-   📸 IMAGE NEEDED: {stateId}/{cardId}.png — illustrated cultural scene.
-   This placeholder shows an emoji + subtle texture until the real art lands.
-   Export from Figma → Cards/{StateName}/{Category} — illustrated scene
-   Place in: src/assets/images/cards/{stateId}/{cardId}.png */
-.postcard__img-wrap {
-  width: 100%;
-  height: 150px;
-  background: var(--state-color-light, #FEF0DC);
-  /* Faint repeating diamond (batik-inspired) as a texture placeholder */
-  background-image:
-    repeating-linear-gradient(
-      45deg,
-      rgba(0,0,0,0.03) 0px,
-      rgba(0,0,0,0.03) 2px,
-      transparent 2px,
-      transparent 14px
-    );
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 64px;
-  border-bottom: 1.5px solid var(--clr-border-warm);
-  flex-shrink: 0;
-}
-
-/* When the real image has loaded, replace emoji styling */
-.postcard__img-wrap--loaded {
-  padding: 0;
-  font-size: 0;
-}
-
-.postcard__img-loaded {
-  width: 100%;
-  height: 150px;
-  object-fit: cover;
-  display: block;
-}
-
-/* ── Card body ──────────────────────────────────────────────────────────────
-   Description text on warm cream. */
-.postcard__body {
-  padding: var(--sp-md);
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-sm);
-}
-
-.postcard__desc {
-  font-family: var(--font-body);
-  font-size: var(--text-base);
-  color: var(--clr-text);
-  line-height: 1.7;
-  margin: 0;
-}
-
-/* ── Fun fact tap-to-reveal ──────────────────────────────────────────────────
-   The fun fact is hidden behind a "Tap to reveal" button.
-   When revealed, the panel flips/slides into view with a satisfying animation.
-   The button itself disappears once the fact is shown. */
-.postcard__funfact-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--sp-sm);
-  width: 100%;
-  padding: 10px var(--sp-md);
-  border-radius: var(--r-md);
-  background: linear-gradient(135deg, #FFF9E6, #FEF0C2);
-  border: 2px dashed var(--clr-gold);
-  color: #7A4000;
-  font-family: var(--font-display);
-  font-size: var(--text-sm);
-  cursor: pointer;
-  transition: transform 0.12s ease, background 0.15s ease;
-}
-
-.postcard__funfact-toggle:active {
-  transform: scale(0.97);
-}
-
-/* Hidden state: the toggle disappears once revealed */
-.postcard__funfact-toggle.hidden {
-  display: none;
-}
-
-/* The revealed fun-fact panel */
-.postcard__funfact-panel {
-  background: linear-gradient(135deg, #FFF9E6, #FEF5CC);
-  border-radius: var(--r-md);
-  padding: var(--sp-sm) var(--sp-md);
-  border-left: 4px solid var(--clr-gold);
-
-  /* Hidden by default; shown after tap */
-  display: none;
-}
-
-/* Reveal animation: panel grows from zero height + fades in */
-.postcard__funfact-panel.revealed {
-  display: block;
-  animation: funfact-reveal 0.30s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-}
-
-@keyframes funfact-reveal {
-  from {
-    opacity: 0;
-    transform: scale(0.92) translateY(-6px);
-    clip-path: inset(0 0 100% 0 round var(--r-md));
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-    clip-path: inset(0 0 0% 0 round var(--r-md));
-  }
-}
-
-.postcard__funfact-label {
-  font-family: var(--font-display);
-  font-size: var(--text-sm);
-  color: #7A4000;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin-bottom: 4px;
-}
-
-.postcard__funfact-text {
-  font-family: var(--font-body);
-  font-size: var(--text-sm);
-  color: var(--clr-text);
-  margin: 0;
-  line-height: 1.55;
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   DIALECT TAB
-   ═══════════════════════════════════════════════════════════════════════════ */
-
-/* Main dialect word card */
-.dialect-card {
-  padding: var(--sp-xl) var(--sp-md) var(--sp-lg);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--sp-sm);
-  text-align: center;
-  border: 1.5px solid var(--clr-border-warm);
-}
-
-.dialect-card__top {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--sp-xs);
-}
-
-/* Icon circle */
-.dialect-card__icon-wrap {
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  background: var(--state-color-light, #FEF0DC);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-  border: 2px solid var(--clr-border-warm);
-}
-
-/* Region badge pill */
-.dialect-region-badge {
-  background: var(--state-color);
-  color: #fff;
-  font-family: var(--font-display);
-  font-size: var(--text-xs);
-  padding: 4px 14px;
+  background: linear-gradient(180deg, #43BE6E 0%, var(--clr-green) 100%);
+  border: none;
   border-radius: var(--r-pill);
-  text-transform: capitalize;
+  box-shadow: 0 5px 0 #1E7A45, 0 8px 16px rgba(42,157,92,0.30);
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  z-index: 2;
 }
 
-/* The dialect word itself — big and display-font */
-.dialect-word {
-  font-family: var(--font-title);
-  font-size: var(--text-2xl);
-  color: var(--state-color);
-  margin: var(--sp-sm) 0 0;
-  line-height: 1.2;
+.story-help-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 0 #1E7A45, 0 10px 20px rgba(42,157,92,0.34);
 }
 
-.dialect-pronunciation {
-  font-family: var(--font-body);
-  font-size: var(--text-sm);
-  color: var(--clr-text-muted);
-  font-style: italic;
-  margin: 0;
-}
-
-.dialect-meaning {
-  font-family: var(--font-body);
-  font-size: var(--text-base);
-  color: var(--clr-text);
-  line-height: 1.6;
-  margin: var(--sp-xs) 0 0;
-}
-
-/* "Did you know?" sub-card */
-.dialect-fun-fact {
-  padding: var(--sp-md);
-  background: var(--clr-grey-light);
-  border: 1.5px solid var(--clr-border);
-}
-
-.dialect-fun-fact__label {
-  font-family: var(--font-display);
-  font-size: var(--text-base);
-  color: var(--clr-text);
-  margin-bottom: var(--sp-xs);
-}
-
-.dialect-fun-fact p {
-  font-family: var(--font-body);
-  font-size: var(--text-sm);
-  color: var(--clr-text-muted);
-  line-height: 1.6;
-  margin: 0;
+.story-help-btn:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 #1E7A45, 0 2px 8px rgba(42,157,92,0.30);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   CTA BUTTON
-   The .btn-primary class (orange 3-D) lives in style.css.
-   .narrative-cta just adds a small top margin.
+   FULL-BLEED ENTRY
+   When a state ships a full-screen entry illustration (e.g. Kedah), narrative.js
+   adds .story-entry--fullbg. The illustration fills the whole screen, the card
+   container disappears, and the mascot + bubble + button sit large and centred.
    ═══════════════════════════════════════════════════════════════════════════ */
-.narrative-cta {
-  margin-top: var(--sp-xs);
-  /* Ensure the full-width button doesn't stretch beyond comfortable reading width */
-  max-width: 440px;
-  align-self: center;
+.story-entry--fullbg {
+  padding: 0;
+  background:
+    linear-gradient(180deg, rgba(0,0,0,0.04) 0%, rgba(0,0,0,0.30) 100%),
+    var(--scene-image) center / cover no-repeat;
+}
+
+/* Card becomes a transparent, full-height content column (no chrome). */
+.story-entry--fullbg .story-scene-card {
   width: 100%;
+  max-width: min(720px, 94vw);
+  height: 100%;
+  justify-content: center;
+  gap: var(--sp-lg);
+  padding: var(--sp-xl) var(--sp-lg) calc(var(--navbar-h) + var(--sp-xl));
+  background: none;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  overflow: visible;
+  animation: none;
+}
+
+/* Mascot stands BESIDE the bubble (Rimau on the left, talking), both enlarged. */
+.story-entry--fullbg .story-scene {
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-md);
+  max-width: 640px;
+}
+.story-entry--fullbg .story-mascot {
+  font-size: clamp(120px, 32vw, 210px);
+}
+.story-entry--fullbg .story-mascot .img-slot {
+  width: 1.3em;
+  height: 1.3em;
+}
+
+/* Bubble: bigger text, readable frosted panel; tail points left toward Rimau. */
+.story-entry--fullbg .story-bubble {
+  align-self: center;
+  text-align: left;
+  border-bottom-left-radius: 4px;
+  background: rgba(255,255,255,0.95);
+  padding: var(--sp-lg);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.28);
+}
+.story-entry--fullbg .story-bubble-line {
+  font-size: var(--text-lg);
+}
+
+/* Bigger call-to-action button. */
+.story-entry--fullbg .story-help-btn {
+  max-width: 440px;
+  font-size: var(--text-xl);
+  padding: 18px var(--sp-xl);
+}
+
+/* State-name ribbon uses the provided banner image, sized to the text length.
+   The image already includes the folded tails, so the CSS tails are hidden. */
+.story-entry--fullbg .story-banner {
+  display: inline-block;
+  align-self: center;
+  background: url('../assets/images/ui/state_entry_title_background.png') center / 100% 100% no-repeat;
+  box-shadow: none;
+  border-radius: 0;
+  padding-left: 60px;
+  padding-right: 60px;
+  /* padding-top: 20px; */
+  padding-bottom: 30px;
+}
+.story-entry--fullbg .story-banner::before,
+.story-entry--fullbg .story-banner::after {
+  display: none;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   ANIMATIONS: reduced-motion overrides
+   REDUCED MOTION
    ═══════════════════════════════════════════════════════════════════════════ */
 @media (prefers-reduced-motion: reduce) {
-  .narrative-mascot-figure {
-    animation: none;
-  }
-  .postcard {
-    animation: none;
-  }
-  .postcard__funfact-panel.revealed {
-    animation: none;
-    clip-path: none;
-  }
-  .narrative-hero {
+  .story-scene-card,
+  .story-mascot {
     animation: none;
   }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   RESPONSIVE
-   The layout is mobile-first (375px base). The only change on wider screens
-   is that postcards gain a little more side spacing, and the hero gets taller.
+   RESPONSIVE — small phones
    ═══════════════════════════════════════════════════════════════════════════ */
-@media (min-width: 440px) {
-  .narrative-hero {
-    min-height: 165px;
-  }
-
-  /* Postcards: on screens wider than the snap-scroll container, centre nicely */
-  .postcard {
-    max-width: 400px;
-  }
-}
-
 @media (max-width: 360px) {
-  .narrative-hero-name {
-    font-size: var(--text-xl);
-  }
-
-  .postcard__icon {
-    font-size: 36px;
-  }
-
-  .postcard__img-wrap {
-    height: 120px;
-    font-size: 52px;
-  }
+  .story-banner-text { font-size: var(--text-xl); }
+  .story-mascot      { font-size: 64px; }
+  .story-bubble-line { font-size: var(--text-sm); }
 }

@@ -12,7 +12,13 @@ import { renderTopbar, renderNavbar, requireAuth, getStateParam, flyPoints } fro
 import { getState } from './data/states.js';
 import { renderMascot, setMascotPose } from './data/mascots.js';
 import { QUIZ_QUESTIONS } from './data/quizzes.js';
+import { paramsFor } from './data/difficulty.js';
+import { festivalMissionFor } from './data/festivalMissions.js';
+import { foodMissionFor } from './data/foodMissions.js';
+import { landmarkTourFor } from './data/landmarkMissions.js';
 import { showPopup } from './components/popup.js';
+import { initHowToPlay } from './components/howToPlay.js';
+import { playMusic } from './utils/music.js';
 import Sound from './utils/sound.js';
 
 // ── Auth guard ────────────────────────────────────────────────────────────────
@@ -31,17 +37,30 @@ if (!state) {
   throw new Error('State not found: ' + stateId);
 }
 
+// ── Launch context ─────────────────────────────────────────────────────────────
+// From the Activities Hub (replay) the back button + CTA return to the hub; from
+// a Mission (Festival Challenge) they return to the Mission Hub and mark the
+// mission done; in the linear journey they go back to narrative / on to reward.
+const _params = new URLSearchParams(location.search);
+const fromActivities = _params.get('from') === 'activities';
+const fromMission    = _params.get('from') === 'mission';
+const missionId      = _params.get('mission');
+const activitiesHref   = `activities.html?state=${stateId}`;
+const missionsHref     = `missions.html?state=${stateId}`;
+// Finishing a mission returns into the Mission Flow's Reward stage.
+const missionsDoneHref = `mission.html?state=${stateId}&mission=${missionId}&stage=reward`;
+
 // ── Render shared chrome ───────────────────────────────────────────────────────
 // Pass color: null so quiz.css .quiz-topbar override (purple) wins via !important.
 renderTopbar({
   title:    state.name + ' Quiz',
   showBack: true,
-  backHref: `narrative.html?state=${stateId}`,
+  backHref: fromMission ? missionsHref : fromActivities ? activitiesHref : `narrative.html?state=${stateId}`,
   showPoints: true,
   color:    null,   // keeps purple override in quiz.css intact
 });
 
-renderNavbar('quiz');
+renderNavbar('activities');
 
 // ── Apply state accent color to quiz main (progress bar + card header) ────────
 // quiz.css defaults everything to purple; setting --state-color here lets
@@ -66,7 +85,10 @@ if (stateFlagEl) stateFlagEl.innerHTML = state.emoji;
 // every state has at least 4 of its own (see data/quizzes.js).
 const POINTS_PER_Q = 10;
 
-const stateQs = QUIZ_QUESTIONS.filter(q => q.stateId === stateId);
+// Shuffled so a replay surfaces different questions from the bank each time —
+// with more than 4 authored per state, this is what makes the extra content
+// (medium/hard, picture questions) actually turn up across play sessions.
+const stateQs = shuffle(QUIZ_QUESTIONS.filter(q => q.stateId === stateId));
 
 // Always include the per-state inline question first
 const mainQ = {
@@ -75,9 +97,103 @@ const mainQ = {
   opts:    state.quizQuestion.opts,
   ans:     state.quizQuestion.ans,
   explain: state.quizQuestion.explain,
+  image:   state.quizQuestion.image || null,
 };
 
-const pool = [mainQ, ...stateQs].slice(0, 4);
+// Difficulty tunes the quiz: Explorer gets 3 questions with 3 options each;
+// Adventurer gets 4 questions with the full 4 options.
+const qp = paramsFor('quiz');
+
+// The Festival Challenge mission always runs the full 4 questions, regardless of
+// difficulty (difficulty still tunes how many OPTIONS each question shows). It
+// also plays the state's festival music softly on loop.
+const isFestivalMission = fromMission && missionId === 'festival';
+const qCount = isFestivalMission ? 4 : qp.count;
+if (isFestivalMission) {
+  const track = festivalMissionFor(stateId)?.audio;
+  if (track) playMusic(track, { volume: 0.22 });
+}
+
+// Small word banks used to PAD a question up to `n` real options when it ships
+// fewer than that (e.g. a landmark-tour "where is this?" question built from a
+// state with only 2 famous spots). Never render a placeholder "—" button when
+// we can fill it with a plausible wrong answer instead.
+const FOODS = ['Nasi Lemak', 'Char Kway Teow', 'Satay', 'Roti Canai', 'Nasi Kandar', 'Cendol', 'Rendang'];
+const PLACE_NAMES = ['Kuala Lumpur', 'Ipoh', 'Melaka', 'Genting Highlands', 'Cameron Highlands', 'Langkawi', 'Kuching', 'Kota Kinabalu'];
+
+// Pick `count` extra distractors that aren't already used in `existing`. Food
+// questions borrow from FOODS first; everything else borrows place names first
+// (falling back to the other pool if we somehow run out).
+function extraDistractors(q, existing, count) {
+  const used = new Set(existing.map(o => String(o).toLowerCase()));
+  const isFoodQ = /food|dish|eat|taste|laksa|noodle/i.test(q.q || '');
+  const pool = shuffle([...(isFoodQ ? [...FOODS, ...PLACE_NAMES] : [...PLACE_NAMES, ...FOODS])])
+    .filter(o => !used.has(o.toLowerCase()));
+  return pool.slice(0, count);
+}
+
+// Resize a question to EXACTLY `n` options, always keeping the correct one:
+//   - more than n options → trim down (keeping the correct + a random subset)
+//   - fewer than n options → pad with plausible distractors (never "—")
+// Then ALWAYS reshuffle and recompute `ans` for the new order. Previously this
+// returned the question UNCHANGED whenever it already had <= n options, so a
+// question with exactly n options (e.g. every 4-option question at Adventurer,
+// where n=4) never got reshuffled — the correct answer sat in the same authored
+// spot on every play.
+function trimOptions(q, n) {
+  const correct = q.opts[q.ans];
+  let opts = q.opts.length > n
+    ? [correct, ...q.opts.filter((_, i) => i !== q.ans).slice(0, n - 1)]
+    : [...q.opts];
+
+  if (opts.length < n) {
+    opts = [...opts, ...extraDistractors(q, opts, n - opts.length)];
+  }
+
+  for (let i = opts.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [opts[i], opts[j]] = [opts[j], opts[i]];
+  }
+  return { ...q, opts, ans: opts.indexOf(correct) };
+}
+
+// ── Picture questions ("what is this?") ─────────────────────────────────────
+// Where the state ships real photos (Kedah today), open with image-recognition
+// questions — "What food is this?" (dish photo) and "Where is this?" (landmark
+// photo). States without photos simply get the text questions below. Distractors
+// come from a small dish list and the state's own other landmarks.
+function shuffle(a) {
+  a = [...a];
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+function imageQuestions(st) {
+  const out = [];
+  const food = foodMissionFor(st.id);
+  if (food?.image && food?.dish) {
+    const distractors = shuffle(FOODS.filter(f => f.toLowerCase() !== food.dish.toLowerCase())).slice(0, 3);
+    const opts = shuffle([food.dish, ...distractors]);
+    out.push({
+      id: st.id + '-imgfood', image: food.image, q: 'What food is this?',
+      opts, ans: opts.indexOf(food.dish),
+      explain: `This is ${food.dish}, a famous dish from ${st.name}!`,
+    });
+  }
+  const tour = landmarkTourFor(st.id);
+  if (tour.length >= 2) {
+    const target = tour[0];
+    const others = shuffle(tour.slice(1).map(t => t.name)).slice(0, 3);
+    const opts = shuffle([target.name, ...others]);
+    out.push({
+      id: st.id + '-imgplace', image: target.image, q: 'Where is this place?',
+      opts, ans: opts.indexOf(target.name),
+      explain: `This is ${target.name} in ${st.name}!`,
+    });
+  }
+  return out;
+}
+
+const pool = [...imageQuestions(state), mainQ, ...stateQs].slice(0, qCount).map(q => trimOptions(q, qp.options));
 
 // ── State variables ───────────────────────────────────────────────────────────
 let qIdx     = 0;   // current question index
@@ -126,10 +242,30 @@ function loadQuestion(idx) {
   // Update the question text
   questionEl.textContent = q.q;
 
-  // Reset option buttons — remove feedback classes, re-enable, update text
+  // Show the question photo for image ("what is this?") questions; hide otherwise.
+  const imageEl = document.getElementById('quiz-question-image');
+  if (imageEl) {
+    if (q.image) {
+      imageEl.innerHTML = `<img src="${q.image}" alt="">`;
+      imageEl.classList.remove('hidden');
+    } else {
+      imageEl.innerHTML = '';
+      imageEl.classList.add('hidden');
+    }
+  }
+
+  // Reset option buttons — remove feedback classes, re-enable, update text.
+  // Explorer questions carry fewer options, so surplus buttons are hidden.
   optionBtns.forEach((btn, i) => {
-    btn.disabled = false;
+    const has = i < q.opts.length;
+    // Fully remove surplus buttons (e.g. option D for Explorer's 3-option
+    // questions). `hidden` alone is overridden by `.quiz-option { display:flex }`,
+    // which left a stray "—" button — so force display off for the extras.
+    btn.hidden = !has;
+    btn.style.display = has ? '' : 'none';
     btn.classList.remove('correct', 'wrong', 'burst', 'shake');
+    if (!has) return;
+    btn.disabled = false;
     const textEl = document.getElementById(`opt-${i}`);
     if (textEl) textEl.textContent = q.opts[i] ?? '—';
 
@@ -189,14 +325,18 @@ function evaluate(chosen) {
     // Score bookkeeping
     score++;
     earned += POINTS_PER_Q;
-    Storage.addPoints(POINTS_PER_Q);
+    // In the mission flow the flat +25 mission bonus is the only reward, so the
+    // per-question points are NOT persisted (keeps a state worth exactly 100).
+    if (!fromMission) Storage.addPoints(POINTS_PER_Q);
     if (scoreEl) {
       scoreEl.textContent = earned;
       flyPoints(scoreEl, POINTS_PER_Q);       // "+10" floats up from the score
     }
 
-    // Mascot says something encouraging
-    mascotEl.textContent = [
+    // Mascot says something encouraging (row is hidden on this screen — see
+    // quiz.css .quiz-mascot-row — but still guard the write in case it's ever
+    // re-enabled or the element is missing for any other reason).
+    if (mascotEl) mascotEl.textContent = [
       'Excellent! Well done!',
       'Correct! You are amazing!',
       'Brilliant! Keep it up!',
@@ -214,8 +354,8 @@ function evaluate(chosen) {
     setMascotPose(mascotFig, 'idle');
     react(mascotFig, 'react-sad');
 
-    // Mascot is gentle about wrong answers
-    mascotEl.textContent = [
+    // Mascot is gentle about wrong answers (guarded — see note above)
+    if (mascotEl) mascotEl.textContent = [
       'Almost! You will get the next one!',
       'Keep going, you are doing great!',
       'Every wrong answer is a chance to learn!',
@@ -249,7 +389,8 @@ function finish() {
   // Persist progress — UNCHANGED
   Storage.markCompleted(stateId, 'quiz');
   Storage.saveBestScore(earned);
-  if (pass) Storage.earnStamp(stateId);
+  // NOTE: stamps are earned ONLY by completing all four of a state's missions
+  // (handled in mission.js). A standalone/journey quiz pass no longer awards one.
 
   // Update the progress strip to 100% on completion
   progFill.style.width = '100%';
@@ -306,7 +447,8 @@ function finish() {
     }
   }
 
-  // ── CTA button navigates to reward.html (EXISTING FLOW UNCHANGED) ──
+  // ── CTA button ──
+  // Replay from the hub → back to Activities. Linear journey → reward.html.
   const ctaBtn = document.getElementById('complete-cta-btn');
   if (ctaBtn) {
     const params = new URLSearchParams({
@@ -316,8 +458,18 @@ function finish() {
       earned: earned,
       stamp:  pass ? '1' : '0',
     });
+    if (fromMission)         ctaBtn.textContent = '✅ Mission Complete!';
+    else if (fromActivities) ctaBtn.textContent = '🎮 Back to Activities';
     ctaBtn.addEventListener('click', () => {
-      window.location.href = `reward.html?${params}`;
+      window.location.href = fromMission ? missionsDoneHref
+                           : fromActivities ? activitiesHref
+                           : `reward.html?${params}`;
     });
   }
 }
+
+// ── Kid-friendly "How to Play" (first visit + a "?" button to re-open) ────────
+initHowToPlay('quiz', {
+  title: 'Quiz Time!', emoji: '🧠',
+  lines: ['🤔 Read the question.', '👆 Tap the best answer.', '⭐ Get it right to win points!'],
+});

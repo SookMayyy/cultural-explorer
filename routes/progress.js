@@ -51,15 +51,16 @@ router.post('/reset', requireLogin, async (req, res, next) => {
   }
 });
 
-// POST /api/progress/:stateId/complete — mark state complete, award stamp + points.
-// The +20 completion bonus is paid ONCE, on first completion. Replaying a finished
-// state refreshes the score but does not re-award points (and keeps the original stamp).
+// POST /api/progress/:stateId/complete — mark state complete, award stamp.
+// Points come entirely from the four missions (25 each = 100 per state), so
+// there is NO separate completion bonus. This route records the stamp + score;
+// `bonusPoints` stays 0 and is kept in the response for backward compatibility.
 router.post('/:stateId/complete', requireLogin, async (req, res, next) => {
   try {
     const stateId   = parseInt(req.params.stateId);
     const quizScore = parseInt(req.body.quizScore) || 0;
     const userId    = req.session.user.id;
-    const BONUS     = 20; // first-completion bonus
+    const BONUS     = 0; // no completion bonus — a state is worth 4×25 from its missions
 
     // Was this state already completed? Decide the bonus before the upsert.
     const [[existing]] = await pool.execute(

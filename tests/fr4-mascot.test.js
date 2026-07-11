@@ -32,7 +32,7 @@ describe('FR4 — Active mascot is chosen by region', () => {
     const res = await api.get('/api/states');
     expect(res.status).toBe(200);
     states = res.body.data;
-    expect(states.length).toBe(7);
+    expect(states.length).toBe(8);
   });
 
   test('West states ride Rimau, East states ride Wak', () => {

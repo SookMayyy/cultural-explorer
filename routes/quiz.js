@@ -3,7 +3,7 @@ const pool    = require('../db/connection');
 
 const router = express.Router();
 
-// GET /api/states/:id/quiz — randomised 4-question set for a state
+// GET /api/quiz/state/:id — randomised 4-question set for a state
 router.get('/state/:id', async (req, res, next) => {
   try {
     const stateId = parseInt(req.params.id);

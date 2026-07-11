@@ -2,7 +2,8 @@
 //
 // The frontend plays on localStorage (namespaced per account in storage.js).
 // The Express + Supabase backend is the cross-device source of truth for
-// COMPLETED STATES + STAMPS (and the +20 completion bonus points). This module:
+// COMPLETED STATES + STAMPS (state completion pays no points bonus — points come
+// from the four missions, 25 each = 100 per state). This module:
 //
 //   hydrateFromBackend()  — after login: pull the account's completed states,
 //                           stamps and points into local storage so progress

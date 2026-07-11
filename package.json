@@ -27,7 +27,6 @@
     "express-rate-limit": "^7.3.1",
     "express-session": "^1.18.0",
     "express-validator": "^7.1.0",
-    "mysql2": "^3.9.8",
     "pg": "^8.21.0"
   },
   "devDependencies": {

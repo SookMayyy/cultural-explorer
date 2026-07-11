@@ -2,7 +2,8 @@
 
 import Storage from './utils/storage.js';
 import { renderTopbar, renderNavbar, requireAuth, showToast } from './ui.js';
-import { STATES_DATA } from './data/states.js';
+import { STATES_DATA, stampImgFor } from './data/states.js';
+import { assetImg } from './utils/assetImg.js';
 
 requireAuth();
 renderTopbar({ title: 'My Stamp Book', showBack: true, backHref: 'dashboard.html', showPoints: true, color: '#6b50ce' });
@@ -29,9 +30,13 @@ const REGIONS = [
 function slotHTML(state) {
   const isEarned = stamps.includes(state.id);
   if (isEarned) {
-    const inner = state.emoji.includes('<img')
-      ? state.emoji.replace('<img', '<img class="sb-slot-img"')
-      : `<span class="sb-slot-emoji">${state.emoji}</span>`;
+    // Prefer the state's own stamp illustration; fall back to the flag/emoji.
+    const stampSrc = stampImgFor(state.id);
+    const inner = stampSrc
+      ? assetImg(stampSrc, state.emoji, { alt: `${state.name} stamp`, cls: 'sb-slot-img' })
+      : (state.emoji.includes('<img')
+          ? state.emoji.replace('<img', '<img class="sb-slot-img"')
+          : `<span class="sb-slot-emoji">${state.emoji}</span>`);
     return `<div class="sb-slot earned" data-state="${state.id}" data-name="${state.name}"
                  role="button" tabindex="0" aria-label="${state.name} — collected" title="${state.name}">
               <div class="sb-slot-circle" style="--stamp-clr:${state.color}">${inner}</div>

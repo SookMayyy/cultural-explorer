@@ -1,311 +1,529 @@
 /* ═══════════════════════════════════════════════════════════════════
    ACTIVITY / MATCH THE CULTURE  —  activity.css
-   Warm orange theme (matches narrative state colour).
-   Layout: topbar → banner → scrollable game area.
+   Figma frame 226:323 "Drag and Match Mini-Game"
+   Visual layer only — game logic lives in js/components/dragMatch.js
    ═══════════════════════════════════════════════════════════════════ */
 
-/* ── Page background ── */
-.app-container {
-  background: #fff9f0;
-}
+/* ── Page background (full-screen: body letterbox + frame) ───────── */
+:root { --screen-bg: var(--clr-bg) url('../assets/images/ui/batick_background.png') center / cover no-repeat fixed; }
 
-/* ── Intro banner (mascot + round pill) ── */
-.act-banner {
+
+/* ════════════════════════════════════════════════════════════════════
+   HUD BAR  (replaces old orange topbar)
+   Three sections in one sticky row:
+     left  → "📖 BACK TO MAP" pill
+     centre → progress bar + "N / M MATCHED"
+     right  → ⭐ points pill
+   ════════════════════════════════════════════════════════════════════ */
+.act-hud {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--clr-bg);
+  border-bottom: 1px solid rgba(0,0,0,0.07);
   flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--sp-md);
-  padding: var(--sp-sm) var(--sp-lg);
-  background: #fff;
-  border-bottom: 1px solid var(--clr-border);
-  animation: screen-slide-in 0.3s ease-out both;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  /* Entry animation matching other screens in this app */
+  animation: page-enter 0.25s ease-out both;
 }
 
-/* Mascot + speech bubble row */
-.act-mascot-row {
+/* "📖 BACK TO MAP" — white pill with ink border, fully rounded */
+.act-back-pill {
   display: flex;
   align-items: center;
-  gap: var(--sp-sm);
+  gap: 5px;
+  padding: 6px 12px;
+  background: #fff;
+  border: 2px solid var(--clr-dm-ink);
+  border-radius: var(--r-pill);
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--clr-text);
+  text-decoration: none;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  flex-shrink: 0;
+  transition: transform 0.1s;
+  /* Minimum tap target height */
+  min-height: 32px;
+}
+.act-back-pill:active { transform: scale(0.94); }
+
+/* Centre section: label row + progress bar */
+.act-progress-area {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
 
-.act-mascot {
-  font-size: 40px;
-  flex-shrink: 0;
-  /* Gentle float animation to keep the mascot feeling alive */
-  animation: mascot-float 3s ease-in-out infinite;
+.act-progress-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 4px;
 }
 
-@keyframes mascot-float {
-  0%, 100% { transform: translateY(0); }
-  50%       { transform: translateY(-5px); }
-}
-
-.act-bubble {
-  background: var(--clr-bg);
-  border: 1.5px solid var(--clr-border);
-  border-radius: var(--r-md);
-  padding: var(--sp-xs) var(--sp-sm);
-  position: relative;
-  max-width: 280px;
-  min-width: 0;
-}
-
-/* Speech bubble tail pointing left toward the mascot */
-.act-bubble::before {
-  content: '';
-  position: absolute;
-  left: -8px;
-  top: 50%;
-  transform: translateY(-50%);
-  border: 8px solid transparent;
-  border-right-color: var(--clr-border);
-  border-left: none;
-}
-
-.act-bubble::after {
-  content: '';
-  position: absolute;
-  left: -6px;
-  top: 50%;
-  transform: translateY(-50%);
-  border: 7px solid transparent;
-  border-right-color: var(--clr-bg);
-  border-left: none;
-}
-
-.act-bubble p {
-  font-family: var(--font-body);
-  font-size: var(--text-sm);
-  color: var(--clr-text);
-  margin: 0;
-  line-height: 1.4;
-}
-
-/* "Activity 1 of 7" pill */
-.act-round-pill {
-  flex-shrink: 0;
-  background: #fff4e6;
-  border: 1.5px solid #fde8c8;
-  border-radius: var(--r-pill);
-  padding: 5px 12px;
+/* "LEVEL PROGRESS" — navy, bold, small caps */
+.act-plabel-left {
   font-family: var(--font-display);
-  font-size: var(--text-xs);
-  color: #e67e22;
-  white-space: nowrap;
+  font-size: 10px;
+  color: var(--clr-navy);
   font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
-/* ── Main content area ── */
+/* "3 / 5 MATCHED" — red, bold */
+.act-plabel-right {
+  font-family: var(--font-display);
+  font-size: 10px;
+  color: var(--clr-red);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+/* Fully-rounded progress track */
+.act-progress-track {
+  height: 10px;
+  background: #e0e0e0;
+  border-radius: var(--r-pill);
+  overflow: hidden;
+}
+
+/* Gold/yellow fill — width animated by activity.js */
+.act-progress-fill {
+  height: 100%;
+  background: var(--clr-yellow);
+  border-radius: var(--r-pill);
+  width: 0%;
+  transition: width 0.5s ease;
+}
+
+/* ⭐ points pill — gold background, ink border */
+.act-points-pill {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: var(--clr-yellow);
+  border: 2px solid var(--clr-dm-ink);
+  border-radius: var(--r-pill);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--clr-text);
+  flex-shrink: 0;
+  white-space: nowrap;
+  min-height: 32px;
+}
+
+.act-points-star { font-size: 14px; line-height: 1; }
+.act-points-val  { min-width: 2ch; text-align: right; font-variant-numeric: tabular-nums; }
+
+
+/* ════════════════════════════════════════════════════════════════════
+   MAIN SCROLLABLE AREA
+   ════════════════════════════════════════════════════════════════════ */
 .act-main {
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--sp-md);
-  padding: var(--sp-lg) var(--sp-lg) calc(var(--navbar-h) + var(--sp-xl));
+  /* Extra bottom padding: navbar (64px) + mascot corner (~110px) + gutter */
+  padding: var(--sp-sm) var(--sp-sm) calc(var(--navbar-h) + 110px);
   overflow-y: auto;
+  overflow-x: hidden;
   position: relative;
+  -webkit-overflow-scrolling: touch;
 }
 
-/* ── Header row inside main ── */
-.act-header-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--sp-sm);
-  flex-shrink: 0;
-}
-
-.act-title {
-  font-family: var(--font-display);
-  font-size: var(--text-xl);
-  color: var(--clr-text);
-  margin: 0;
-}
-
-/* "3 matched" badge */
-.act-score-badge {
-  font-family: var(--font-display);
-  font-size: var(--text-sm);
-  color: var(--clr-green);
-  background: #e8f8ef;
-  border: 1.5px solid #86efac;
-  border-radius: var(--r-pill);
-  padding: 4px 12px;
-  font-weight: 700;
-  transition: background 0.3s;
-}
-
-/* ── Game area container ── */
 .act-game-area {
   flex: 1;
+  display: flex;
+  flex-direction: column;
   min-height: 0;
 }
 
-/* Loading placeholder */
+/* Placeholder while JS initialises */
 .act-loading {
   text-align: center;
   font-family: var(--font-body);
   color: var(--clr-text-muted);
   padding: var(--sp-xl);
-  font-size: var(--text-md);
+  font-size: var(--text-base);
 }
 
-/* ── DragMatch component styles ──
-   The component renders into .dragmatch-wrapper.
-   These styles extend the base component visuals to match this screen's theme. */
+
+/* ════════════════════════════════════════════════════════════════════
+   DRAGMATCH COMPONENT — 3-COLUMN LAYOUT
+   DragMatch.render() produces .dragmatch-wrapper which contains:
+     .dm-col.dm-col--left  — even-indexed chip cards
+     .dm-play-card          — the centre arena with zones
+     .dm-col.dm-col--right — odd-indexed chip cards
+   ════════════════════════════════════════════════════════════════════ */
 
 .dragmatch-wrapper {
   display: flex;
-  flex-direction: column;
-  gap: var(--sp-lg);
+  flex-direction: row;
+  gap: 10px;
+  align-items: flex-start;
+  width: 100%;
+  /* Ensures the layout fills the available vertical space on larger screens */
+  min-height: 260px;
 }
 
-.dragmatch-instruction {
+
+/* ── Side columns ("TREASURES") ───────────────────────────────────── */
+.dm-col {
+  /* Each side column takes 1 share; the centre card takes 2 (see .dm-play-card).
+     Total shares = 1 + 2 + 1 = 4, so the two chip columns together fill 50% of
+     the row and the drop area fills the other 50% — a half-half split. */
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* "TREASURES" heading — red, italic, bold, underlined (matches Figma) */
+.dm-col-heading {
   font-family: var(--font-display);
-  font-size: var(--text-base);
-  color: var(--clr-text-muted);
+  font-size: 11px;
+  color: var(--clr-red);
+  font-weight: 700;
+  font-style: italic;
+  text-decoration: underline;
   text-align: center;
   margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
 }
 
-/* Chips row — scrollable if many chips */
-.drag-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--sp-sm);
-  justify-content: center;
-}
 
-/* Each food chip — large, rounded, tapable */
+/* ── Chip card ────────────────────────────────────────────────────── */
 .drag-chip {
-  display: inline-flex;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--r-md); /* 16px */
+  background: #fff;
+  border: 2px solid var(--clr-dm-ink);
+  overflow: hidden;
+  cursor: pointer;
+  /* 3-D press shadow: child-game style */
+  box-shadow: 0 3px 0 rgba(0,0,0,0.22);
+  user-select: none;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  min-width: 0;
+  /* Minimum tap target — at least 44px tall total */
+  min-height: 88px;
+}
+
+/* Tap hover: lift slightly */
+.drag-chip:hover:not(.placed) {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 rgba(0,0,0,0.18);
+}
+
+/* Selected state: gold ring glow */
+.drag-chip.selected {
+  transform: scale(1.06) translateY(-3px);
+  box-shadow: 0 0 0 3px var(--clr-gold), 0 6px 0 rgba(0,0,0,0.18);
+}
+
+/* Being dragged */
+.drag-chip.dragging {
+  opacity: 0.55;
+  cursor: grabbing;
+}
+.drag-chip[draggable="true"] { cursor: grab; }
+
+/* ── Chip tile (image area, top section) ─────────────────────────── */
+/* Pastel tints cycle through four colours — class set by DragMatch.render() */
+.drag-chip__tile {
+  display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--sp-sm) var(--sp-md);
-  background: #fff;
-  border: 2.5px solid #fde8c8;
-  border-radius: var(--r-pill);
-  font-family: var(--font-body);
-  font-size: var(--text-base);
-  color: var(--clr-text);
-  cursor: pointer;
-  box-shadow: var(--shadow-sm);
-  transition: background 0.15s, border-color 0.15s, transform 0.12s;
-  /* Minimum tap target height */
-  min-height: 48px;
-  min-width: 100px;
+  font-size: 26px;
+  padding: 8px 4px 6px;
+  min-height: 56px;
+  position: relative; /* needed for the .placed check overlay */
+  /* Default tile colour (overridden by .dm-tile--* classes) */
+  background: #FFECD4;
+}
+
+/* Pastel tint palette for up to 8 chips (cycles if more) */
+.dm-tile--peach  { background: #FFECD4; }
+.dm-tile--yellow { background: #FFF5CC; }
+.dm-tile--mint   { background: #D4F5E4; }
+.dm-tile--sky    { background: #D4ECFF; }
+.dm-tile--lavend { background: #EDE4FF; }
+.dm-tile--rose   { background: #FFE4EC; }
+.dm-tile--lime   { background: #E8F8D4; }
+.dm-tile--sand   { background: #FFF0D4; }
+
+/* ── Photo chip tile (Task 9: real food/costume/landmark/festival photos) ──
+   The tile becomes a small photo frame instead of an emoji swatch — no inner
+   padding so the image fills the whole tile, cropped to fit. */
+.drag-chip__tile--photo {
+  padding: 0;
+  overflow: hidden;
+  /* FIXED height (not min-height) so every photo tile is exactly the same size.
+     Adjust this one number to make all the treasure photos bigger/smaller. */
+  height: 100px;
+  flex: 0 0 200px;   /* don't stretch or shrink inside the flex-column chip */
+}
+.drag-chip__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;   /* fills the tile, cropped to fit — never distorted */
+  display: block;
+}
+/* The same photo, shown again inside a filled drop zone once matched. */
+.drag-chip__img--zone {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+/* ── Chip label (below the tile) ─────────────────────────────────────────
+   Bumped up from 10px so young readers aren't squinting at the category
+   name — the tile above shrinks slightly (see --photo above) to make room. */
+.drag-chip__label {
+  padding: 6px 4px 7px;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
   text-align: center;
-  user-select: none;
+  color: var(--clr-text);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  line-height: 1.3;
+  /* Reserve room for TWO lines so a 1-line name and a 2-line name make the same
+     card height (keeps every treasure card identical). */
+  min-height: 2.6em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Allow up to 2 lines; truncate if it overflows */
+  overflow: hidden;
 }
 
-.drag-chip:hover:not(.placed) {
-  background: #fff4e6;
-  border-color: #e67e22;
-  transform: translateY(-2px);
-}
-
-/* Selected state: bold orange border */
-.drag-chip.selected {
-  background: #fff4e6;
-  border-color: #e67e22;
-  box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.25), var(--shadow-sm);
-  transform: scale(1.04);
-}
-
-/* Placed/matched: grey out and show as done */
+/* ── Placed / matched chip state ─────────────────────────────────── */
+/* The chip greys out after the match — a green ✓ overlays the tile,
+   and the label gets a strikethrough to signal "done". */
 .drag-chip.placed {
-  opacity: 0.4;
-  cursor: not-allowed;
-  transform: none;
+  opacity: 0.55;
+  pointer-events: none;
+  filter: grayscale(0.5);
+  transform: none !important;
+  box-shadow: none;
 }
 
-/* Chip being dragged: grabbable cursor + faded ghost */
-.drag-chip[draggable="true"] { cursor: grab; }
-.drag-chip.dragging {
-  opacity: 0.5;
-  cursor: grabbing;
-  transform: scale(1.04);
+/* Green check overlay on the tile */
+.drag-chip.placed .drag-chip__tile::after {
+  content: '✓';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.65);
+  color: var(--clr-dm-zone);
+  font-size: 22px;
+  font-weight: 900;
+  display: grid;
+  place-items: center;
 }
 
-/* Drop zones: destination boxes */
+/* Strikethrough on the label */
+.drag-chip.placed .drag-chip__label {
+  text-decoration: line-through;
+  color: var(--clr-text-muted);
+}
+
+
+/* ── Centre play card ─────────────────────────────────────────────── */
+/* Blue-grey panel with a faint radial glow, cloud/wave corner doodles */
+.dm-play-card {
+  /* 2 shares vs 1 share per side column = exactly half the row (see .dm-col). */
+  flex: 2 1 0;
+  min-width: 0;
+  background: var(--clr-dm-play-bg);
+  /* Radial glow: the Figma shows a lighter circle in the centre */
+  background-image: radial-gradient(circle at 50% 40%, #EBF4FF 0%, var(--clr-dm-play-bg) 70%);
+  border: 2px solid var(--clr-dm-play-border);
+  border-radius: 28px;
+  padding: 14px 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Decorative cloud / wave doodles in the corners */
+.dm-play-deco {
+  position: absolute;
+  font-size: 22px;
+  opacity: 0.30;
+  pointer-events: none;
+  user-select: none;
+  line-height: 1;
+}
+.dm-play-deco--tl { top: 8px;  left: 10px;  }
+.dm-play-deco--br { bottom: 8px; right: 10px; transform: scaleX(-1); }
+
+/* "MATCH THE TREASURE!" title inside the play card */
+.dm-play-title {
+  font-family: var(--font-display);
+  font-size: clamp(14px, 3vw, 18px); /* scales between viewport widths */
+  color: var(--clr-navy);
+  text-align: center;
+  margin: 0;
+  position: relative;
+  z-index: 1;
+  letter-spacing: 0.5px;
+  font-weight: 400; /* Fredoka One is inherently bold */
+}
+
+
+/* ── Drop zones (inside play card) ───────────────────────────────── */
 .drag-zones {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--sp-md);
-}
-
-@media (max-width: 360px) {
-  .drag-zones {
-    grid-template-columns: 1fr;
-  }
+  gap: 8px;
+  width: 100%;
+  position: relative;
+  z-index: 1;
 }
 
 .drag-zone {
+  background: var(--clr-dm-zone);
+  /* 3-D depth shadow — darker green on the bottom edge */
+  box-shadow: 0 4px 0 var(--clr-dm-zone-deep);
+  border-radius: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: var(--sp-xs);
-  min-height: 80px;
-  padding: var(--sp-md);
-  background: var(--clr-card);
-  border: 2.5px dashed var(--clr-border);
-  border-radius: var(--r-md);
+  justify-content: flex-start;
+  gap: 5px;
+  padding: 10px 6px 10px;
+  position: relative;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
-  text-align: center;
+  min-height: 90px;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 
+/* Lift on hover while empty */
 .drag-zone:hover:not(.filled) {
-  background: #fff9f0;
-  border-color: #e67e22;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--clr-dm-zone-deep);
 }
 
-/* Zone highlighted while a chip is dragged over it */
+/* Highlight while dragging a chip over the zone */
 .drag-zone.drag-over:not(.filled) {
-  background: #fff4e6;
-  border-color: #e67e22;
-  border-style: solid;
-  transform: scale(1.03);
-  box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.2);
+  transform: scale(1.04);
+  box-shadow: 0 0 0 3px var(--clr-yellow), 0 4px 0 var(--clr-dm-zone-deep);
 }
 
-/* State name label inside the zone */
+/* Number badge — white circle, top-left corner, outside zone edge */
+.dm-zone-badge {
+  position: absolute;
+  top: -9px;
+  left: -9px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--clr-dm-ink);
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--clr-text);
+  z-index: 3;
+  line-height: 1;
+}
+
+/* Badge turns into a checkmark on correct match */
+.dm-zone-badge--check {
+  border-color: var(--clr-dm-zone);
+  color: var(--clr-dm-zone);
+  font-size: 12px;
+}
+
+/* Zone category label — white, bold, uppercase (bumped up alongside the chip
+   label above so the match description is just as easy to read). */
 .drag-zone-label {
   font-family: var(--font-display);
-  font-size: var(--text-sm);
-  color: var(--clr-text);
+  font-size: 12px;
+  color: #fff;
   font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  line-height: 1.2;
+  /* Allow up to 2 lines — category names can be long */
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  max-width: 100%;
 }
 
-/* The chip that lands in the zone when correctly matched */
-.drag-chip-placed {
-  font-family: var(--font-body);
-  font-size: var(--text-sm);
-  color: var(--clr-green);
+/* Dashed inner drop-target box with "+" */
+.dm-zone-drop {
+  width: 78%;
+  /* Keep it square regardless of available width */
+  aspect-ratio: 1;
+  border: 2px dashed rgba(255,255,255,0.8);
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
 }
 
-/* Correct zone: green fill */
-.drag-zone.correct-zone {
-  background: #e8f8ef;
-  border-color: var(--clr-green);
+.dm-zone-plus {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.9);
+  line-height: 1;
+}
+
+/* Drop area when a chip is placed into it — show the chip emoji */
+.dm-zone-drop--filled {
   border-style: solid;
-  animation: zone-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  border-color: rgba(255,255,255,0.5);
+  font-size: 28px;
+  line-height: 1;
 }
 
-/* Wrong zone: brief red flash */
+/* ── Zone state animations ────────────────────────────────────────── */
+
+/* Correct match: spring-pop */
+.drag-zone.correct-zone {
+  animation: zone-pop 0.38s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.5), 0 4px 0 var(--clr-dm-zone-deep);
+}
+
+/* Wrong match: horizontal shake */
 .drag-zone.wrong-zone {
-  background: #fde8e8;
-  border-color: var(--clr-red);
+  background: var(--clr-coral);
   animation: zone-shake 0.3s ease-out both;
 }
 
 @keyframes zone-pop {
-  from { transform: scale(0.95); }
+  from { transform: scale(0.92); }
   to   { transform: scale(1);    }
 }
 
@@ -315,43 +533,165 @@
   75%       { transform: translateX(6px);  }
 }
 
-/* Score display at bottom of the game */
+/* Burst glow keyframe (also used by style.css .burst utility) */
+@keyframes burst {
+  0%   { transform: scale(1);    box-shadow: 0 0 0 0    rgba(39,174,96,0.5), 0 4px 0 var(--clr-dm-zone-deep); }
+  50%  { transform: scale(1.04); }
+  100% { transform: scale(1);    box-shadow: 0 0 0 16px rgba(39,174,96,0), 0 4px 0 var(--clr-dm-zone-deep); }
+}
+.drag-zone.burst { animation: burst 0.6s ease; }
+
+/* Internal score display at bottom of play card — small, understated */
 .dragmatch-score {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--clr-navy);
   text-align: center;
-  font-family: var(--font-display);
-  font-size: var(--text-base);
-  color: var(--clr-text-muted);
-  padding: var(--sp-sm) 0;
+  opacity: 0.7;
+  padding-top: 2px;
+}
+.score-val { font-weight: 700; }
+
+
+/* ════════════════════════════════════════════════════════════════════
+   MASCOT CORNER  (Rimau, bottom-left of .app-container)
+   Absolutely positioned so it floats above the scrollable game layout.
+   Speech bubble tail points downward toward Rimau.
+   ════════════════════════════════════════════════════════════════════ */
+.act-mascot-corner {
+  position: absolute;
+  bottom: calc(var(--navbar-h) + 6px);
+  left: 10px;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  /* Doesn't block chip taps or zone taps */
+  pointer-events: none;
+  max-width: 150px;
 }
 
-.score-val {
-  color: var(--clr-green);
+/* White speech bubble with an ink border */
+.act-bubble {
+  background: #fff;
+  border: 2px solid var(--clr-dm-ink);
+  border-radius: 12px;
+  padding: 7px 9px;
+  position: relative;
+  /* Hard shadow to give the "comic speech bubble" feel */
+  box-shadow: 2px 3px 0 rgba(0,0,0,0.18);
+}
+
+/* Bubble tail — points down-left toward Rimau */
+.act-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -11px;
+  left: 16px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 11px solid var(--clr-dm-ink);
+}
+
+.act-bubble::before {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 18px;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 8px solid #fff;
+  z-index: 1;
+}
+
+.act-bubble p {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--clr-text);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Orange highlight for the active chip name inside the bubble */
+.act-bubble .chip-name {
+  color: var(--clr-orange);
   font-weight: 700;
 }
 
-/* ── Completion overlay ──
-   Fades in after all pairs are matched.
-   Uses position:absolute over .act-main so it fills the game area. */
+/* Rimau figure — emoji fallback until art loads via renderMascot() */
+.act-mascot-fig {
+  font-size: 60px;
+  line-height: 1;
+  animation: mascot-float 3s ease-in-out infinite;
+  cursor: default;
+  user-select: none;
+}
+
+/* Art slot produced by assetImg() / renderMascot() */
+.act-mascot-fig .img-slot {
+  width: 68px;
+  height: 68px;
+}
+.act-mascot-fig .img-slot__img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   HELP BUTTON  (bottom-right, floating navy circle)
+   ════════════════════════════════════════════════════════════════════ */
+.act-help-btn {
+  position: absolute;
+  bottom: calc(var(--navbar-h) + 10px);
+  right: 12px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--clr-navy);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  /* 3-D bottom shadow */
+  box-shadow: 0 3px 0 rgba(0,0,0,0.35);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.act-help-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 0 0 rgba(0,0,0,0.2);
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   COMPLETION OVERLAY
+   Fades in over .act-main once all pairs are matched.
+   ════════════════════════════════════════════════════════════════════ */
 .act-complete {
   position: absolute;
   inset: 0;
-  background: rgba(254, 249, 239, 0.96);
+  background: rgba(254,247,232,0.96);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: var(--sp-lg);
-  z-index: 10;
+  z-index: 30;
   animation: fade-in 0.4s ease both;
 }
 
-.act-complete.hidden {
-  display: none;
-}
-
-@keyframes fade-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
+.act-complete.hidden { display: none; }
 
 .act-complete-card {
   background: var(--clr-card);
@@ -363,9 +703,8 @@
   flex-direction: column;
   align-items: center;
   gap: var(--sp-md);
-  max-width: 360px;
+  max-width: 340px;
   width: 100%;
-  /* Celebratory bounce-in */
   animation: complete-bounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
@@ -375,7 +714,7 @@
 }
 
 .act-complete-emoji {
-  font-size: 72px;
+  font-size: 68px;
   line-height: 1;
 }
 
@@ -393,7 +732,6 @@
   margin: 0;
 }
 
-/* Action buttons inside the completion card */
 .act-complete-actions {
   display: flex;
   flex-direction: column;
@@ -402,7 +740,7 @@
   margin-top: var(--sp-sm);
 }
 
-/* Primary: "Take the Quiz" — same pattern as .btn-primary */
+/* Primary CTA: "Next: Guess My State" */
 .btn-act-quiz {
   display: flex;
   align-items: center;
@@ -415,16 +753,15 @@
   font-family: var(--font-display);
   font-size: var(--text-md);
   text-decoration: none;
-  box-shadow: var(--shadow-btn);
+  box-shadow: 0 5px 0 #8B0000, 0 8px 20px rgba(204,41,54,0.30);
   transition: transform 0.1s, box-shadow 0.1s;
 }
-
 .btn-act-quiz:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 rgba(0,0,0,0.18);
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 #8B0000;
 }
 
-/* Secondary: "Back to Map" */
+/* Secondary CTA: "Back to Map" */
 .btn-act-map {
   display: flex;
   align-items: center;
@@ -441,27 +778,45 @@
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
 }
-
 .btn-act-map:hover {
   background: var(--clr-grey-light);
   border-color: #ccc;
 }
 
-/* ── Bottom nav image icons ── */
+
+/* ════════════════════════════════════════════════════════════════════
+   RESPONSIVE — narrow viewport (≤ 380px)
+   Shrink the side columns slightly so the play card stays comfortable.
+   ════════════════════════════════════════════════════════════════════ */
+@media (max-width: 380px) {
+  /* The half-half flex split still holds; just ease inner spacing. */
+  .dm-play-title { font-size: 13px; }
+  .drag-zone { min-height: 80px; padding: 8px 4px; }
+}
+
+/* At very small widths (≤ 340px) collapse to single-column zones */
+@media (max-width: 340px) {
+  .drag-zones { grid-template-columns: 1fr; }
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   BOTTOM NAV IMAGE ICONS
+   ════════════════════════════════════════════════════════════════════ */
 .nav-icon {
-  width: 30px;
-  height: 30px;
+  width: 26px;
+  height: 26px;
   object-fit: contain;
 }
 
-/* ── Screen entry animation ── */
-@keyframes screen-slide-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
 
+/* ════════════════════════════════════════════════════════════════════
+   SCREEN ENTRY ANIMATION
+   style.css already animates .app-container > main via page-enter.
+   The HUD additionally gets its own page-enter above.
+   ════════════════════════════════════════════════════════════════════ */
 @media (prefers-reduced-motion: no-preference) {
-  .act-main {
-    animation: screen-slide-in 0.3s 0.1s ease-out both;
+  .act-mascot-corner {
+    animation: page-enter 0.4s 0.2s ease-out both;
   }
 }

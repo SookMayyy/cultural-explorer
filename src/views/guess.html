@@ -67,6 +67,13 @@
       <!-- No reveal button: clues unlock automatically as the player guesses
            wrong (handled in guess.js). -->
 
+      <!-- Optional picture clue — only some rounds carry one (round.image in
+           guessRounds.js). Revealed once every text clue is shown, as a last
+           "does this match?" visual check. guess.js toggles .hidden. -->
+      <div class="guess-clue-image hidden" id="guess-clue-image" aria-hidden="true">
+        <img id="guess-clue-image-img" alt="">
+      </div>
+
     </div>
 
     <!-- Right panel: answer options + feedback -->
@@ -88,6 +95,19 @@
     </div>
 
   </main>
+
+  <!-- Rimau entrance intro (Tourist mission only): after the landmark tour,
+       Rimau slides in from the left and asks the child to guide the tourist,
+       then the guessing begins. JS shows/populates this for from=mission&tourist. -->
+  <div class="guess-intro hidden" id="guess-intro">
+    <div class="guess-intro-inner">
+      <div class="guess-intro-bubble" id="guess-intro-bubble">
+        A tourist needs your help! Can you <b>guide the tourist</b> to the right places?
+      </div>
+      <div class="guess-intro-mascot" id="guess-intro-mascot" aria-hidden="true"></div>
+      <button class="guess-intro-btn" id="guess-intro-btn" type="button">Let's help the tourist! →</button>
+    </div>
+  </div>
 
   <!-- Bottom navigation: JS fills this via renderNavbar() -->
   <nav class="bottom-nav" id="navbar"></nav>

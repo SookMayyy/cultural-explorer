@@ -42,14 +42,17 @@
   50%       { opacity: 1;   transform: scale(1.3); }
 }
 
-/* ── Centred celebration column ── */
+/* ── Centred celebration column ──
+   The corner mascot that used to sit here has been removed, which frees up a
+   lot of room — a slightly bigger gap lets the celebration breathe instead of
+   feeling cramped. */
 .reward-body {
   position: relative;
   z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--sp-md);
+  gap: var(--sp-lg);
   width: 100%;
   max-width: 420px;
   text-align: center;
@@ -61,6 +64,21 @@
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+/* Spinning "sunburst" rays behind the glow ring — pure decoration, gives the
+   stamp a festive medal/rosette feel now that the corner mascot is gone. */
+.reward-stamp-container::before {
+  content: '';
+  position: absolute;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(
+    rgba(245,166,35,0.30) 0deg 10deg,
+    transparent 10deg 30deg
+  );
+  z-index: 0;
 }
 
 /* Pulsing glow ring behind the stamp */
@@ -119,6 +137,20 @@
   font-size: var(--text-md);
   color: var(--clr-text);
   text-align: center;
+}
+
+/* Sparkles that pop outward from the stamp centre on reveal (see reward.js —
+   spawned only when the celebration includes a stamp/pass). Each sparkle
+   carries its own --angle custom property so they fan out in a full circle. */
+.reward-sparkle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  font-size: 20px;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 2;
 }
 
 /* ── Headline + subline ── */
@@ -205,6 +237,7 @@
   font-family: var(--font-display);
   font-size: var(--text-md);
   text-align: center;
+  text-decoration: none;         /* these CTAs are <a> tags — no browser underline */
   cursor: pointer;
   transition: transform 0.12s ease, filter 0.12s ease;
 }
@@ -218,19 +251,53 @@
   font-family: var(--font-display);
   font-size: var(--text-md);
   text-align: center;
+  text-decoration: none;         /* these CTAs are <a> tags — no browser underline */
   cursor: pointer;
   transition: background 0.12s ease;
 }
 .reward-btn-secondary:active { background: rgba(255,255,255,0.12); }
 
-/* ── Corner mascot ── */
-.reward-mascot {
-  position: absolute;
-  left: var(--sp-md);
-  bottom: calc(var(--sp-md) + env(safe-area-inset-bottom, 0px));
-  font-size: 64px;
-  z-index: 1;
-  filter: drop-shadow(0 8px 24px rgba(0,0,0,0.5));
-  pointer-events: none;
+/* ═══════════════════════════════════════════════════════
+   Celebration polish — extra life now that the corner mascot
+   is gone. All of this is purely decorative motion, so it is
+   entirely skipped for prefers-reduced-motion: reduce.
+   ═══════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: no-preference) {
+  /* Sunburst behind the stamp turns slowly, like a medal catching the light */
+  .reward-stamp-container::before {
+    animation: sunburst-spin 14s linear infinite;
+  }
+
+  /* Headline pops in with a little overshoot right after the stamp lands */
+  .reward-headline {
+    animation: reward-headline-pop 0.5s 0.85s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  /* Everything else fades/slides in with a gentle stagger so the screen
+     reveals itself piece by piece instead of all at once. */
+  .reward-subline,
+  .reward-no-stamp   { animation: fade-in 0.4s 0.55s ease-out both; }
+  .reward-stats-card { animation: fade-in 0.4s 1.0s  ease-out both; }
+  .reward-actions    { animation: fade-in 0.4s 1.15s ease-out both; }
+
+  /* Sparkles fan out from the stamp centre (spawned by reward.js on a pass) */
+  .reward-sparkle {
+    animation: sparkle-burst 0.9s ease-out both;
+  }
 }
-.reward-mascot .img-slot { width: 1em; height: 1em; }
+
+@keyframes sunburst-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes reward-headline-pop {
+  0%   { transform: scale(0.6); opacity: 0; }
+  70%  { transform: scale(1.12); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes sparkle-burst {
+  0%   { transform: translate(-50%, -50%) rotate(var(--angle, 0deg)) translateX(0) scale(0.4); opacity: 0; }
+  25%  { opacity: 1; }
+  100% { transform: translate(-50%, -50%) rotate(var(--angle, 0deg)) translateX(115px) scale(1); opacity: 0; }
+}

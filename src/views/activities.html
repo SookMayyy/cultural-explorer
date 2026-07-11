@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Activities — Cultural Explorer MY</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Fredoka+One&family=Ribeye&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/activities.css">
+</head>
+<body>
+
+<div class="app-container">
+
+  <!-- Topbar — rendered by activities.js.
+       The .activities-topbar modifier forces purple, same pattern as quiz/narrative. -->
+  <header id="topbar" class="topbar activities-topbar"></header>
+
+  <!-- ════════════════════════════════════════════════════════════════════
+       Activities Hub — replayable mini-games for the current state.
+       Layout mirrors the "ACTIVITIES HUB" prototype: a cream panel with a
+       title, subtitle, and a 2×2 grid of game cards. All artwork is a
+       placeholder (emoji in a rounded slot) until real icons are exported.
+       ════════════════════════════════════════════════════════════════════ -->
+  <main class="act-main has-navbar" id="act-main">
+
+    <div class="act-panel">
+      <h1 class="act-heading">ACTIVITIES</h1>
+      <p class="act-subhead" id="act-subhead">Choose a game to play!</p>
+
+      <!-- Difficulty selector (built by activities.js via difficultyChip.js).
+           Same games, harder settings for the older cohort. -->
+      <div class="act-difficulty" id="act-difficulty"></div>
+
+      <!-- 2×2 game grid — filled by activities.js so lock state + the ?state=
+           param are applied per card. -->
+      <div class="act-grid" id="act-grid"></div>
+    </div>
+
+  </main>
+
+  <!-- Bottom navbar — rendered by activities.js (active: Activities) -->
+  <nav id="navbar"></nav>
+
+</div>
+
+<script type="module" src="../js/activities.js"></script>
+</body>
+</html>

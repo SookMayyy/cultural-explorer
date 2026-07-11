@@ -1,0 +1,770 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   MISSION FLOW — mission.css
+   Discover → Learn → (mini-game) → Reward → Complete.
+   Warm storybook cards on a soft backdrop; one stage visible at a time.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.topbar.mission-topbar { background: var(--clr-purple) !important; }
+
+.mn-main {
+  --state-color:       var(--clr-purple);
+  --state-color-light: #F0ECFB;
+
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-md);
+  padding: var(--sp-lg) var(--sp-md) var(--sp-xl);
+  background:
+    radial-gradient(120% 60% at 50% 0%, var(--state-color-light) 0%, transparent 60%),
+    var(--clr-bg);
+}
+
+/* Stage badge ribbon: "MISSION 1: HELP THE CHEF (FOOD)" */
+.mn-badge {
+  align-self: center;
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  letter-spacing: 0.4px;
+  color: #fff;
+  background: var(--state-color);
+  padding: 7px var(--sp-lg);
+  border-radius: var(--r-pill);
+  box-shadow: 0 3px 0 rgba(44,24,16,0.18);
+  text-align: center;
+}
+
+/* ── Shared storybook card ─────────────────────────────────────────────────── */
+/* The mission flow has NO bottom nav bar, so the card can be wider and taller —
+   letting the mini-game text and images read bigger. */
+.mn-card {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  background: var(--clr-bg-warm);
+  border: 3px solid var(--clr-border-warm);
+  border-radius: var(--r-lg, 20px);
+  padding: var(--sp-xl) var(--sp-lg);
+  box-shadow: var(--shadow-md);
+  text-align: center;
+  position: relative;
+}
+.mn-card.hidden { display: none; }
+
+/* Stage entrance */
+.mn-stage-in { animation: mn-stage-in 0.4s cubic-bezier(0.34, 1.4, 0.64, 1) both; }
+@keyframes mn-stage-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+/* ── Shared buttons ────────────────────────────────────────────────────────── */
+.mn-btn {
+  display: inline-block;
+  width: 100%;
+  margin-top: var(--sp-md);
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  text-align: center;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  padding: 13px var(--sp-lg);
+  border-radius: var(--r-pill);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+}
+.mn-btn-primary {
+  color: #fff;
+  background: linear-gradient(180deg, #43BE6E 0%, var(--clr-green) 100%);
+  box-shadow: 0 4px 0 #1E7A45, 0 6px 14px rgba(42,157,92,0.3);
+}
+.mn-btn-primary:hover  { filter: brightness(1.04); transform: translateY(-1px); }
+.mn-btn-primary:active { transform: translateY(2px); box-shadow: 0 2px 0 #1E7A45; }
+.mn-btn-ghost {
+  color: var(--clr-text-muted);
+  background: transparent;
+  box-shadow: none;
+  margin-top: var(--sp-xs);
+  font-size: var(--text-sm);
+}
+.mn-btn-ghost:active { transform: translateY(1px); }
+
+/* ══ DISCOVER ══════════════════════════════════════════════════════════════ */
+.mn-discover-title {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  color: var(--clr-text);
+  margin: 0 0 2px;
+}
+.mn-discover-sub {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--clr-text-muted);
+  margin: 0 0 var(--sp-md);
+}
+
+/* Hero: big dish emoji with the mascot peeking in the corner */
+.mn-hero {
+  position: relative;
+  width: 170px;
+  height: 170px;
+  margin: 0 auto var(--sp-md);
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 38%, #fff 0%, var(--state-color-light) 100%);
+  border: 3px solid var(--clr-border-warm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 -6px 14px rgba(44,24,16,0.08);
+}
+.mn-hero-emoji { font-size: 84px; line-height: 1; }
+
+/* When the hero shows a real dish photo, fill the circular frame with it. */
+.mn-hero--photo .mn-hero-emoji {
+  position: absolute;
+  inset: 4px;
+  font-size: 0;
+}
+.mn-hero--photo .mn-hero-emoji img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+.mn-hero-mascot {
+  position: absolute;
+  bottom: -10px;
+  left: -10px;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.mn-hero-mascot-fig { font-size: 46px; line-height: 1; }
+.mn-hero-mascot-fig .img-slot { width: 1.2em; height: 1.2em; }
+
+/* Tappable culture cards */
+.mn-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(64px, 1fr));
+  gap: var(--sp-xs);
+  margin-bottom: var(--sp-sm);
+}
+.mn-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: var(--sp-sm) 4px;
+  background: var(--clr-card);
+  border: 2px solid var(--clr-border-warm);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  box-shadow: 0 2px 0 rgba(44,24,16,0.08);
+}
+.mn-item:hover  { transform: translateY(-2px); box-shadow: 0 4px 0 rgba(44,24,16,0.10); }
+.mn-item:active { transform: translateY(1px); }
+.mn-item-emoji { font-size: 26px; line-height: 1; }
+.mn-item-label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--clr-text);
+  line-height: 1.1;
+}
+
+/* ══ LEARN (carousel) ══════════════════════════════════════════════════════ */
+.mn-learn { padding-left: var(--sp-md); padding-right: var(--sp-md); }
+.mn-learn-body {
+  background: var(--clr-card);
+  border: 2px solid var(--clr-border-warm);
+  border-radius: var(--r-md);
+  padding: var(--sp-lg) var(--sp-md);
+  margin: 0 var(--sp-lg);
+  min-height: 230px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-sm);
+}
+.mn-learn-title {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--state-color);
+  margin: 0;
+}
+.mn-learn-emoji { font-size: 76px; line-height: 1; }
+/* Real ingredient photo in the Learn card. */
+.mn-learn-img { width: 108px; height: 108px; object-fit: contain; }
+.mn-pop { animation: mn-pop 0.35s cubic-bezier(0.34, 1.8, 0.64, 1) both; }
+@keyframes mn-pop {
+  0% { transform: scale(0.4); opacity: 0; }
+  60%{ transform: scale(1.15); }
+  100%{ transform: scale(1); opacity: 1; }
+}
+.mn-learn-blurb {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--clr-text);
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* Side arrows */
+.mn-learn-arrow {
+  position: absolute;
+  top: 46%;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 2px solid var(--clr-border-warm);
+  background: #fff;
+  color: var(--state-color);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  z-index: 2;
+  transition: transform 0.12s ease;
+}
+.mn-learn-arrow:active { transform: scale(0.9); }
+.mn-learn-prev { left: 8px; }
+.mn-learn-next { right: 8px; }
+
+/* Dots */
+.mn-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin: var(--sp-md) 0 0;
+}
+.mn-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--clr-border-warm);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.mn-dot.is-active { background: var(--state-color); transform: scale(1.3); }
+
+/* ══ REWARD ════════════════════════════════════════════════════════════════ */
+.mn-reward { overflow: hidden; }
+.mn-reward-title {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  color: var(--clr-green);
+  margin: 0;
+}
+.mn-reward-line {
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  color: var(--clr-text);
+  margin: 2px 0 var(--sp-md);
+}
+/* "What you explored" photo (real dish/landmark image) on the complete screen. */
+.mn-reward-photo {
+  display: flex;
+  justify-content: center;
+  margin: var(--sp-sm) 0 0;
+  line-height: 0;
+}
+.mn-reward-img {
+  display: block;
+  width: 160px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: var(--r-lg, 20px);
+  box-shadow: var(--shadow-md);
+  animation: mn-reward-bounce 0.6s cubic-bezier(0.34, 1.6, 0.64, 1) both;
+}
+@keyframes mn-reward-bounce {
+  0%  { transform: scale(0) rotate(-12deg); }
+  60% { transform: scale(1.08) rotate(4deg); }
+  100%{ transform: scale(1) rotate(0); }
+}
+.mn-reward-prize {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-md);
+  margin: var(--sp-md) auto 0;
+  padding: var(--sp-md);
+  max-width: 320px;
+  background: linear-gradient(135deg, #FFF9E6, #FEF0C2);
+  border: 2px dashed var(--clr-gold);
+  border-radius: var(--r-md);
+}
+.mn-reward-pts {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  color: var(--clr-orange);
+  white-space: nowrap;
+}
+.mn-reward-congrats {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  color: var(--clr-text);
+  line-height: 1.2;
+}
+
+/* Stamp progress — "2 of 4 missions done" (merged in from the old separate
+   Mission Complete stage; Task 8 combined both into one celebration screen). */
+.mn-reward-progress {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  color: var(--clr-purple, #6b50ce);
+  margin: var(--sp-sm) 0 0;
+}
+
+/* ══ COOK THE DISH (inline mini-game) ══════════════════════════════════════ */
+.mn-cook-intro {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  text-align: left;
+  margin-bottom: var(--sp-md);
+}
+.mn-cook-mascot {
+  flex-shrink: 0;
+  font-size: 40px;
+  line-height: 1;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mn-cook-mascot .img-slot { width: 1.2em; height: 1.2em; }
+.mn-cook-prompt {
+  flex: 1;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: var(--text-md);
+  color: var(--clr-text);
+  line-height: 1.3;
+  background: #fff;
+  border: 2px solid var(--clr-border-warm);
+  border-radius: var(--r-md);
+  padding: var(--sp-sm) var(--sp-md);
+  margin: 0;
+}
+
+/* The pot (drop target) */
+.mn-cook-pot {
+  position: relative;
+  width: 190px;
+  height: 160px;
+  margin: 0 auto var(--sp-xs);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  /* No circle container — the cooking-pot illustration stands on its own. */
+}
+.mn-cook-pot-emoji { font-size: 76px; line-height: 1; }
+/* Cooking-pot illustration fills the pot slot. */
+.mn-cook-pot-img { width: 160px; height: 132px; object-fit: contain; }
+.mn-cook-count {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  color: var(--state-color);
+}
+.mn-pot-bump { animation: mn-pot-bump 0.4s cubic-bezier(0.34, 1.6, 0.64, 1); }
+@keyframes mn-pot-bump {
+  0%, 100% { transform: scale(1); }
+  40%      { transform: scale(1.08); }
+}
+
+/* Feedback line */
+.mn-cook-feedback {
+  min-height: 1.3em;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: var(--text-md);
+  margin: 0 0 var(--sp-sm);
+  color: var(--clr-text-muted);
+}
+.mn-cook-feedback.is-good { color: var(--clr-green); }
+.mn-cook-feedback.is-bad  { color: var(--clr-danger, #E5484D); }
+
+/* Ingredient tray — bigger cards (no navbar, so there's room). */
+.mn-cook-tray {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+  gap: var(--sp-md);
+}
+.mn-ingredient {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: var(--sp-md) var(--sp-sm);
+  background: var(--clr-card);
+  border: 2px solid var(--clr-border-warm);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.2s ease;
+  box-shadow: 0 2px 0 rgba(44,24,16,0.08);
+}
+.mn-ingredient:hover  { transform: translateY(-2px); box-shadow: 0 4px 0 rgba(44,24,16,0.10); }
+.mn-ingredient:active { transform: translateY(1px); }
+.mn-ingredient-emoji { font-size: 44px; line-height: 1; }
+/* Real ingredient photo on a tray card. */
+.mn-ingredient-img { width: 60px; height: 60px; object-fit: contain; display: block; }
+.mn-ingredient-label {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--clr-text);
+  line-height: 1.15;
+  text-align: center;
+}
+/* Correct → dropped into the pot */
+.mn-ingredient.is-added {
+  opacity: 0.45;
+  cursor: default;
+  border-color: var(--clr-green);
+  box-shadow: none;
+  animation: mn-into-pot 0.45s cubic-bezier(0.5, -0.3, 0.6, 1) both;
+}
+@keyframes mn-into-pot {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.15) translateY(-6px); }
+  100% { transform: scale(0.9) translateY(0); }
+}
+/* Wrong → red flash */
+.mn-ingredient.is-wrong { border-color: var(--clr-danger, #E5484D); background: #FDECEC; }
+.mn-shake { animation: mn-shake 0.5s ease; }
+@keyframes mn-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+/* ══ DISCOVER SPOTLIGHT ════════════════════════════════════════════════════════
+   The signature "learn before you play" step: one big image, dimmed except a
+   glowing hotspot the child taps. 3 taps → Continue. */
+/* The spotlight breaks out of the narrow storybook card so the picture is as
+   WIDE as possible, and fills the screen height as a flex column so the whole
+   stage fits without scrolling — young students need to see the detail clearly. */
+.mn-spot {
+  max-width: 60%;
+  /* Bleed past the main's side padding so the image spans the full frame width. */
+  margin-inline: calc(-1 * var(--sp-md));
+  padding: var(--sp-sm);
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.mn-spot-title {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  color: var(--clr-text);
+  margin: 0 0 var(--sp-sm);
+}
+
+/* Image stage — the picture, the dim overlay, and the hotspot buttons stack here.
+   It GROWS to take the leftover height (title/caption/buttons keep their natural
+   size), so the image is as big as it can be while the page never scrolls. */
+.mn-spot-stage {
+  position: relative;
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 230px;
+  border-radius: var(--r-md, 16px);
+  overflow: hidden;
+  border: 3px solid var(--clr-border-warm);
+  box-shadow: inset 0 -6px 14px rgba(44,24,16,0.12);
+  background: var(--state-color-light);
+}
+.mn-spot-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+/* Blurred cover-fill of the SAME photo, painted behind the sharp (contain) image
+   so the picture fills the whole stage — no empty letterbox, no repeat — while the
+   full photo stays visible and the hotspots keep their positions. Off by default;
+   opted-in per state below (trialling on Kedah). */
+.mn-spot-img-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: none;
+}
+:root[data-mn-state="kedah"] .mn-spot-img-bg {
+  display: block;
+  filter: blur(22px) brightness(0.82) saturate(1.15);
+  transform: scale(1.25);   /* hide the soft blurred edges */
+}
+:root[data-mn-state="kedah"] .mn-spot-stage {
+  background: #14110c;       /* dark base so the blurred fill reads richly */
+}
+/* Dim layer — its radial-gradient "hole" is set inline per active hotspot. */
+.mn-spot-dim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  transition: background 0.4s ease;
+  pointer-events: none;
+}
+.mn-spot-hotspots { position: absolute; inset: 0; }
+
+/* A hotspot marker. Positioned by inline left/top %; centred on that point. */
+.mn-spot-dot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 4px solid #fff;
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  color: #fff;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  background: rgba(255,255,255,0.18);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+  transition: transform 0.15s ease, opacity 0.3s ease, background 0.2s ease;
+}
+.mn-spot-dot.is-active {
+  background: var(--clr-yellow, #FFC93C);
+  color: #5A3B00;
+  border-color: #fff;
+  animation: mn-spot-pulse 1.4s ease-in-out infinite;
+}
+.mn-spot-dot.is-idle { opacity: 0; pointer-events: none; }   /* only the active one shows */
+.mn-spot-dot.is-found {
+  background: var(--clr-green, #2A9D5C);
+  border-color: #fff;
+  opacity: 0.9;
+  cursor: pointer;   /* stays tappable → replays its line */
+}
+.mn-spot-dot.is-found:active { transform: translate(-50%, -50%) scale(0.9); }
+@keyframes mn-spot-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,201,60,0.7),   0 2px 8px rgba(0,0,0,0.35); transform: translate(-50%,-50%) scale(1);    }
+  50%      { box-shadow: 0 0 0 14px rgba(255,201,60,0),   0 2px 8px rgba(0,0,0,0.35); transform: translate(-50%,-50%) scale(1.12); }
+}
+
+/* Progress pips (one per hotspot) */
+.mn-spot-progress {
+  display: flex;
+  justify-content: center;
+  gap: var(--sp-xs);
+  margin: var(--sp-md) 0 var(--sp-sm);
+}
+.mn-spot-pip {
+  width: 26px;
+  height: 8px;
+  border-radius: var(--r-pill);
+  background: var(--clr-border-warm);
+  transition: background 0.25s ease;
+}
+.mn-spot-pip.is-on { background: var(--clr-green, #2A9D5C); }
+
+/* Caption bar — the spoken line, shown as large text underneath */
+.mn-spot-caption {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: var(--text-lg);
+  line-height: 1.35;
+  color: var(--clr-text);
+  min-height: 2.7em;
+  margin: 0 0 var(--sp-sm);
+}
+/* The ingredient keyword, highlighted so it pops for young readers. */
+.mn-spot-key {
+  background: var(--clr-yellow, #FFC93C);
+  color: #5A3B00;
+  font-weight: 800;
+  padding: 0 6px;
+  border-radius: 6px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.mn-spot-actions { display: flex; flex-direction: column; }
+.mn-btn.mn-btn-ready { animation: mn-pop 0.4s ease; }
+.mn-btn[disabled] { opacity: 0.5; cursor: default; filter: grayscale(0.3); }
+
+/* ── Spotlight TOUR (guided landmark tour) ─────────────────────────────────── */
+/* Break out of the card frame entirely: the landmark photo becomes a FULL-SCREEN
+   backdrop so students get a big, clear view of the landmark. The name overlays
+   the top; the description + controls sit on a scrim panel at the bottom. */
+.mn-tour {
+  position: absolute;
+  inset: 0;                       /* fill the whole app-container */
+  z-index: 5;                     /* above other stages; below the floating topbar (z 100) */
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  /* Transparent so the landmark photo painted on the .app-container background
+     (see mission.js initTour) fills any gap — the state background never shows. */
+  background: transparent;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;      /* the bottom panel hugs the bottom edge */
+}
+
+/* Full-cover background photo. Two of these are stacked (see mission.js initTour):
+   the incoming photo fades in over the outgoing one for a seamless crossfade when
+   the tour advances, plus a slow Ken-Burns zoom while a stop is on screen. */
+.mn-tour-img {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  z-index: 0;
+  opacity: 0;
+  transform: scale(1.06);
+  transition: opacity 0.6s ease, transform 7s ease-out;
+  will-change: opacity, transform;
+}
+.mn-tour-img.is-shown { opacity: 1; transform: scale(1); }
+
+/* Landmark name overlaid across the top, on a soft scrim so it reads on any photo.
+   Extra top padding clears the floating back button / points pill. */
+.mn-tour-title {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  z-index: 2;
+  margin: 0;
+  padding: calc(var(--topbar-h) + 52px) var(--sp-md) var(--sp-2xl);
+  font-family: var(--font-display);
+  /* Bigger + bolder so young children clearly notice the landmark name up top. */
+  font-size: clamp(1.9rem, 7.5vw, 2.9rem);
+  line-height: 1.12;
+  letter-spacing: 0.3px;
+  color: #fff;
+  text-align: center;
+  /* Crisp, high-contrast title — a tight dark outline instead of a soft blurry
+     halo, so the name stays sharp while the photo shows through the light scrim. */
+  text-shadow:
+    0 0 2px rgba(0, 0, 0, 0.9),
+    0 1px 1px rgba(0, 0, 0, 0.95),
+    0 3px 8px rgba(0, 0, 0, 0.6);
+  -webkit-text-stroke: 0.5px rgba(0, 0, 0, 0.4);
+  /* No dark scrim across the top — the crisp text shadow alone keeps the name
+     readable, so the photo shows fully at the top (only the bottom panel dims). */
+  background: none;
+  pointer-events: none;
+}
+.mn-tour-emoji { margin-right: 6px; }
+
+/* Bottom panel: description + progress pips + buttons. A lighter gradient scrim
+   keeps the landmark photo dominant while the text stays readable via its own
+   crisp shadow / highlight below. */
+.mn-tour-panel {
+  position: relative;
+  z-index: 2;
+  margin-top: auto;
+  padding: var(--sp-2xl) var(--sp-lg) var(--sp-lg);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.72) 55%, rgba(0, 0, 0, 0));
+  color: #fff;
+}
+
+/* Progress pips — one per tour card, filled up to the current one. */
+.mn-tour-progress {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  margin-bottom: var(--sp-md);
+}
+.mn-tour-pip {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  transition: background 0.25s, transform 0.25s;
+}
+.mn-tour-pip.is-on { background: #fff; transform: scale(1.15); }
+
+.mn-tour-vo {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: var(--text-lg);       /* one short line — give it room to read big */
+  line-height: 1.4;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+  text-align: center;
+  min-height: 2.4em;
+  margin: 0 0 var(--sp-sm);
+}
+/* The important word: a solid bright chip with bold dark text — crisp, no blur
+   (the parent's text-shadow is cancelled here so the keyword reads sharply). */
+.mn-tour-key {
+  background: var(--clr-yellow);
+  color: #2C1810;
+  font-weight: 800;
+  padding: 1px 7px;
+  border-radius: 6px;
+  text-shadow: none;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+.mn-tour-actions { display: flex; flex-direction: column; }
+
+/* ── Stamp earned banner (shown on the 4th mission's Complete stage) ────────── */
+.mn-complete-stamp {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin: var(--sp-sm) 0 var(--sp-md);
+  animation: mn-pop 0.5s cubic-bezier(0.34, 1.5, 0.64, 1) both;
+}
+.mn-complete-stamp.hidden { display: none; }
+.mn-complete-stamp-img {
+  width: 120px; height: 120px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 8px rgba(44,24,16,0.25));
+}
+.mn-complete-stamp-text {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  color: var(--clr-purple);
+  margin: 0;
+}
+
+/* ── Reduced motion ────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .mn-stage-in, .mn-pop, .mn-reward-img,
+  .mn-pot-bump, .mn-into-pot, .mn-shake,
+  .mn-tour-img, .mn-complete-stamp,
+  .mn-spot-dot.is-active, .mn-btn.mn-btn-ready { animation: none; }
+  /* No crossfade / Ken-Burns zoom — swap the tour photo instantly. */
+  .mn-tour-img { transition: none; transform: none; }
+  /* Keep the active hotspot obvious without the pulse. */
+  .mn-spot-dot.is-active { box-shadow: 0 0 0 4px rgba(255,201,60,0.9), 0 2px 8px rgba(0,0,0,0.35); }
+}
+
+/* ── Small screens ─────────────────────────────────────────────────────────── */
+@media (max-width: 360px) {
+  .mn-hero { width: 140px; height: 140px; }
+  .mn-hero-emoji { font-size: 70px; }
+  .mn-item-label { font-size: 10px; }
+}
