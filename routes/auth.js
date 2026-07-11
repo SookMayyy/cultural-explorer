@@ -154,16 +154,15 @@ router.post('/login', loginLimiter, [
     let authenticated = false;
 
     if (grade_group === '1-3') {
-      // Grade 1–3: check against auto_password first, then password_hash if set
+      // Grade 1–3 keep their auto-generated password as-is — young children
+      // can't manage a new one. It stays stored in plain text and is NEVER
+      // cleared, so password recovery can always reveal the SAME password they
+      // were given. We compare it directly instead of hashing it.
       if (user.auto_password && user.auto_password === password) {
         authenticated = true;
-        // First successful login — hash the password and clear the plain-text auto_password
-        const newHash = await bcrypt.hash(password, 10);
-        await pool.execute(
-          'UPDATE users SET password_hash = ?, auto_password = NULL, last_login = NOW() WHERE id = ?',
-          [newHash, user.id]
-        );
+        await pool.execute('UPDATE users SET last_login = NOW() WHERE id = ?', [user.id]);
       } else if (user.password_hash) {
+        // Fallback for legacy accounts hashed under the old first-login flow.
         authenticated = await bcrypt.compare(password, user.password_hash);
         if (authenticated) {
           await pool.execute('UPDATE users SET last_login = NOW() WHERE id = ?', [user.id]);
@@ -239,9 +238,11 @@ router.post('/recover', loginLimiter, [
     }
 
     if (grade_group === '1-3') {
-      // Reveal the stored password (auto_password for Grade 1–3)
-      // If auto_password was already cleared (first login happened), reveal from password_hash is not possible
-      // In that case, reset with a new auto password
+      // Reveal the child's ORIGINAL auto-password. It is kept in plain text and
+      // never cleared (see /login), so recovery returns the same password they
+      // already have — they don't have to remember or learn a new one. The
+      // regenerate branch below is only a fallback for legacy accounts created
+      // before this change, whose auto_password was wiped on first login.
       let revealedPassword = user.auto_password;
       if (!revealedPassword) {
         revealedPassword = genAutoPassword();

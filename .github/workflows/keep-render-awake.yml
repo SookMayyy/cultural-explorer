@@ -1,0 +1,35 @@
+name: Keep Render Awake
+
+# Render free web services spin down after ~15 minutes without inbound traffic,
+# so the next visitor waits ~50s for a cold start. This workflow pings the public
+# URL every 10 minutes to keep the instance warm.
+#
+# NOTE: GitHub's scheduled runs are often delayed several minutes under load, so
+# this is a best-effort backup. For a tight 15-min window, a dedicated uptime
+# monitor (UptimeRobot / cron-job.org, 5-min interval) is more reliable.
+
+on:
+  schedule:
+    # Every 10 minutes. GitHub cron is best-effort (may drift by a few minutes).
+    - cron: "*/10 * * * *"
+  # Allow a manual run from the Actions tab.
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping the app
+        run: |
+          URL="https://cultural-explorer.onrender.com/"
+          # Retry a few times: a cold start can take ~50s to answer the first hit.
+          for i in 1 2 3 4 5; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 60 "$URL" || echo "000")
+            echo "Attempt $i → HTTP $code"
+            if [ "$code" = "200" ]; then
+              echo "App is awake."
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "::warning::App did not return 200 after retries (may still be waking)."

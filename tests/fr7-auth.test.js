@@ -90,19 +90,19 @@ describe('FR7 — Grade 1-3 auto-password lifecycle', () => {
     id = await trackByName(NAME, '1-3');
   });
 
-  test('first login with the auto-password clears it and sets a hash', async () => {
+  test('first login keeps the auto-password so it stays recoverable', async () => {
     const login = await request.agent(app).post('/api/auth/login')
       .send({ display_name: NAME, grade_group: '1-3', password: autoPw });
     expect(login.status).toBe(200);
 
     const [[row]] = await pool.execute(
-      'SELECT auto_password, password_hash FROM users WHERE id = ?', [id]
+      'SELECT auto_password, last_login FROM users WHERE id = ?', [id]
     );
-    expect(row.auto_password).toBeNull();             // cleared after first login
-    expect(row.password_hash).toBeTruthy();           // now hashed
+    expect(row.auto_password).toBe(autoPw);           // retained, NOT cleared
+    expect(row.last_login).toBeTruthy();              // login timestamp recorded
   });
 
-  test('subsequent logins still work via the hashed password', async () => {
+  test('subsequent logins still work with the same auto-password', async () => {
     const again = await request.agent(app).post('/api/auth/login')
       .send({ display_name: NAME, grade_group: '1-3', password: autoPw });
     expect(again.status).toBe(200);
@@ -217,6 +217,24 @@ describe('FR7 — Icon-based recovery', () => {
     });
     expect(rec.status).toBe(200);
     expect(rec.body.revealed_password).toBe(reg.body.auto_password);
+  });
+
+  test('Grade 1-3 recovery reveals the SAME password after first login', async () => {
+    const NAME = name('Rk2');
+    const reg = await request(app).post('/api/auth/register').send({
+      display_name: NAME, grade_group: '1-3', icon_key_1: 3, icon_key_2: 8,
+    });
+    await trackByName(NAME, '1-3');
+
+    // Log in once — under the old flow this wiped the auto-password.
+    await request(app).post('/api/auth/login')
+      .send({ display_name: NAME, grade_group: '1-3', password: reg.body.auto_password });
+
+    const rec = await request(app).post('/api/auth/recover').send({
+      display_name: NAME, grade_group: '1-3', icon_key_1: 3, icon_key_2: 8,
+    });
+    expect(rec.status).toBe(200);
+    expect(rec.body.revealed_password).toBe(reg.body.auto_password);  // same, not regenerated
   });
 });
 

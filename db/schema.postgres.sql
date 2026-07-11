@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS users (
   display_name      VARCHAR(30),
   grade_group       VARCHAR(5) CHECK (grade_group IN ('1-3','4-6')),
   password_hash     VARCHAR(60),         -- bcrypt; Grade 3+ only
-  auto_password     VARCHAR(20),         -- Grade 1-2 only; cleared after first login
+  auto_password     VARCHAR(20),         -- Grade 1-3 only; kept in plain text so recovery can reveal it
   icon_key_1        SMALLINT,            -- first recovery icon id (1–12)
   icon_key_2        SMALLINT,            -- second recovery icon id (1–12)
 

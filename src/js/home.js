@@ -478,11 +478,26 @@ async function handleRecover(e) {
       return showError('recover-error', '❌ ' + (data.error || 'Recovery failed.'));
     }
 
-    const ok = document.getElementById('recover-success');
-    ok.textContent = data.revealed_password
-      ? `✅ Your password is: ${data.revealed_password} — write it down!`
-      : '✅ Password updated! You can log in now.';
-    ok.classList.remove('hidden');
+    // Require an explicit acknowledgement so the revealed password (Grade 1–3)
+    // isn't missed, then return to the login form so they can sign in.
+    if (data.revealed_password) {
+      await showPopup({
+        title: 'Success! 🎉',
+        emoji: '🔑',
+        message: `Your password is<br>
+          <strong style="font-size:22px; letter-spacing:1px;">${data.revealed_password}</strong><br><br>
+          Write it down — you'll use it to log in!`,
+        actions: [{ label: "Got it!", value: true, style: 'primary' }],
+      });
+    } else {
+      await showPopup({
+        title: 'Password updated! ✅',
+        emoji: '🔓',
+        message: 'You can log in now with your new password.',
+        actions: [{ label: 'Go to login', value: true, style: 'primary' }],
+      });
+    }
+    showLoginView();
   } catch (err) {
     showError('recover-error', '❌ Could not reach the server. Is it running (npm start)?');
   }

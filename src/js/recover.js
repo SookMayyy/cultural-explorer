@@ -6,7 +6,7 @@
 
 // The 12 secret icons — order matters: index+1 maps to icon_key values 1–12
 // stored at registration. Keep this in sync with ICONS in home.js.
-import { showError as popup } from './components/popup.js';
+import { showError as popup, showPopup } from './components/popup.js';
 
 const ICONS = ['🌺','🦋','⭐','🌙','🐘','🦜','🍃','🎈','🐠','🌈','🦁','🌻'];
 
@@ -100,13 +100,28 @@ form.addEventListener('submit', async e => {
       return showError('❌ ' + (data.error || 'Recovery failed. Check your details.'));
     }
 
-    // Success — show the (auto or new) password, then head back to login.
-    successEl.classList.remove('hidden');
-    successEl.textContent = data.revealed_password
-      ? `✅ Success! Your password is: ${data.revealed_password}`
-      : '✅ Password updated! You can log in now.';
+    // Success — require an explicit acknowledgement so the revealed password
+    // (Grade 1–3) isn't missed, then go to login only after they tap the button.
     document.getElementById('recover-submit').disabled = true;
-    setTimeout(() => { window.location.href = 'login.html'; }, 4000);
+
+    if (data.revealed_password) {
+      await showPopup({
+        title: 'Success! 🎉',
+        emoji: '🔑',
+        message: `Your password is<br>
+          <strong style="font-size:22px; letter-spacing:1px;">${data.revealed_password}</strong><br><br>
+          Write it down — you'll use it to log in!`,
+        actions: [{ label: "Got it!", value: true, style: 'primary' }],
+      });
+    } else {
+      await showPopup({
+        title: 'Password updated! ✅',
+        emoji: '🔓',
+        message: 'You can log in now with your new password.',
+        actions: [{ label: 'Go to login', value: true, style: 'primary' }],
+      });
+    }
+    window.location.href = 'login.html';
   } catch {
     showError('❌ Could not reach the server. Is it running (npm start)?');
   }
