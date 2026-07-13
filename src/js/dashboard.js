@@ -4,7 +4,6 @@
 import Storage from './utils/storage.js';
 import { renderTopbar, renderNavbar, requireAuth } from './ui.js';
 import { STATES_DATA, nextRecommended } from './data/states.js';
-import { avatarStackHTML } from './utils/avatarDisplay.js';
 
 const session = requireAuth();
 
@@ -29,17 +28,16 @@ function levelLabel(n) {
 }
 
 // ── Hero ──────────────────────────────────────────────────────────────────────
-document.getElementById('dash-avatar').innerHTML = avatarStackHTML(session.avatarId ?? 0);
 document.getElementById('dash-name').textContent = playerName;
 document.getElementById('dash-level').textContent = levelLabel(completed);
 
 const greetEl = document.getElementById('dash-greeting-text');
 if (greetEl) {
   const lines = stampsN === 0
-    ? [`Welcome, ${playerName}! Ready for your first adventure? 🗺️`,
-       `Hi ${playerName}! Let's explore Malaysia together! 🐯`]
-    : [`Welcome back, ${playerName}! ${stampsN} stamp${stampsN > 1 ? 's' : ''} so far! 🏅`,
-       `Great to see you, ${playerName}! Let's keep exploring! ✨`];
+    ? [`Welcome, ${playerName}! Ready for your first adventure?`,
+       `Hi ${playerName}! Let's explore Malaysia together!`]
+    : [`Welcome back, ${playerName}!`,
+       `Great to see you, ${playerName}! Let's keep exploring!`];
   greetEl.textContent = lines[Math.floor(Math.random() * lines.length)];
 }
 

@@ -4,6 +4,7 @@ import Storage from './utils/storage.js';
 import { renderTopbar, renderNavbar, requireAuth, showToast } from './ui.js';
 import { STATES_DATA, stampImgFor } from './data/states.js';
 import { assetImg } from './utils/assetImg.js';
+import { showPopup } from './components/popup.js';
 
 requireAuth();
 renderTopbar({ title: 'My Stamp Book', showBack: true, backHref: 'dashboard.html', showPoints: true, color: '#6b50ce' });
@@ -70,17 +71,34 @@ if (earned === total && earned > 0) {
 }
 
 // ── Interaction ─────────────────────────────────────────────────────────────
-// Earned → little confirmation toast. Locked → jump into that state's story so
-// the player can go earn it (never a dead end).
-function handle(slot) {
+// Earned → little confirmation toast. Locked → a friendly popup that explains
+// how to earn the stamp, then lets the child choose to explore that state or
+// stay here. (We no longer navigate on the tap itself: doing so dropped the
+// child into the story page, whose Back button returns to the map — a dead end
+// if they hadn't started. The popup makes exploring an explicit choice.)
+async function handle(slot) {
   const id   = slot.dataset.state;
   const name = slot.dataset.name;
   if (stamps.includes(id)) {
     showToast(`${name} stamp collected! ✅`);
-  } else {
+    return;
+  }
+
+  const choice = await showPopup({
+    title: 'Not collected yet',
+    emoji: '🔒',
+    message: `Explore <strong>${name}</strong> and finish all its missions to earn this stamp!`,
+    actions: [
+      { label: `Explore ${name}`, value: 'go',  style: 'primary' },
+      { label: 'Maybe later',     value: null, style: 'ghost'   },
+    ],
+  });
+
+  if (choice === 'go') {
     Storage.setCurrentState(id);
     window.location.href = `narrative.html?state=${id}`;
   }
+  // Otherwise (Maybe later / backdrop / Esc) → stay on the stamp book.
 }
 
 sectionsEl.querySelectorAll('.sb-slot').forEach(slot => {

@@ -14,17 +14,25 @@
   background: transparent;
 }
 
+/* Dashboard is a fixed one-screen home — no vertical scrolling. Overrides the
+   frame's `.app-container > main { overflow-y: auto }` (needs the extra
+   specificity to win). */
+.app-container > main.dashboard-screen {
+  overflow-y: hidden;
+}
+
 /* ── Hero header ── */
 .dashboard-hero {
   position: relative;
   /* Clean cream hero (reference look) — dark text, no heavy colour band. */
   background: transparent;
-  padding: var(--sp-lg) var(--sp-md) var(--sp-xs);
+  padding: var(--sp-lg) var(--sp-md) var(--sp-sm);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  overflow: hidden;
+  /* No overflow:hidden — it was clipping the greeting pill's rounded corners +
+     drop shadow (the corner batik decos it once contained are gone). */
 }
 
 /* Corner batik decorations — faint on the cream hero */
@@ -36,20 +44,6 @@
 }
 .dash-deco--tl { top: 0; left: 0; }
 .dash-deco--tr { top: 0; right: 0; transform: scaleX(-1); }
-
-.dashboard-avatar {
-  width: 58px;
-  height: 58px;
-  border-radius: 50%;
-  background: var(--clr-yellow);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 32px;
-  border: 3px solid #fff;
-  box-shadow: 0 3px 12px rgba(0,0,0,0.12);
-  z-index: 1;
-}
 
 .dashboard-name {
   font-family: var(--font-display);
@@ -83,12 +77,15 @@
   box-shadow: var(--shadow-sm);
   margin-top: var(--sp-xs);
 }
-.dash-greeting-mascot { font-size: 22px; flex-shrink: 0; }
+/* The greeting reads like a friendly description line: the display font +
+   a larger size give it its own distinct voice, separate from body copy. */
 .dash-greeting-text {
-  font-family: var(--font-body);
-  font-size: var(--text-sm);
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  font-weight: 700;
   color: var(--clr-text);
-  line-height: 1.3;
+  line-height: 1.35;
+  text-align: center;
 }
 
 /* ── Continue Adventure — dominant primary action ── */
@@ -407,15 +404,17 @@
   transform: translateY(-2px);
 }
 .home-card-icon {
-  font-size: 40px;
-  line-height: 1;
-  width: 68px;
-  height: 68px;
+  width: 70px;
+  height: 70px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
   margin-bottom: 2px;
+  /* icons are now <img>s — inset them inside the tinted circle */
+  object-fit: contain;
+  box-sizing: border-box;
+  padding: 10px;
 }
 .home-card-title {
   font-family: var(--font-display);

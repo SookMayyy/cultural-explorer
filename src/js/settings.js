@@ -7,6 +7,8 @@ import { avatarStackHTML } from './utils/avatarDisplay.js';
 import { confirmPopup, showPopup } from './components/popup.js';
 import { apiPost } from './utils/api.js';
 import Sound from './utils/sound.js';
+import Voice from './utils/voice.js';
+import { stopMusic } from './utils/music.js';
 
 const session = requireAuth();
 if (!session) throw new Error('Not logged in');
@@ -45,7 +47,12 @@ function renderSound() {
 renderSound();
 soundBtn?.addEventListener('click', () => {
   const nowMuted = !Sound.isMuted();
-  Sound.setMuted(nowMuted);
+  Sound.setMuted(nowMuted);       // ce_sfx is the master switch: SFX, music, and
+                                  // (via voice.isMuted) narration all follow it.
+  if (nowMuted) {
+    Voice.stop();                 // cut any narration mid-sentence
+    stopMusic();                  // and silence any looping state music now
+  }
   renderSound();
   if (!nowMuted) Sound.tap();   // little confirmation blip when turning on
 });

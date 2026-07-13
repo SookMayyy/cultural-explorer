@@ -63,6 +63,15 @@ export function stopMusic() {
   if (el) { try { el.pause(); } catch {} el.src = ''; el = null; }
 }
 
+// Restoring a state page from the browser's back-forward cache resumes its
+// paused <audio> WITHOUT re-running playMusic(), so a track muted in Settings
+// could sing again on "Back". Re-check the master mute on restore and cut it.
+if (typeof window !== 'undefined') {
+  window.addEventListener('pageshow', () => {
+    if (Sound.isMuted && Sound.isMuted()) stopMusic();
+  });
+}
+
 export function playMusic(url, { volume = 0.25, loop = true } = {}) {
   stopMusic();
   if (!url || (Sound.isMuted && Sound.isMuted())) return;

@@ -43,28 +43,28 @@ const DIALOGUES = {
 
   // Rimau speaks with a Malay–English mix (authentic Malaysian feel)
   rimau: [
-    'Selamat datang! Jom terokai Malaysia bersama! 🐯',
-    'Wah! Saya Rimau! Siap untuk jelajah 13 negeri? 🗺️',
-    'Malaysia ada banyak tradisi unik — jom belajar! ✨',
-    'Kumpul stamps & points sambil jelajah! Let\'s go! 🌟',
-    'Apa khabar, Explorer? Rimau sedia teman kamu! 🐾',
-    'Setiap negeri ada cerita sendiri — jom cari! 🏛️',
+    'Selamat datang! Jom terokai Malaysia bersama!',
+    'Wah! Saya Rimau! Siap untuk jelajah 13 negeri?',
+    'Malaysia ada banyak tradisi unik — jom belajar!',
+    'Kumpul stamps & points sambil jelajah! Let\'s go!',
+    'Apa khabar, Explorer? Rimau sedia teman kamu!',
+    'Setiap negeri ada cerita sendiri — jom cari!',
   ],
 
   // Shown inside the login modal when "Login" tab is active
   loginGreeting: [
-    'Welcome back, Explorer! Ready for more adventures? 🎉',
-    'Ah, you\'re back! Rimau missed you! 🐯',
-    'Let\'s pick up where we left off! 🗺️',
-    'Malaysia is still waiting for you to finish exploring! 🌏',
+    'Welcome back, Explorer! Ready for more adventures?',
+    'Ah, you\'re back! Rimau missed you!',
+    'Let\'s pick up where we left off!',
+    'Malaysia is still waiting for you to finish exploring!',
   ],
 
   // Shown inside the login modal when "Register" tab is active
   registerGreeting: [
-    'Yay, a new Explorer joins the adventure! 🌟',
-    'New friend! Rimau is so happy to meet you! 🐯',
-    'Welcome to the team, future Cultural Expert! 🏆',
-    'Malaysia has 13 states to discover — let\'s start! 🗺️',
+    'Yay, a new Explorer joins the adventure!',
+    'New friend! Rimau is so happy to meet you!',
+    'Welcome to the team, future Cultural Expert!',
+    'Malaysia has 13 states to discover — let\'s start!',
   ],
 };
 
@@ -110,7 +110,7 @@ function initMascots(nickname = null) {
 
   // Rimau greeting — if user is logged in, address them by nickname
   const rimauLine = nickname
-    ? pickRandom([`Selamat datang, ${nickname}! Jom explore! 🐯`, `Hey ${nickname}! Rimau menunggu! 🗺️`])
+    ? pickRandom([`Selamat datang, ${nickname}! Jom explore!`, `Hey ${nickname}! Rimau menunggu!`])
     : pickRandom(DIALOGUES.rimau);
 
   const rimauRef = { current: null };
@@ -617,7 +617,7 @@ function init() {
   if (startBtn) {
     if (session && (session.type === 'registered' || session.type === 'guest')) {
       // Already signed in → go to the authenticated Home (greeting + Continue).
-      startBtn.textContent = 'Continue Exploring! 🗺️';
+      startBtn.textContent = 'Continue Exploring!';
       startBtn.addEventListener('click', () => { window.location.href = 'dashboard.html'; });
     } else {
       startBtn.addEventListener('click', () => { window.location.href = 'login.html'; });

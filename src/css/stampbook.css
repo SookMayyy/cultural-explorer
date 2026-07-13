@@ -1,7 +1,10 @@
 /* stampbook.css — My Stamp Book page (mapped to Figma 38:7) */
 
 /* Stamp-book art fills the whole screen (incl. behind the floating top bar). */
-/* Full-screen background: fills the body (letterbox margins) AND the frame. */
+/* Full-screen background: fills the body (letterbox margins) AND the frame.
+   Warm cream base (var(--clr-bg)) matches the Activities pages that share this
+   same batik image, so the stamp book reads warm like the rest of the app
+   instead of cool/lavender. */
 :root { --screen-bg: #F0EAFC url('../assets/images/ui/batick_background.png') center / cover no-repeat fixed; }
 
 .topbar--purple { background: #6b50ce; }
