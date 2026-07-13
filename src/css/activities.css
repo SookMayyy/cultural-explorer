@@ -30,7 +30,7 @@
   justify-content: center;
   align-items: center;
   min-height: 100dvh;
-  padding: 72px var(--sp-md) calc(var(--navbar-h) + var(--sp-lg));
+  padding: 50px var(--sp-md) calc(var(--navbar-h) + var(--sp-lg));
 }
 
 /* Transparent panel so the batik background shows through behind the cards. */
@@ -51,7 +51,7 @@
   color: var(--clr-text);
   text-align: center;
   letter-spacing: 0.5px;
-  margin: var(--sp-xs) 0 2px;
+  margin: var(--sp-xs) 0 10px;
 }
 
 .act-subhead {

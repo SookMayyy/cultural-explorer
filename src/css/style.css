@@ -1088,16 +1088,16 @@ input {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .diff-chip-label {
   font-family: var(--font-body);
-  font-size: 0.72rem;
-  font-weight: 700;
+  font-size: 0.9rem;          /* was 0.72rem — too small to notice */
+  font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--clr-text-muted);
+  color: var(--clr-text);     /* was muted brown — blended into the background */
 }
 
 /* Segmented pill: an inset track with pill buttons that "fill" when active. */
@@ -1119,9 +1119,9 @@ input {
   border: none;
   border-radius: 999px;
   background: transparent;
-  color: var(--clr-text-muted);
+  color: var(--clr-text);     /* legible even when not the active option */
   font-family: var(--font-body);
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
   transition: background 0.18s ease, color 0.18s ease, transform 0.12s ease;
@@ -1140,7 +1140,8 @@ input {
 
 .diff-hint {
   font-family: var(--font-body);
-  font-size: 0.8rem;
+  font-size: 0.85rem;
+  font-weight: 600;
   color: var(--clr-text-muted);
 }
 

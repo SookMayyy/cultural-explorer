@@ -17,6 +17,7 @@
 // line ends, rather than touching the <audio> element itself.
 
 import { duck, unduck } from './music.js';
+import Sound from './sound.js';
 
 const KEY = 'ce_voice';
 
@@ -24,7 +25,10 @@ const KEY = 'ce_voice';
 //   { kedah_food_1: '../assets/audio/vo/kedah_food_1.mp3', ... }
 const CLIPS = {};
 
-export function isMuted() { return localStorage.getItem(KEY) === '0'; }
+// Muted when EITHER the app-wide "Sound" switch (ce_sfx — the master mute the
+// Settings toggle flips) is off, OR the voice-specific pref (ce_voice) is off.
+// Honouring the master here is what makes "Sound: Off" also silence narration.
+export function isMuted() { return Sound.isMuted() || localStorage.getItem(KEY) === '0'; }
 export function setMuted(muted) {
   localStorage.setItem(KEY, muted ? '0' : '1');
   if (muted) stop();

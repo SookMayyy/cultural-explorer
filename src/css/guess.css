@@ -339,7 +339,9 @@
   display: flex;
   align-items: center;
   gap: var(--sp-md);
-  margin-top: auto;  /* float to bottom of the options panel */
+  /* Sits directly under the answer options (was margin-top:auto, which floated
+     it to the bottom of the tall panel and forced the child to scroll down to
+     reach "Next Round"). */
   /* Entry animation when revealed after a guess */
   animation: hint-slide-in 0.3s ease-out both;
 }

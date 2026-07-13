@@ -161,7 +161,7 @@ form.addEventListener('submit', async e => {
     const sideImg    = document.getElementById('signup-mascot-img');
     const sideBubble = document.getElementById('signup-bubble');
     if (sideImg)    sideImg.src = '../assets/characters/rimau_cheer.png';
-    if (sideBubble) sideBubble.textContent = 'Woohoo! You did it! Now pick your character! 🎉';
+    if (sideBubble) sideBubble.textContent = 'Woohoo! You did it! Now pick your character!';
   } catch {
     submitBtn.disabled = false;
     showError('❌ Could not reach the server. Is it running (npm start)?');
@@ -190,5 +190,7 @@ avatarGrid.querySelectorAll('.avatar-item').forEach(btn => {
 startBtn.addEventListener('click', () => {
   if (chosenAvatar == null) return;
   Storage.setSessionAvatar(chosenAvatar);
-  window.location.href = 'map.html';
+  // Land on the authenticated Home (dashboard), same as login/guest — so a
+  // brand-new account's first entry isn't the map while returning logins go Home.
+  window.location.href = 'dashboard.html';
 });

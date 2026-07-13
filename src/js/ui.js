@@ -45,7 +45,7 @@ export function renderTopbar({
     </div>
     <div class="topbar-right">
       <div class="topbar-points"><span class="topbar-points-star">⭐</span><span class="topbar-points-val">${points}</span></div>
-      <a class="topbar-avatar" href="dashboard.html" aria-label="Profile">${avatar}</a>
+      <a class="topbar-avatar" href="settings.html" aria-label="Profile">${avatar}</a>
     </div>
   `;
   bindPointsSync();

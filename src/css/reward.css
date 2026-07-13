@@ -1,8 +1,9 @@
 /* ═══════════════════════════════════════════════════════
    REWARD / CELEBRATION SCREEN  (Figma "Stamp Earned" 273:382)
    Full-screen — topbar and navbar hidden on this screen.
-   Deep navy gradient with confetti, a round fly-in stamp,
-   a dual-stat card, and a corner mascot.
+   Heritage-purple gradient (matches the app's topbars + stamp book)
+   with confetti, a round fly-in stamp, and a dual-stat card. Gold
+   headline + white translucent cards read well on the purple.
    ═══════════════════════════════════════════════════════ */
 
 .reward-screen {
@@ -11,7 +12,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(160deg, #0D1B2A 0%, #1A3A5C 60%, #0D1B2A 100%);
+  background: linear-gradient(160deg, #6e8ed4 0%, var(--clr-purple) 55%, var(--clr-purple-deep) 100%);
   padding: var(--sp-lg) var(--sp-md) calc(var(--sp-xl) + env(safe-area-inset-bottom, 0px));
   position: relative;
   overflow: hidden;
