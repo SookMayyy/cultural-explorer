@@ -53,8 +53,8 @@ document.getElementById('home-stamp-sub').textContent = `${stampsN} / ${total} c
 // Avatar Shop is live — nudge with the points they have to spend on new avatars.
 document.getElementById('home-shop-sub').textContent  = `⭐ ${points} pts to spend`;
 
-// The Quiz card needs a state context. Prefer the last-visited state, then the
-// recommended next, then the first state — so it never lands on "state not found".
-const quizState = Storage.getCurrentState() || next?.id || STATES_DATA[0].id;
+// The Activities card always opens the Activity Hub (the global games menu), where
+// the player picks a game and a state — rather than dropping them straight into a
+// quiz for one state.
 const quizCard = document.getElementById('home-card-quiz');
-if (quizCard) quizCard.href = `quiz.html?state=${quizState}`;
+if (quizCard) quizCard.href = 'activities.html';
