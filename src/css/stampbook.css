@@ -5,7 +5,7 @@
    Warm cream base (var(--clr-bg)) matches the Activities pages that share this
    same batik image, so the stamp book reads warm like the rest of the app
    instead of cool/lavender. */
-:root { --screen-bg: #F0EAFC url('../assets/images/ui/batick_background.png') center / cover no-repeat fixed; }
+:root { --screen-bg: #F0EAFC url('../assets/images/ui/batick_background.png') center / cover no-repeat; }
 
 .topbar--purple { background: #6b50ce; }
 
@@ -22,19 +22,20 @@
   background: transparent;   /* bg now lives on .app-container (covers the top bar) */
 }
 
-/* Hibiscus corner decorations — bottom corners matching prototype */
+/* Hibiscus corner decorations — pinned to the bottom corners of the frame.
+   `absolute` (not `fixed`) so they anchor to .app-container instead of the
+   viewport: on desktop they hug the centred frame's edges, not the window's. */
 .sb-deco {
-  position: fixed;
+  position: absolute;
   pointer-events: none;
   z-index: 2;
   object-fit: contain;
 }
 .sb-deco--left {
-  bottom: var(--navbar-h);
+  bottom: var(--navbar-h);   /* sit just above the bottom nav */
   left: 0;
   width: 170px;
   height: 180px;
-  bottom: 45px;
   object-position: bottom left;
 }
 .sb-deco--right {
@@ -42,8 +43,14 @@
   right: 0;
   width: 125px;
   height: 208px;
-  bottom: 40px;
   object-position: bottom right;
+}
+
+/* Small phones: shrink the corner art so it stays a subtle accent and never
+   covers the stamp cards. */
+@media (max-width: 519px) {
+  .sb-deco--left  { width: 110px; height: 120px; }
+  .sb-deco--right { width: 82px;  height: 140px; }
 }
 
 /* Inner content column */

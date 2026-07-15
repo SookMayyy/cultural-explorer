@@ -6,7 +6,7 @@
    ═══════════════════════════════════════════════ */
 
 /* Full-screen batik background (body letterbox margins + the frame). */
-:root { --screen-bg: var(--clr-bg) url('../assets/images/ui/batick_background.png') center / cover no-repeat fixed; }
+:root { --screen-bg: var(--clr-bg) url('../assets/images/ui/batick_background.png') center / cover no-repeat; }
 
 /* Purple topbar override (same pattern as quiz/narrative). */
 .topbar.activities-topbar {

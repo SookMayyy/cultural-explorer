@@ -19,10 +19,6 @@
 
   <main class="sb-main">
 
-    <!-- Hibiscus decorations -->
-    <img src="../assets/images/ui/mystampbook_left_corner.png"  class="sb-deco sb-deco--left"  alt="">
-    <img src="../assets/images/ui/mystampbook_right_corner.png" class="sb-deco sb-deco--right" alt="">
-
     <div class="sb-inner">
 
       <!-- Collection Progress card (Figma 38:7) -->
@@ -45,6 +41,12 @@
 
   <!-- Bottom navbar — rendered by stampbook.js -->
   <nav id="navbar"></nav>
+
+  <!-- Hibiscus corner decorations — pinned to the frame's bottom corners (direct
+       children of .app-container so they anchor to the frame, not the viewport,
+       and sit above the navbar on every screen size). -->
+  <img src="../assets/images/ui/mystampbook_left_corner.png"  class="sb-deco sb-deco--left"  alt="">
+  <img src="../assets/images/ui/mystampbook_right_corner.png" class="sb-deco sb-deco--right" alt="">
 
 </div>
 

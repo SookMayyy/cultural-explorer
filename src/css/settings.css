@@ -3,7 +3,7 @@
 /* Nature background fills the WHOLE screen (incl. behind the transparent
    topbar) so the top bar shares the screen background. */
 /* Full-screen background: fills the body (letterbox margins) AND the frame. */
-:root { --screen-bg: #f0f7e6 url('../assets/images/ui/setting_background.png') center / cover no-repeat fixed; }
+:root { --screen-bg: #f0f7e6 url('../assets/images/ui/setting_background.png') center / cover no-repeat; }
 
 .topbar--purple {
   background: linear-gradient(to right, #7b4dff, #5a7dff);
@@ -240,4 +240,38 @@
   width: 30px;
   height: 30px;
   object-fit: contain;
+}
+
+/* ══ Mobile / narrow: stack the two columns so the four action cards sit BELOW
+   the profile + stats, and let the whole page scroll when it doesn't all fit.
+   (On wide screens the two-column layout is centred and needs no scroll.) ══ */
+@media (max-width: 760px) {
+  .settings-main {
+    /* Let the content scroll instead of being clipped/vertically-centred. */
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .settings-layout {
+    flex-direction: column;
+    align-items: stretch;          /* full-width cards, not centred/narrow */
+    justify-content: flex-start;   /* start at the top so the header stays visible */
+    gap: var(--sp-md);
+    /* Clear the floating top bar (the score pill + avatar overhang the 20px bar),
+       and leave roomy bottom clearance so the last card never hides behind the
+       fixed bottom nav. */
+    padding: calc(var(--topbar-h) + var(--sp-2xl)) var(--sp-md) calc(var(--navbar-h) + var(--sp-xl));
+    min-height: min-content;       /* grow with content so scrolling engages */
+  }
+  .profile-card {
+    width: 100%;                   /* was a fixed 340px column */
+  }
+  .menu-grid {
+    align-content: start;
+  }
+}
+
+/* Very small phones: the four action cards go full-width one-per-row so their
+   labels never get cramped next to the profile stats above them. */
+@media (max-width: 460px) {
+  .menu-grid { grid-template-columns: 1fr; }
 }

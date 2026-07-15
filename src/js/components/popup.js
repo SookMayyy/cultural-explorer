@@ -31,6 +31,8 @@ function injectStyles() {
   }
   .ce-popup-overlay.show .ce-popup-card{ transform:translateY(0) scale(1); }
   .ce-popup-emoji{ font-size:52px; line-height:1; display:block; margin-bottom:10px; }
+  /* Image icon variant — a UI illustration used in place of the emoji. */
+  .ce-popup-emoji--img{ width:72px; height:72px; object-fit:contain; margin:0 auto 12px; }
   .ce-popup-title{ font-size:24px; font-weight:800; color:#2b2b2b; margin:0 0 12px; }
   /* Bigger, heavier, darker text so instructions read as clearly as the rest of
      the app. Short one-line messages stay centred; multi-step instructions get
@@ -60,9 +62,17 @@ function injectStyles() {
  * `value` (or null if dismissed by backdrop/Esc).
  * actions: [{ label, value, style: 'primary'|'ghost' }]
  */
-export function showPopup({ title = '', message = '', emoji = '💬', actions } = {}) {
+export function showPopup({ title = '', message = '', emoji = '💬', image = '', actions } = {}) {
   injectStyles();
   const acts = actions && actions.length ? actions : [{ label: 'OK', value: true, style: 'primary' }];
+
+  // A UI illustration (e.g. the shop bag) replaces the emoji when `image` is set;
+  // the emoji stays the graceful fallback if the file ever fails to load.
+  const iconHtml = image
+    ? `<img class="ce-popup-emoji ce-popup-emoji--img" src="${image}" alt="" aria-hidden="true"` +
+      ` onerror="this.replaceWith(Object.assign(document.createElement('span'),` +
+      `{className:'ce-popup-emoji',textContent:'${emoji}'}))">`
+    : `<span class="ce-popup-emoji" aria-hidden="true">${emoji}</span>`;
 
   return new Promise(resolve => {
     const overlay = document.createElement('div');
@@ -76,7 +86,7 @@ export function showPopup({ title = '', message = '', emoji = '💬', actions } 
 
     overlay.innerHTML = `
       <div class="ce-popup-card">
-        <span class="ce-popup-emoji" aria-hidden="true">${emoji}</span>
+        ${iconHtml}
         ${title ? `<h2 class="ce-popup-title">${title}</h2>` : ''}
         <p class="ce-popup-msg${isSteps ? ' ce-popup-msg--steps' : ''}">${message}</p>
         <div class="ce-popup-actions"></div>
@@ -116,9 +126,9 @@ export function showError(message, { title = 'Oops!', emoji = '😅' } = {}) {
 }
 
 /** Yes/No confirmation. Resolves true (confirm) or false (cancel/dismiss). */
-export async function confirmPopup(message, { title = 'Are you sure?', emoji = '🤔', confirmText = 'Yes', cancelText = 'Cancel' } = {}) {
+export async function confirmPopup(message, { title = 'Are you sure?', emoji = '🤔', image = '', confirmText = 'Yes', cancelText = 'Cancel' } = {}) {
   const result = await showPopup({
-    title, message, emoji,
+    title, message, emoji, image,
     actions: [
       { label: confirmText, value: true,  style: 'primary' },
       { label: cancelText,  value: false, style: 'ghost'   },

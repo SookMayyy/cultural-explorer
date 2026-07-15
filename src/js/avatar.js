@@ -116,7 +116,10 @@ async function buyAnimal(i) {
     `Spend ⭐ ${AVATAR_COST} points to unlock <b>${AVATARS[i].name}</b>?`,
     {
       title:       'Buy this avatar?',
-      emoji:       '🛍️',
+      // Show the actual animal they're about to buy so they can confirm it's the
+      // right one; the avatar's own emoji is the fallback if the art fails to load.
+      image:       AVATARS[i].img,
+      emoji:       AVATARS[i].emoji,
       confirmText: `Buy for ⭐ ${AVATAR_COST}`,
       cancelText:  'Not now',
     },
