@@ -28,7 +28,7 @@ export const COSTUME_MISSIONS = {
       intro: "Meet the Cinta Sayang dancers of Kedah! Tap the glowing spots to learn what they wear.",
       hotspots: [
         {
-          x: 25, y: 30, vo: 'kedah_costume_1', key: 'songkok',
+          x: 18, y: 32, vo: 'kedah_costume_1', key: 'songkok',
           text: 'On his head is a songkok — a soft black cap Malay men wear for special dances.',
           word: 'SONGKOK', hint: 'A cap worn on the head', emoji: '🧢',
           desc: 'The songkok is a black cap worn by Malay men at ceremonies and traditional dances.',
@@ -40,7 +40,7 @@ export const COSTUME_MISSIONS = {
           desc: 'Baju Melayu is the traditional shirt-and-trousers outfit worn by Malay men.',
         },
         {
-          x: 70, y: 64, vo: 'kedah_costume_3', key: 'samping',
+          x: 75, y: 64, vo: 'kedah_costume_3', key: 'samping',
           text: 'Around his waist is a samping — a short woven sarong worn over the trousers.',
           word: 'SAMPING', hint: 'A short sarong at the waist', emoji: '🩳',
           desc: 'The samping is a short songket sarong wrapped around a man\'s waist over his trousers.',

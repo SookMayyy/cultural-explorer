@@ -5,7 +5,7 @@
    ═══════════════════════════════════════════════════════════════════ */
 
 /* ── Page background (full-screen: body letterbox + frame) ───────── */
-:root { --screen-bg: var(--clr-bg) url('../assets/images/ui/batick_background.png') center / cover no-repeat fixed; }
+:root { --screen-bg: var(--clr-bg) url('../assets/images/ui/batick_background.png') center / cover no-repeat; }
 
 
 /* ════════════════════════════════════════════════════════════════════
@@ -280,7 +280,9 @@
   /* FIXED height (not min-height) so every photo tile is exactly the same size.
      Adjust this one number to make all the treasure photos bigger/smaller. */
   height: 100px;
-  flex: 0 0 200px;   /* don't stretch or shrink inside the flex-column chip */
+  /* `auto` basis so the `height` above wins — a fixed 200px basis used to fight
+     it, making photo chips render inconsistently taller than intended. */
+  flex: 0 0 auto;    /* don't stretch or shrink inside the flex-column chip */
 }
 .drag-chip__img {
   width: 100%;
@@ -477,6 +479,7 @@
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   max-width: 100%;
 }
@@ -645,37 +648,6 @@
 
 
 /* ════════════════════════════════════════════════════════════════════
-   HELP BUTTON  (bottom-right, floating navy circle)
-   ════════════════════════════════════════════════════════════════════ */
-.act-help-btn {
-  position: absolute;
-  bottom: calc(var(--navbar-h) + 10px);
-  right: 12px;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: var(--clr-navy);
-  color: #fff;
-  font-family: var(--font-display);
-  font-size: 20px;
-  font-weight: 700;
-  border: none;
-  cursor: pointer;
-  z-index: 20;
-  display: grid;
-  place-items: center;
-  /* 3-D bottom shadow */
-  box-shadow: 0 3px 0 rgba(0,0,0,0.35);
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
-}
-
-.act-help-btn:active {
-  transform: translateY(3px);
-  box-shadow: 0 0 0 rgba(0,0,0,0.2);
-}
-
-
-/* ════════════════════════════════════════════════════════════════════
    COMPLETION OVERLAY
    Fades in over .act-main once all pairs are matched.
    ════════════════════════════════════════════════════════════════════ */
@@ -785,13 +757,39 @@
 
 
 /* ════════════════════════════════════════════════════════════════════
-   RESPONSIVE — narrow viewport (≤ 380px)
-   Shrink the side columns slightly so the play card stays comfortable.
+   RESPONSIVE — phone portrait (≤ 520px): STACK the layout.
+   The 3-column "chips | play card | chips" row is cramped on a phone, so the
+   "MATCH THE TREASURE!" play card moves to the TOP (full width) and the two
+   treasure columns drop BELOW it, side by side.
    ════════════════════════════════════════════════════════════════════ */
-@media (max-width: 380px) {
-  /* The half-half flex split still holds; just ease inner spacing. */
+@media (max-width: 520px) {
+  .dragmatch-wrapper {
+    flex-wrap: wrap;
+    min-height: 0;            /* the 260px row min-height was for the 3-col layout */
+  }
+  .dm-play-card {
+    order: -1;                /* play card first → sits on top */
+    flex: 1 1 100%;           /* full width on its own row */
+  }
+  .dm-col {
+    flex: 1 1 0;              /* the two treasure columns share the row underneath */
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   RESPONSIVE — narrow viewport (≤ 400px, covers the minimum phone widths)
+   The stacked layout above still applies; ease inner spacing + tile/label
+   sizes so chips and zones stay evenly sized instead of getting cramped.
+   ════════════════════════════════════════════════════════════════════ */
+@media (max-width: 400px) {
+  .dragmatch-wrapper { gap: 6px; }
+  .dm-play-card { padding: 12px 6px 10px; }
   .dm-play-title { font-size: 13px; }
   .drag-zone { min-height: 80px; padding: 8px 4px; }
+  /* Keep every treasure chip the same, slightly more compact size. */
+  .drag-chip__tile--photo { height: 84px; }
+  .drag-chip__tile { min-height: 48px; font-size: 22px; }
+  .drag-chip__label { font-size: 11px; padding: 5px 3px 6px; }
 }
 
 /* At very small widths (≤ 340px) collapse to single-column zones */

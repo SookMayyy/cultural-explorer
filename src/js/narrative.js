@@ -83,7 +83,7 @@ if (sceneCard) {
     // transparent top bar) — a single seamless layer, no beige strip anywhere.
     document.documentElement.style.setProperty('--screen-bg',
       `linear-gradient(180deg, rgba(0,0,0,0.04) 0%, rgba(0,0,0,0.30) 100%), ` +
-      `url(${sceneImg.src}) center / cover no-repeat fixed`);
+      `url(${sceneImg.src}) center / cover no-repeat`);
     screen.style.background = 'transparent';
   };
   // Prefer a state-provided entry background (e.g. Kedah's uploaded art), else

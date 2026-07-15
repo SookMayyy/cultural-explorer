@@ -140,6 +140,16 @@ svgEl.addEventListener('keydown', e => {
   }
 });
 
+// A short, kid-friendly blurb: the story's first sentence, trimmed if long.
+// Shared by the desktop hover-card and the tap popup (so touch/minimum-size,
+// which has no hover, still gets the same summary on tap).
+function shortSummary(state) {
+  const s = (state.story || '').trim();
+  if (!s) return state.tagline || '';
+  const first = s.split(/(?<=\.)\s/)[0];
+  return first.length > 120 ? first.slice(0, 117).trimEnd() + '…' : first;
+}
+
 // ── Hover info-card (desktop pointer preview) ─────────────────────────────────
 // On a device with a fine pointer (mouse), hovering a state shows a floating card
 // with its flag, name, tagline and a one-line summary — so you can preview every
@@ -154,14 +164,6 @@ svgEl.addEventListener('keydown', e => {
   const nameEl = document.getElementById('map-hover-name');
   const tagEl  = document.getElementById('map-hover-tag');
   const sumEl  = document.getElementById('map-hover-sum');
-
-  // A short, kid-friendly blurb: the story's first sentence, trimmed if long.
-  function shortSummary(state) {
-    const s = (state.story || '').trim();
-    if (!s) return state.tagline || '';
-    const first = s.split(/(?<=\.)\s/)[0];
-    return first.length > 120 ? first.slice(0, 117).trimEnd() + '…' : first;
-  }
 
   let hoverId = null;
 
@@ -232,6 +234,9 @@ function openPopup(stateId) {
 
   document.getElementById('popup-name').textContent    = state.name;
   document.getElementById('popup-tagline').textContent = state.tagline;
+
+  const summaryEl = document.getElementById('popup-summary');
+  if (summaryEl) summaryEl.textContent = shortSummary(state);
 
   document.getElementById('popup-badges').innerHTML = POPUP_CATEGORIES.map(m => `
     <span class="popup-badge ${done.includes(m.id) ? 'done' : ''}">

@@ -5,7 +5,7 @@
 /* Themed dashboard art fills the WHOLE screen (incl. behind the transparent
    topbar) so the top bar shares the screen background; cream is the fallback. */
 /* Full-screen background: fills the body (letterbox margins) AND the frame. */
-:root { --screen-bg: #FBF5EA url('../assets/images/ui/home-dashboard-background.png') center top / cover no-repeat fixed; }
+:root { --screen-bg: #FBF5EA url('../assets/images/ui/home-dashboard-background.png') center top / cover no-repeat; }
 
 .dashboard-screen {
   flex: 1;

@@ -206,24 +206,9 @@ function onComplete() {
   completeEl.classList.remove('hidden');
 }
 
-// ── Help button ───────────────────────────────────────────────────────────────
-// A gentle tap hint: re-animate the last unmatched chip to invite interaction.
-const helpBtn = document.getElementById('act-help-btn');
-if (helpBtn) {
-  helpBtn.addEventListener('click', () => {
-    const firstUnmatched = gameArea.querySelector('.drag-chip:not(.placed)');
-    if (firstUnmatched) {
-      firstUnmatched.classList.remove('wiggle');
-      void firstUnmatched.offsetWidth;
-      firstUnmatched.classList.add('wiggle');
-    }
-    if (bubbleText) {
-      bubbleText.textContent = 'Tap a treasure card first, then tap the matching box!';
-    }
-  });
-}
-
 // ── Kid-friendly "How to Play" (first visit + a "?" button to re-open) ────────
+// This mounts the single floating "?" button (howToPlay.js) that re-opens the
+// illustrated instructions — the previous separate hint button was removed.
 initHowToPlay('activity', {
   title: 'Match the Culture!', emoji: '🧩',
   lines: ['👆 Tap a card on the left.', '➡️ Then tap the box it matches.', '✅ Match them all to win!'],

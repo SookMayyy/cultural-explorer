@@ -125,8 +125,10 @@ body {
      gradient) on :root — it then fills BOTH the body (the letterbox margins on
      wide screens) AND the .app-container (the frame), so the image covers the
      ENTIRE viewport and the cream base colour never shows. Falls back to the
-     cream margin colour when unset. Use `... fixed` in the value so the body and
-     the frame line up seamlessly (same viewport-anchored image). */
+     cream margin colour when unset. Pages set `... center / cover no-repeat`
+     WITHOUT `fixed`: background-attachment:fixed is sized to the whole document
+     on mobile browsers, so `cover` mis-scales — default (scroll) keeps the scene
+     responsive, sizing the image to the body and the frame each on every device. */
   background: var(--screen-bg, var(--clr-margin-bg));
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -135,7 +137,10 @@ body {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  min-width: 100vw;
+  /* Floor the layout at a normal small-phone width so it never squishes below
+     what a real device shows — narrower viewports keep this width (the frame
+     stops shrinking) instead of collapsing the columns/topbar further. */
+  min-width: 360px;
 }
 
 /* Fixed-size game shell (SPA) */
@@ -284,6 +289,18 @@ body {
   border: 2px solid rgba(255,255,255,0.5);
 }
 
+/* ── Small-phone topbar: trim the score pill, avatar and title so the top row
+   stays uncrowded at the minimum screen width (nothing overflows the edge). ── */
+@media (max-width: 400px) {
+  .topbar-title   { font-size: var(--text-md); }   /* 23px → 19px */
+  .topbar-points  { padding: 6px 16px; }
+  .topbar-avatar  {
+    width: 44px;                                    /* 56px → 44px */
+    height: 44px;
+    font-size: var(--text-base);
+  }
+}
+
 /* ─── Shared avatar + costume stack ───
    Base animal avatar with the equipped costume layered on the lower-right.
    Sized in em so it scales with the container's font-size (topbar, dashboard,
@@ -413,6 +430,7 @@ body {
 .app-container {
   position: relative;
   width: 100%;
+  min-width: 360px;       /* matches the body floor — frame never shrinks past a phone */
   max-width: var(--game-max-w);
   height: 100vh;          /* fallback */
   height: 100dvh;         /* bounded shell: header pins, center scrolls */
@@ -423,6 +441,20 @@ body {
   /* Mirrors the body: when a screen sets --screen-bg the frame shows the same
      image; otherwise it stays the warm cream base. */
   background: var(--screen-bg, var(--clr-bg));
+}
+
+/* ── Minimum-height floor ──────────────────────────────────────────────────
+   Tall/normal viewports keep the fixed 100dvh shell (header pins, the centre
+   scrolls internally). But on SHORT viewports (landscape phones, small desktop
+   windows) that shell would crush the content, so we stop shrinking at a phone-
+   height floor and let the WHOLE page scroll instead: pages with a lot fit-to-
+   scroll, short pages still don't. Body top-aligns so nothing is unreachable. */
+@media (max-height: 640px) {
+  body { align-items: flex-start; }
+  .app-container {
+    height: auto;         /* shrink-wrap to content instead of the viewport … */
+    min-height: 640px;    /* … but never below a normal phone height */
+  }
 }
 
 /* The center <main> is the only scrolling region, so the sticky topbar and the

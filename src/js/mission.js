@@ -70,7 +70,11 @@ if (state.color) {
 if (state.entryBg) {
   // Paint the scene as the FULL-SCREEN background (via --screen-bg on :root, so it
   // fills the body letterbox margins AND the frame — no cream strip anywhere).
-  const bg = `linear-gradient(rgba(255,255,255,0.42), rgba(255,255,255,0.42)), url(${state.entryBg}) center / cover no-repeat fixed`;
+  // NOTE: no `fixed` — background-attachment:fixed is sized to the whole document
+  // on mobile Safari/Chrome, so `cover` mis-scales and the scene looks stretched /
+  // cropped wrong. Default (scroll) sizes the image to each element, so it stays
+  // responsive on every screen; the frame and body letterbox each cover cleanly.
+  const bg = `linear-gradient(rgba(255,255,255,0.42), rgba(255,255,255,0.42)), url(${state.entryBg}) center / cover no-repeat`;
   document.documentElement.style.setProperty('--screen-bg', bg);
   mainEl.style.background = 'transparent';
 }
@@ -135,6 +139,7 @@ function launchGame() {
 // speaks one short line + shows its caption — then Continue leads into the game.
 function initSpotlight() {
   const sp = flow.spotlight;
+  const stageEl   = document.getElementById('mn-spot-stage');
   const imgEl     = document.getElementById('mn-spot-img');
   const bgEl      = document.getElementById('mn-spot-img-bg');
   const dimEl     = document.getElementById('mn-spot-dim');
@@ -213,12 +218,41 @@ function initSpotlight() {
     render();
   }
 
+  // The image is object-fit:contain, so on screens whose aspect ratio differs
+  // from the photo it letterboxes — leaving bars around the picture. The hotspot
+  // %s are meant to be relative to the PHOTO, not the stage box, so we measure the
+  // photo's actual on-screen rectangle and size the hotspot overlay to match it.
+  // Recomputed on load + resize so the dots stay glued to the picture on every
+  // device. `fit` also lets the spotlight "hole" land on the right pixel.
+  let fit = null;
+  function layoutStage() {
+    const cw = stageEl.clientWidth,  ch = stageEl.clientHeight;
+    const iw = imgEl.naturalWidth,   ih = imgEl.naturalHeight;
+    if (!iw || !ih || !cw || !ch) return;
+    const scale = Math.min(cw / iw, ch / ih);
+    const dw = iw * scale, dh = ih * scale;
+    const left = (cw - dw) / 2, top = (ch - dh) / 2;
+    fit = { left, top, dw, dh };
+    // Overlay now exactly covers the visible photo, so a dot at hs.x%/hs.y% sits
+    // on the same part of the picture no matter the screen size.
+    spotsEl.style.left   = `${left}px`;
+    spotsEl.style.top    = `${top}px`;
+    spotsEl.style.width  = `${dw}px`;
+    spotsEl.style.height = `${dh}px`;
+    spotsEl.style.right  = 'auto';
+    spotsEl.style.bottom = 'auto';
+    spotlightAt(index >= 0 ? sp.hotspots[index] : null);
+  }
+
   // Cut a soft "hole" in the dim layer over the active hotspot so the child's
-  // eye goes there (radial gradient centred on its {x,y}).
+  // eye goes there. The hole is placed in PIXELS (mapped through `fit`) so it
+  // tracks the photo through letterboxing, not the raw stage %.
   function spotlightAt(hs) {
-    if (!hs) { dimEl.style.background = 'rgba(0,0,0,0.28)'; return; }
+    if (!hs || !fit) { dimEl.style.background = 'rgba(0,0,0,0.28)'; return; }
+    const px = fit.left + (hs.x / 100) * fit.dw;
+    const py = fit.top  + (hs.y / 100) * fit.dh;
     dimEl.style.background =
-      `radial-gradient(circle at ${hs.x}% ${hs.y}%,` +
+      `radial-gradient(circle at ${px}px ${py}px,` +
       ` rgba(0,0,0,0) 8%, rgba(0,0,0,0.12) 16%, rgba(0,0,0,0.55) 34%)`;
   }
 
@@ -252,11 +286,19 @@ function initSpotlight() {
     Sound.tap?.();
     setCaption(hs.text, hs.key);
 
-    // Advance to the next undiscovered hotspot.
+    // Hold the NEXT number until THIS spot's voice-over has finished, so the
+    // glowing number and the line being spoken always refer to the same thing.
+    // While the line plays there is no active spot (index = -1): the current one
+    // shows as "found" and the next one stays hidden until the audio ends. The
+    // spotlight hole stays on the current spot so the child keeps looking at what
+    // they're hearing about. (When muted, Voice.play fires its onEnd immediately,
+    // so the next number unlocks straight away — nothing to wait for.)
     const next = done.findIndex(d => !d);
+    index = -1;
+    spotlightAt(hs);            // keep the light on the spot being narrated
+    renderSpots();             // current → found, next → still hidden
+
     if (next === -1) {
-      index = -1;
-      spotlightAt(null);
       titleEl.textContent = 'Great exploring! 🎉';
       continueBtn.disabled = false;
       continueBtn.classList.add('mn-btn-ready');
@@ -268,24 +310,39 @@ function initSpotlight() {
       const showTransition = () => {
         if (shown || index !== -1) return;    // already shown, or a re-tap took over
         shown = true;
+        spotlightAt(null);
         setCaption(sp.transition || "Now let's play!");
         Voice.play(`${stateId}_${voCat}_transition`, sp.transition || '');
       };
       Voice.play(hs.vo, hs.text, showTransition);
       setTimeout(showTransition, 8000);
     } else {
-      Voice.play(hs.vo, hs.text);
-      index = next;
-      spotlightAt(sp.hotspots[index]);
+      // Unlock the next number only once the current line ends. Guarded so it
+      // runs once; a safety timer covers browsers whose TTS never fires 'end'.
+      let advanced = false;
+      const advance = () => {
+        if (advanced || index !== -1) return;  // already advanced, or a re-tap took over
+        advanced = true;
+        index = next;
+        spotlightAt(sp.hotspots[index]);
+        renderSpots();
+      };
+      Voice.play(hs.vo, hs.text, advance);
+      setTimeout(advance, 8000);
     }
-    renderSpots();
   }
 
   // Intro line, spoken once when the spotlight opens. `introKey` (the costume
   // dance name, when set) is highlighted in the caption.
   setCaption(sp.intro || 'Tap the glowing spot to discover!', sp.introKey);
-  spotlightAt(sp.hotspots[0]);
   renderSpots();
+  // Size the hotspot overlay to the photo once it (and the stage) have a size,
+  // then keep it aligned as the device rotates / the window resizes. `layoutStage`
+  // also re-points the spotlight hole, so this is what first lights spot 0.
+  imgEl.addEventListener('load', layoutStage);
+  if (imgEl.complete && imgEl.naturalWidth) layoutStage();
+  window.addEventListener('resize', layoutStage);
+  spotlightAt(sp.hotspots[0]);   // fallback dim until layoutStage runs
   Voice.play(`${stateId}_${voCat}_intro`, sp.intro || '');
 
   // Listen replays the current caption (kids re-tap a lot).
@@ -352,7 +409,7 @@ function initTour() {
       incoming.classList.add('is-shown');
       outgoing.classList.remove('is-shown');
       front ^= 1;
-      document.documentElement.style.setProperty('--screen-bg', `#000 url("${src}") center / cover no-repeat fixed`);
+      document.documentElement.style.setProperty('--screen-bg', `#000 url("${src}") center / cover no-repeat`);
     };
     if (incoming.getAttribute('src') === src && incoming.complete) { reveal(); return; }
     incoming.onload = reveal;

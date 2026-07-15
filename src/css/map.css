@@ -9,7 +9,7 @@
    The journey path sits on top of this. */
 /* Sea/sky map art fills the WHOLE screen — body letterbox margins + the frame
    (and behind the transparent top bar). */
-:root { --screen-bg: #8FD3F4 url('../assets/images/ui/map-background.png') center / cover no-repeat fixed; }
+:root { --screen-bg: #8FD3F4 url('../assets/images/ui/map-background.png') center / cover no-repeat; }
 .app-container {
   overflow: hidden; /* no horizontal scroll leak */
 }
@@ -52,6 +52,19 @@
 /* On wider screens, let it fill nearly the whole frame */
 @media (min-width: 720px) {
   .map-image-wrap { max-width: min(96%, 1100px); }
+}
+/* On phones the map's wide Malaysia shape looks tiny if scaled to fit a narrow
+   column, so instead we keep it at a comfortable size and let it PAN horizontally.
+   The map area scrolls sideways; the rest of the UI (header, mascot) stays put. */
+@media (max-width: 519px) {
+  .map-main { overflow-x: auto; }
+  .map-image-wrap {
+    max-width: none;
+    width: 100%;
+    min-width: 600px;   /* keep the map big; swipe left/right to see all of it */
+    margin-left: 0;
+    margin-right: 0;
+  }
 }
 .my-map {
   display: block;
@@ -694,6 +707,16 @@
   color: var(--clr-text-muted);
   margin: 0;
 }
+
+/* One-line story summary (the same blurb the desktop hover shows) */
+.popup-state-summary {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  line-height: 1.4;
+  color: var(--clr-text);
+  margin: 0 0 var(--sp-md);
+}
+.popup-state-summary:empty { display: none; }   /* no blurb → no gap */
 
 /* Progress badges: story / culture / activity / quiz */
 .popup-badges {
