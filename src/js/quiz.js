@@ -1,11 +1,4 @@
 // js/quiz.js — Quiz mini-game screen
-// ─────────────────────────────────────────────────────────────────────────────
-// REDESIGN NOTE (June 2026):
-//   Visual layer only — purple topbar, question card, option buttons, feedback
-//   panel, and completion screen all restyled to match map/narrative screens.
-//   Scoring, question selection, spaced-repetition logic, Storage calls, and
-//   navigation destination (reward.html) are all UNCHANGED.
-// ─────────────────────────────────────────────────────────────────────────────
 
 import Storage from './utils/storage.js';
 import { renderTopbar, renderNavbar, requireAuth, getStateParam, flyPoints } from './ui.js';
@@ -19,6 +12,8 @@ import { landmarkTourFor } from './data/landmarkMissions.js';
 import { showPopup } from './components/popup.js';
 import { initHowToPlay } from './components/howToPlay.js';
 import { playMusic } from './utils/music.js';
+import { shuffle } from './utils/shuffle.js';
+import { launchContext } from './utils/launchContext.js';
 import Sound from './utils/sound.js';
 
 // ── Auth guard ────────────────────────────────────────────────────────────────
@@ -38,17 +33,10 @@ if (!state) {
 }
 
 // ── Launch context ─────────────────────────────────────────────────────────────
-// From the Activities Hub (replay) the back button + CTA return to the hub; from
-// a Mission (Festival Challenge) they return to the Mission Hub and mark the
-// mission done; in the linear journey they go back to narrative / on to reward.
-const _params = new URLSearchParams(location.search);
-const fromActivities = _params.get('from') === 'activities';
-const fromMission    = _params.get('from') === 'mission';
-const missionId      = _params.get('mission');
-const activitiesHref   = `activities.html?state=${stateId}`;
-const missionsHref     = `missions.html?state=${stateId}`;
-// Finishing a mission returns into the Mission Flow's Reward stage.
-const missionsDoneHref = `mission.html?state=${stateId}&mission=${missionId}&stage=reward`;
+// In the linear journey the back button goes to narrative and the CTA on to reward.
+const { fromActivities, fromMission, missionId, missionsHref, missionsDoneHref } =
+  launchContext(stateId);
+const activitiesHref = `activities.html?state=${stateId}`;
 
 // ── Render shared chrome ───────────────────────────────────────────────────────
 // Pass color: null so quiz.css .quiz-topbar override (purple) wins via !important.
@@ -121,6 +109,22 @@ if (isFestivalMission) {
 const FOODS = ['Nasi Lemak', 'Char Kway Teow', 'Satay', 'Roti Canai', 'Nasi Kandar', 'Cendol', 'Rendang'];
 const PLACE_NAMES = ['Kuala Lumpur', 'Ipoh', 'Melaka', 'Genting Highlands', 'Cameron Highlands', 'Langkawi', 'Kuching', 'Kota Kinabalu'];
 
+// Mascot reactions. The row is hidden on this screen (see quiz.css
+// .quiz-mascot-row), but the writes stay guarded in case it's re-enabled.
+const PRAISE = [
+  'Excellent! Well done!',
+  'Correct! You are amazing!',
+  'Brilliant! Keep it up!',
+  'Yes! You got it!',
+];
+const ENCOURAGEMENT = [
+  'Almost! You will get the next one!',
+  'Keep going, you are doing great!',
+  'Every wrong answer is a chance to learn!',
+];
+
+const randomOf = (list) => list[Math.floor(Math.random() * list.length)];
+
 // Pick `count` extra distractors that aren't already used in `existing`. Food
 // questions borrow from FOODS first; everything else borrows place names first
 // (falling back to the other pool if we somehow run out).
@@ -135,11 +139,8 @@ function extraDistractors(q, existing, count) {
 // Resize a question to EXACTLY `n` options, always keeping the correct one:
 //   - more than n options → trim down (keeping the correct + a random subset)
 //   - fewer than n options → pad with plausible distractors (never "—")
-// Then ALWAYS reshuffle and recompute `ans` for the new order. Previously this
-// returned the question UNCHANGED whenever it already had <= n options, so a
-// question with exactly n options (e.g. every 4-option question at Adventurer,
-// where n=4) never got reshuffled — the correct answer sat in the same authored
-// spot on every play.
+// Always reshuffle and recompute `ans`, even when the count already matches —
+// otherwise the correct answer sits in its authored spot on every play.
 function trimOptions(q, n) {
   const correct = q.opts[q.ans];
   let opts = q.opts.length > n
@@ -150,10 +151,7 @@ function trimOptions(q, n) {
     opts = [...opts, ...extraDistractors(q, opts, n - opts.length)];
   }
 
-  for (let i = opts.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [opts[i], opts[j]] = [opts[j], opts[i]];
-  }
+  opts = shuffle(opts);
   return { ...q, opts, ans: opts.indexOf(correct) };
 }
 
@@ -162,11 +160,6 @@ function trimOptions(q, n) {
 // questions — "What food is this?" (dish photo) and "Where is this?" (landmark
 // photo). States without photos simply get the text questions below. Distractors
 // come from a small dish list and the state's own other landmarks.
-function shuffle(a) {
-  a = [...a];
-  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
-  return a;
-}
 function imageQuestions(st) {
   const out = [];
   const food = foodMissionFor(st.id);
@@ -231,15 +224,12 @@ function loadQuestion(idx) {
 
   const q = pool[idx];
 
-  // Update the progress strip
   counterEl.textContent = `Question ${idx + 1} of ${pool.length}`;
-  progFill.style.width  = `${Math.round(((idx) / pool.length) * 100)}%`;
+  progFill.style.width  = `${Math.round((idx / pool.length) * 100)}%`;
 
-  // Update the question card header
   if (stateBadgeEl) stateBadgeEl.textContent = state.name;
   if (qNumEl) qNumEl.textContent = `Q${idx + 1}`;
 
-  // Update the question text
   questionEl.textContent = q.q;
 
   // Show the question photo for image ("what is this?") questions; hide otherwise.
@@ -254,13 +244,11 @@ function loadQuestion(idx) {
     }
   }
 
-  // Reset option buttons — remove feedback classes, re-enable, update text.
   // Explorer questions carry fewer options, so surplus buttons are hidden.
   optionBtns.forEach((btn, i) => {
     const has = i < q.opts.length;
-    // Fully remove surplus buttons (e.g. option D for Explorer's 3-option
-    // questions). `hidden` alone is overridden by `.quiz-option { display:flex }`,
-    // which left a stray "—" button — so force display off for the extras.
+    // `hidden` alone is overridden by `.quiz-option { display:flex }`, which left
+    // a stray "—" button — so force display off for the extras too.
     btn.hidden = !has;
     btn.style.display = has ? '' : 'none';
     btn.classList.remove('correct', 'wrong', 'burst', 'shake');
@@ -269,25 +257,18 @@ function loadQuestion(idx) {
     const textEl = document.getElementById(`opt-${i}`);
     if (textEl) textEl.textContent = q.opts[i] ?? '—';
 
-    // Re-trigger the stagger entrance animation by cloning and re-inserting
-    // This makes each new question feel fresh with the pop-in sequence.
+    // Restart the stagger entrance so each new question pops in fresh.
     btn.style.animation = 'none';
-    // Force reflow so the browser notices the animation was removed
     void btn.offsetWidth;
     btn.style.animation = '';
   });
 
-  // Hide the feedback panel
-  feedbackEl.classList.add('hidden');
   feedbackEl.className = 'quiz-feedback hidden';
 }
 
-// Load the first question immediately
 loadQuestion(0);
 
 // ── Evaluate an answer ────────────────────────────────────────────────────────
-// LOGIC UNCHANGED: correct = +POINTS_PER_Q pts, both states highlighted,
-// feedback panel shown, auto-advance after 1600ms.
 function evaluate(chosen) {
   if (answered) return;
   answered = true;
@@ -295,19 +276,16 @@ function evaluate(chosen) {
   const q       = pool[qIdx];
   const correct = chosen === q.ans;
 
-  // Disable all buttons so the player can't tap again before auto-advance
+  // Disabled so the player can't tap again before the auto-advance.
   optionBtns.forEach((btn, i) => {
     btn.disabled = true;
     if (i === q.ans) {
-      btn.classList.add('correct');
-      btn.classList.add('burst');             // satisfying scale + green glow
+      btn.classList.add('correct', 'burst');
     } else if (i === chosen && !correct) {
-      btn.classList.add('wrong');
-      btn.classList.add('shake');             // wrong pick wobbles
+      btn.classList.add('wrong', 'shake');
     }
   });
 
-  // Show the feedback panel with the right colour and explanation text
   const resultEl  = document.getElementById('feedback-result');
   const explainEl = document.getElementById('feedback-explain');
 
@@ -317,12 +295,10 @@ function evaluate(chosen) {
     resultEl.textContent  = `Correct! +${POINTS_PER_Q} pts`;
     explainEl.textContent = q.explain;
 
-    // Juice: happy sound + mascot bounce, switched to the cheering pose
     Sound.correct();
     setMascotPose(mascotFig, 'happy');
     react(mascotFig, 'react-happy');
 
-    // Score bookkeeping
     score++;
     earned += POINTS_PER_Q;
     // In the mission flow the flat +25 mission bonus is the only reward, so the
@@ -333,15 +309,7 @@ function evaluate(chosen) {
       flyPoints(scoreEl, POINTS_PER_Q);       // "+10" floats up from the score
     }
 
-    // Mascot says something encouraging (row is hidden on this screen — see
-    // quiz.css .quiz-mascot-row — but still guard the write in case it's ever
-    // re-enabled or the element is missing for any other reason).
-    if (mascotEl) mascotEl.textContent = [
-      'Excellent! Well done!',
-      'Correct! You are amazing!',
-      'Brilliant! Keep it up!',
-      'Yes! You got it!',
-    ][Math.floor(Math.random() * 4)];
+    if (mascotEl) mascotEl.textContent = randomOf(PRAISE);
 
   } else {
     feedbackEl.className = 'quiz-feedback wrong-fb';
@@ -349,20 +317,14 @@ function evaluate(chosen) {
     resultEl.textContent  = 'Not quite!';
     explainEl.textContent = q.explain;
 
-    // Juice: gentle sound + mascot wobble, back to the neutral idle pose
     Sound.wrong();
     setMascotPose(mascotFig, 'idle');
     react(mascotFig, 'react-sad');
 
-    // Mascot is gentle about wrong answers (guarded — see note above)
-    if (mascotEl) mascotEl.textContent = [
-      'Almost! You will get the next one!',
-      'Keep going, you are doing great!',
-      'Every wrong answer is a chance to learn!',
-    ][Math.floor(Math.random() * 3)];
+    if (mascotEl) mascotEl.textContent = randomOf(ENCOURAGEMENT);
   }
 
-  // LOGIC UNCHANGED: 1600ms pause then advance
+  // Pause on the feedback panel before advancing.
   setTimeout(() => {
     qIdx++;
     if (qIdx < pool.length) {
@@ -373,20 +335,16 @@ function evaluate(chosen) {
   }, 1600);
 }
 
-// Wire up option button click listeners
 optionBtns.forEach(btn => {
   btn.addEventListener('click', () => evaluate(parseInt(btn.dataset.idx, 10)));
 });
 
 // ── Finish (completion screen) ────────────────────────────────────────────────
-// LOGIC UNCHANGED: pass threshold = 50%, marks quiz complete, saves best score,
-// earns stamp if pass, navigates to reward.html with URL params.
-// Visual addition: the completion screen is revealed in-page before the redirect,
-// giving the player a reward beat (mascot + score tally + stamp banner).
+// Revealed in-page before the redirect, giving the player a reward beat
+// (mascot + score tally + stamp banner).
 function finish() {
   const pass = score >= Math.ceil(pool.length * 0.5);
 
-  // Persist progress — UNCHANGED
   Storage.markCompleted(stateId, 'quiz');
   Storage.saveBestScore(earned);
   // NOTE: stamps are earned ONLY by completing all four of a state's missions

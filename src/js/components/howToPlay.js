@@ -40,6 +40,10 @@ function injectStyles() {
     display:flex; align-items:center; justify-content:center;
     transition:transform .12s ease, filter .12s ease;
   }
+  /* Mounted inside the phone frame when a page has one (see mountHelpButton), so
+     it anchors to the screen's own content rather than the viewport — on a wide
+     window, position:fixed parks it out in the cream margin beside the frame. */
+  .app-container .ce-help-fab{ position:absolute; }
   .ce-help-fab:hover{ filter:brightness(1.06); }
   .ce-help-fab:active{ transform:scale(.9); }
   @media (prefers-reduced-motion: reduce){ .ce-help-fab{ transition:none; } }`;
@@ -74,7 +78,9 @@ function mountHelpButton(config) {
   btn.textContent = '?';
   btn.setAttribute('aria-label', 'How to play');
   btn.addEventListener('click', () => showHowToPlay(config));
-  document.body.appendChild(btn);
+  // Prefer the page's phone frame (position:relative) so the "?" sits ON the
+  // screen content; body is the fallback for any page without one.
+  (document.querySelector('.app-container') || document.body).appendChild(btn);
 }
 
 /**

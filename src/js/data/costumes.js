@@ -16,14 +16,3 @@ export const COSTUMES = [
   { id: 'kadazan',        backendId: 5, emoji: '👘', name: 'Kadazan-Dusun Attire',  price: 80, culture: 'Sabah East Malaysian', img: '../assets/costumes/kadazan.png'      },
   { id: 'iban',           backendId: 6, emoji: '🪶', name: 'Iban Warrior',          price: 80, culture: 'Sarawak Iban',       img: '../assets/costumes/iban.png'           },
 ];
-
-// The free costume every player starts with (always unlocked + equipped).
-export const DEFAULT_COSTUME = 'school-uniform';
-
-// Safe lookups.
-export function getCostume(id) {
-  return COSTUMES.find(c => c.id === id) || null;
-}
-export function getCostumeByBackendId(backendId) {
-  return COSTUMES.find(c => c.backendId === Number(backendId)) || null;
-}

@@ -18,6 +18,7 @@ import { landmarkRoundFor } from './data/landmarkMissions.js';
 import { paramsFor, currentLevel } from './data/difficulty.js';
 import { renderMascot } from './data/mascots.js';
 import { initHowToPlay } from './components/howToPlay.js';
+import { launchContext } from './utils/launchContext.js';
 import Sound from './utils/sound.js';
 
 // ── Auth guard: redirect to home.html if not logged in ───────────────────────
@@ -38,20 +39,13 @@ const journeyMode    = !!journeyStateId && GUESS_ROUNDS.some(r => r.answer === j
 // correct check for "standalone hub play".
 const hubMode = !journeyMode;
 
-// Launch context. From the Activities Hub (replay) we finish back at the hub;
-// from a Mission (Help the Tourist) we finish back at the Mission Hub and mark
-// the mission done. Mission takes priority over journeyMode (both pass ?state=).
-const _params = new URLSearchParams(location.search);
-const fromActivities = _params.get('from') === 'activities';
-const fromMission    = _params.get('from') === 'mission';
-const missionId      = _params.get('mission');
+// Mission takes priority over journeyMode (both pass ?state=).
+const { fromActivities, fromMission, missionId, missionsHref, missionsDoneHref } =
+  launchContext(journeyStateId);
+
 // The Tourist mission plays TWO rounds: guess the state, then guess which
 // famous landmark the tourist wants to visit.
 const isTouristMission = fromMission && missionId === 'tourist';
-const missionsHref     = `missions.html?state=${journeyStateId}`;
-// Finishing a mission returns into the Mission Flow's Reward stage (which then
-// leads to Complete → hub), not straight to the hub.
-const missionsDoneHref = `mission.html?state=${journeyStateId}&mission=${missionId}&stage=reward`;
 
 // ── Topbar & Navbar ───────────────────────────────────────────────────────────
 renderTopbar({

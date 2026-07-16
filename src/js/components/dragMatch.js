@@ -1,6 +1,6 @@
 // js/components/dragMatch.js — Tap-to-select chip card → tap drop zone to match
 //
-// API (unchanged from original — only render() markup and visual classes changed):
+// API:
 //   new DragMatch(container, pairs, onComplete, options?)
 //   game.render()
 //

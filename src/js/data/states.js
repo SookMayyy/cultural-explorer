@@ -84,7 +84,7 @@ export const STATES_DATA = [
   {
     id: 'selangor',
     name: 'Selangor',
-    emoji: '<img src="../assets/flags/selangor-flag.png" alt="Penang Icon">',
+    emoji: '<img src="../assets/flags/selangor-flag.png" alt="Selangor Icon">',
     color: '#1A5276',
     colorLight: '#EBF5FB',
     region: 'west',
@@ -189,7 +189,7 @@ export const STATES_DATA = [
   {
     id: 'kelantan',
     name: 'Kelantan',
-    emoji: '<img src="../assets/flags/kelatan-flag.png" alt="Penang Icon">',
+    emoji: '<img src="../assets/flags/kelantan-flag.png" alt="Kelantan Icon">',
     color: '#C0392B',
     colorLight: '#FDEDEC',
     region: 'west',
@@ -378,7 +378,7 @@ export const STATES_DATA = [
   {
     id: 'sabah',
     name: 'Sabah',
-    emoji: '<img src="../assets/flags/sabah-flag.png" alt="Penang Icon">',
+    emoji: '<img src="../assets/flags/sabah-flag.png" alt="Sabah Icon">',
     color: '#117A65',
     colorLight: '#E8F8F5',
     region: 'east',
@@ -483,7 +483,7 @@ export const STATES_DATA = [
   {
     id: 'sarawak',
     name: 'Sarawak',
-    emoji: '<img src="../assets/flags/sarawak-flag.png" alt="Penang Icon">',
+    emoji: '<img src="../assets/flags/sarawak-flag.png" alt="Sarawak Icon">',
     color: '#1A5276',
     colorLight: '#EBF5FB',
     region: 'east',

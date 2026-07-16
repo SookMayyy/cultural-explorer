@@ -51,7 +51,7 @@ currently shows the flag image; tell me to add the dedicated-stamp slot there to
 ## State flags — `assets/flags/`  (already `<img>` via `js/data/states.js`)
 
 Present: `penang-flag.png`, `melaka-flag.png`, `selangor-flag.png`, `johor-flag.png`,
-`kelatan-flag.png`, `sabah-flag.png`, `sarawak-flag.png` (+ kedah/perak/perlis). ✅
+`kelantan-flag.png`, `sabah-flag.png`, `sarawak-flag.png` (+ kedah/perak/perlis). ✅
 
 ## Backgrounds — `assets/images/ui/`
 

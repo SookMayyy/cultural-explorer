@@ -2,6 +2,7 @@
 
 import Storage from './utils/storage.js';
 import { avatarStackHTML } from './utils/avatarDisplay.js';
+import { escapeHtml, restartAnimation } from './utils/dom.js';
 
 // ── Profile colour ────────────────────────────────────────────────────────────
 // Publish the player's chosen profile background colour as a CSS variable so any
@@ -31,9 +32,7 @@ export function renderTopbar({
   const points  = Storage.getPoints();
   const avatar  = avatarStackHTML(session.avatarId ?? 0);
 
-  // Escape the title (page-provided, may contain a state name) before injecting.
-  const safeTitle = String(title).replace(/[&<>"]/g, c =>
-    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  const safeTitle = escapeHtml(title);
 
   // Force transparent so no page's colour paints a bar behind points/profile.
   el.style.setProperty('background', 'transparent', 'important');
@@ -69,17 +68,8 @@ function bindPointsSync() {
     const badge = valEl.closest('.topbar-points');
     if (!badge) return;
     badge.classList.toggle('is-spend', total < prev);
-    badge.classList.remove('points-bump');
-    void badge.offsetWidth;          // restart the animation
-    badge.classList.add('points-bump');
+    restartAnimation(badge, 'points-bump');
   });
-}
-
-// Force the topbar badge to re-read the current total (e.g. after a manual
-// localStorage change). Normal earn/spend already updates it via the event.
-export function updateTopbarPoints() {
-  const valEl = document.querySelector('.topbar-points-val');
-  if (valEl) valEl.textContent = Storage.getPoints();
 }
 
 // ── Navbar ───────────────────────────────────────────────────────────────────

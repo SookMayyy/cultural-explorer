@@ -16,6 +16,8 @@ import { initHowToPlay } from './components/howToPlay.js';
 import { renderMascot } from './data/mascots.js';
 import { paramsFor } from './data/difficulty.js';
 import { playMusic } from './utils/music.js';
+import { highlightKeyword, restartAnimation } from './utils/dom.js';
+import { shuffle } from './utils/shuffle.js';
 import Sound from './utils/sound.js';
 import Voice from './utils/voice.js';
 
@@ -90,16 +92,6 @@ renderTopbar({
 
 document.getElementById('mn-badge').textContent = flow.badge;
 
-// Fisher–Yates shuffle — used to randomise the cook game's wrong-ingredient pool.
-function shuffleArr(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
 // ── Stage machine ─────────────────────────────────────────────────────────────
 const STAGES = {
   spotlight: document.getElementById('stage-spotlight'),
@@ -121,9 +113,7 @@ function showStage(name) {
   Object.entries(STAGES).forEach(([key, el]) => {
     el.classList.toggle('hidden', key !== name);
   });
-  STAGES[name].classList.remove('mn-stage-in');
-  void STAGES[name].offsetWidth;          // restart entrance animation
-  STAGES[name].classList.add('mn-stage-in');
+  restartAnimation(STAGES[name], 'mn-stage-in');
   mainEl.scrollTop = 0;
 }
 
@@ -152,18 +142,9 @@ function initSpotlight() {
 
   titleEl.textContent = flow.discoverTitle || 'Tap the glowing spot!';
 
-  // Show a caption with its keyword highlighted. Text is escaped, then the first
-  // occurrence of `key` is wrapped so it stands out for young readers. Used by
-  // both the hotspot mode and the festival "learn cards" mode below.
-  const escapeHtml = (s) => s.replace(/[&<>"]/g, (c) =>
-    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  // Used by both the hotspot mode and the festival "learn cards" mode below.
   function setCaption(text, key) {
-    let html = escapeHtml(text);
-    if (key) {
-      const safe = escapeHtml(key).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      html = html.replace(new RegExp(`(${safe})`, 'i'), '<mark class="mn-spot-key">$1</mark>');
-    }
-    captionEl.innerHTML = html;
+    captionEl.innerHTML = highlightKeyword(text, key, 'mn-spot-key');
   }
 
   // ── Festival "learn cards" mode ──────────────────────────────────────────────
@@ -270,13 +251,41 @@ function initSpotlight() {
     });
   }
 
+  // The line currently holding the next number back: which hotspot it belongs to,
+  // and the callback that releases the hold once the line has been heard.
+  let heldBy  = -1;
+  let release = null;
+
+  // Speak hotspot `i`'s line and run `after` once it has actually finished. The
+  // timer is a safety net for browsers whose TTS never fires its 'end' event;
+  // `after` is written to be idempotent, so whichever gets there first wins.
+  function narrate(i, hs, after) {
+    heldBy  = i;
+    release = after;
+    Voice.play(hs.vo, hs.text, after);
+    setTimeout(after, 8000);
+  }
+
+  // Let the child into the game. Called only once the transition line has been
+  // heard (see tapSpot below). Idempotent — several paths can reach it.
+  function unlockContinue() {
+    if (!continueBtn.disabled) return;
+    continueBtn.disabled = false;
+    continueBtn.classList.add('mn-btn-ready');
+  }
+
   function tapSpot(i) {
     const hs = sp.hotspots[i];
     // Re-tap an already-discovered spot → just replay its line (kids repeat a lot).
     if (done[i]) {
       Sound.tap?.();
       setCaption(hs.text, hs.key);
-      Voice.play(hs.vo, hs.text);
+      // Replaying stops the current line, which would drop the callback waiting on
+      // it. When the line being replayed is the one holding the next number back,
+      // hand that hold to the replay — otherwise the child waits out the safety
+      // timer for a number that belongs to the line they're hearing right now.
+      if (heldBy === i && release) narrate(i, hs, release);
+      else                         Voice.play(hs.vo, hs.text);
       return;
     }
     // Otherwise guide them through in order — only the active spot responds.
@@ -300,8 +309,6 @@ function initSpotlight() {
 
     if (next === -1) {
       titleEl.textContent = 'Great exploring! 🎉';
-      continueBtn.disabled = false;
-      continueBtn.classList.add('mn-btn-ready');
       // Show + speak the transition only AFTER the LAST hotspot line has been
       // heard — chained on the line's real end (onEnd) instead of a fixed delay,
       // so it never cuts the last line short. A safety timer covers the rare
@@ -310,25 +317,31 @@ function initSpotlight() {
       const showTransition = () => {
         if (shown || index !== -1) return;    // already shown, or a re-tap took over
         shown = true;
+        heldBy = -1; release = null;
         spotlightAt(null);
         setCaption(sp.transition || "Now let's play!");
-        Voice.play(`${stateId}_${voCat}_transition`, sp.transition || '');
+        // Continue stays locked until the "Now you know…" line has actually been
+        // heard — the same rule the hotspot numbers follow, so the child never
+        // skips into the game before the takeaway. Idempotent, and the safety
+        // timer guarantees the button can never stay stuck (when muted, or with
+        // no transition line, Voice.play fires onEnd immediately).
+        Voice.play(`${stateId}_${voCat}_transition`, sp.transition || '', unlockContinue);
+        setTimeout(unlockContinue, 8000);
       };
-      Voice.play(hs.vo, hs.text, showTransition);
-      setTimeout(showTransition, 8000);
+      narrate(i, hs, showTransition);
     } else {
       // Unlock the next number only once the current line ends. Guarded so it
-      // runs once; a safety timer covers browsers whose TTS never fires 'end'.
+      // runs once, whether it's the voice-over or the safety timer that gets here.
       let advanced = false;
       const advance = () => {
         if (advanced || index !== -1) return;  // already advanced, or a re-tap took over
         advanced = true;
+        heldBy = -1; release = null;
         index = next;
         spotlightAt(sp.hotspots[index]);
         renderSpots();
       };
-      Voice.play(hs.vo, hs.text, advance);
-      setTimeout(advance, 8000);
+      narrate(i, hs, advance);
     }
   }
 
@@ -368,19 +381,6 @@ function initTour() {
   progEl.innerHTML = tour.map(() => '<span class="mn-tour-pip"></span>').join('');
   const pips = [...progEl.children];
 
-  // Show the line with its important word highlighted (escaped first, then the
-  // first match of `key` wrapped) — same treatment as the spotlight captions.
-  const escapeHtml = (s) => s.replace(/[&<>"]/g, (c) =>
-    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
-  function highlight(text, key) {
-    let html = escapeHtml(text);
-    if (key) {
-      const safe = escapeHtml(key).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      html = html.replace(new RegExp(`(${safe})`, 'i'), '<mark class="mn-tour-key">$1</mark>');
-    }
-    return html;
-  }
-
   let idx = 0;
 
   // The mission page paints the state's entry background full-screen (see the
@@ -404,9 +404,7 @@ function initTour() {
     const reveal = () => {
       // Restart the Ken-Burns zoom: snap to zoomed-in with no transition, then let
       // the CSS transition ease it back out while the layer fades in.
-      incoming.classList.remove('is-shown');
-      void incoming.offsetWidth;
-      incoming.classList.add('is-shown');
+      restartAnimation(incoming, 'is-shown');
       outgoing.classList.remove('is-shown');
       front ^= 1;
       document.documentElement.style.setProperty('--screen-bg', `#000 url("${src}") center / cover no-repeat`);
@@ -424,7 +422,7 @@ function initTour() {
 
     emojiEl.textContent = card.emoji;
     nameEl.textContent  = card.name;
-    voEl.innerHTML      = highlight(card.text, card.key);
+    voEl.innerHTML      = highlightKeyword(card.text, card.key, 'mn-tour-key');
 
     pips.forEach((p, i) => p.classList.toggle('is-on', i <= idx));
     nextBtn.textContent = idx === tour.length - 1 ? 'Continue Mission →' : 'Next →';
@@ -512,10 +510,7 @@ function renderLearn() {
   learnBlurb.textContent = it.blurb;
   dotsEl.querySelectorAll('.mn-dot').forEach((d, i) =>
     d.classList.toggle('is-active', i === learnIdx));
-  // Re-trigger the swap animation.
-  learnEmoji.classList.remove('mn-pop');
-  void learnEmoji.offsetWidth;
-  learnEmoji.classList.add('mn-pop');
+  restartAnimation(learnEmoji, 'mn-pop');
   // Voiceover-first: speak this card's blurb (young children skip long text).
   Voice.play(it.vo, it.blurb);
 }
@@ -549,10 +544,7 @@ document.getElementById('mn-learn-play').addEventListener('click', launchGame);
 
 // ══ STAGE 2 · COOK THE DISH (inline drag-into-pot game) ═══════════════════════
 function flashPot() {
-  const pot = document.getElementById('mn-cook-pot');
-  pot.classList.remove('mn-pot-bump');
-  void pot.offsetWidth;
-  pot.classList.add('mn-pot-bump');
+  restartAnimation(document.getElementById('mn-cook-pot'), 'mn-pot-bump');
 }
 
 function startCook() {
@@ -581,7 +573,7 @@ function startCook() {
   // ones. How many wrong options appear is set by the difficulty level
   // (Explorer sees fewer; Adventurer/Master see more), capped at pool size.
   const distractorCap = paramsFor('cook').distractors;
-  const distractors   = shuffleArr(g.distractors).slice(0, distractorCap);
+  const distractors   = shuffle(g.distractors).slice(0, distractorCap);
   const cards = [
     ...g.correct.map(c => ({ ...c, ok: true })),
     ...distractors.map(c => ({ ...c, ok: false })),
@@ -622,9 +614,8 @@ function startCook() {
       } else {
         // Wrong ingredient → bounce it back.
         Sound.wrong?.();
-        btn.classList.remove('mn-shake');
-        void btn.offsetWidth;
-        btn.classList.add('mn-shake', 'is-wrong');
+        restartAnimation(btn, 'mn-shake');
+        btn.classList.add('is-wrong');
         feedbackEl.textContent = `Yuck! That doesn't go in ${g.dish}! ❌`;
         feedbackEl.className = 'mn-cook-feedback is-bad';
         setTimeout(() => btn.classList.remove('is-wrong'), 550);
@@ -644,11 +635,10 @@ function startCook() {
 }
 
 // ══ STAGE 3 · REWARD + MISSION COMPLETE (merged, one celebration) ═════════════
-// Previously two stages (Reward → tap Continue → Complete → tap to leave). Now
-// a single screen shows everything at once — what you earned, the mission's
-// takeaway line, how many of the state's missions are done, and Rimau's
-// thank-you — with ONE button back to the hub (or, the first time all four
-// missions are done, on to the Stamp Earned screen).
+// One screen shows everything at once — what you earned, the mission's takeaway
+// line, how many of the state's missions are done, and Rimau's thank-you — with
+// ONE button back to the hub (or, the first time all four missions are done, on
+// to the Stamp Earned screen).
 function enterReward() {
   // "What you learned" — the mission's takeaway line + a picture of what they
   // just made / explored + the points earned. (e.g. "You cooked Laksa Kedah!")

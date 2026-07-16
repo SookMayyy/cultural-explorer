@@ -85,11 +85,10 @@ export function missionFlow(stateRef, missionId) {
   const cards = state.cards || [];
 
   // Every state has (at most) ONE piece of music — its festival/traditional
-  // track. Previously this only played under the Festival mission; now it
-  // loops softly as the backing track for ALL FOUR missions of a state, so
-  // Cook/Dress/Explore/Festival all feel like they're happening in the same
-  // place. mission.js starts it (low volume, looping, mute-aware) and voice.js
-  // ducks it under narration — see utils/music.js `duck()`/`unduck()`.
+  // track. It loops softly as the backing track for ALL FOUR of the state's
+  // missions, so Cook/Dress/Explore/Festival all feel like they're happening in
+  // the same place. mission.js starts it (low volume, looping, mute-aware) and
+  // voice.js ducks it under narration — see utils/music.js `duck()`/`unduck()`.
   const stateAudio = festivalMissionFor(state.id)?.audio || null;
 
   const base = {

@@ -82,14 +82,15 @@ const missions = missionsFor(state);
 const done      = Storage.getMissions(stateId);   // array of completed ids
 
 // Free exploration: every mission is open from the start so children can play
-// them in any order they like (previously they unlocked sequentially).
-function isUnlocked(index) {
+// them in any order. Kept as a seam — the locked row rendering below is what
+// this would switch back on if sequential unlocking ever returns.
+function isUnlocked() {
   return true;
 }
 
 function rowHTML(m, index) {
   const isDone   = done.includes(m.id);
-  const unlocked = isUnlocked(index);
+  const unlocked = isUnlocked();
   const justDone = m.id === justDoneId;
 
   const stateClass = isDone ? 'is-done' : unlocked ? 'is-open' : 'is-locked';

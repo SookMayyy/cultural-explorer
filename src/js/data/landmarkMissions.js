@@ -311,11 +311,6 @@ export const LANDMARK_MISSIONS = {
   },
 };
 
-// The landmark mission for a state id, or null if none authored.
-export function landmarkMissionFor(stateId) {
-  return LANDMARK_MISSIONS[stateId] || null;
-}
-
 // The tour cards for a state (empty if none). Shape consumed by mission.js.
 export function landmarkTourFor(stateId) {
   return LANDMARK_MISSIONS[stateId]?.tour || [];

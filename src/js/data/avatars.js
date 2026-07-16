@@ -23,13 +23,6 @@ export const AVATARS = [
   { img: '../assets/characters/avatar_tapir.png',  emoji: '🐾', name: 'Tapir'  },
 ];
 
-// Safe lookup — always returns a usable emoji even for a bad/missing index.
-// Kept for text contexts (toasts, aria labels) where an <img> isn't wanted.
-export function avatarEmoji(index) {
-  const a = AVATARS[Number(index)];
-  return a ? a.emoji : '👤';
-}
-
 // HTML for the avatar's illustration with emoji fallback (use with innerHTML).
 // The slot is sized by its parent's font-size — see the .img-slot rules per
 // context (home modal, signup grid, avatar showcase, avatar-stack).

@@ -35,8 +35,13 @@ export function setMuted(muted) {
 }
 
 let current = null;   // the <Audio> element currently playing, if any
+let gen = 0;          // bumped by stop(); retires the running line's callback
 
 export function stop() {
+  // Stopping retires whatever was playing, so bump the generation: the browser
+  // fires 'end'/'error' on an utterance it CANCELS, and without this the line we
+  // just cut short would run its onEnd as though it had been heard in full.
+  gen++;
   if (current) { try { current.pause(); } catch {} current = null; }
   if (window.speechSynthesis) speechSynthesis.cancel();
   // Whatever line was speaking is done (or was cut short) — bring the music
@@ -54,13 +59,25 @@ export function stop() {
 // this one has actually been heard — e.g. the spotlight transition waits for
 // the last hotspot line to end instead of guessing with a fixed delay.
 export function play(id, fallbackText, onEnd) {
-  // Run the caller's callback at most once, even if several end/error events fire.
-  let done = false;
-  const finish = () => { if (done) return; done = true; unduck(); onEnd?.(); };
+  // Nothing to hear → callers chaining on the end of this line run right away.
+  if (isMuted()) { unduck(); onEnd?.(); return; }
 
-  if (isMuted()) { finish(); return; }
-  stop();
+  stop();                 // retires the previous line (gen++) before we start ours
+  const myGen = gen;
   duck();
+
+  // Run the caller's callback at most once, and only while THIS line is still the
+  // one playing. The generation check is what keeps a chain honest: starting or
+  // stopping another line cancels ours, and a cancelled utterance still emits
+  // 'end' — so without it, replaying a line would fire the callback of the line it
+  // replaced (e.g. releasing the spotlight's next number while audio still plays).
+  let done = false;
+  const finish = () => {
+    if (done || myGen !== gen) return;
+    done = true;
+    unduck();
+    onEnd?.();
+  };
 
   const src = CLIPS[id];
   if (src) {
@@ -70,26 +87,30 @@ export function play(id, fallbackText, onEnd) {
     a.addEventListener('error', () => {
       // Recorded clip failed (missing/blocked) → fall back to spoken text.
       current = null;
-      speak(fallbackText, finish);
+      speak(fallbackText, finish, myGen);
     }, { once: true });
     a.play().catch(() => {
       current = null;
-      speak(fallbackText, finish);
+      speak(fallbackText, finish, myGen);
     });
     return;
   }
-  speak(fallbackText, finish);
+  speak(fallbackText, finish, myGen);
 }
 
-function speak(text, onEnd) {
+function speak(text, onEnd, myGen) {
   if (!text || !window.speechSynthesis) { unduck(); onEnd?.(); return; }
   const u = new SpeechSynthesisUtterance(text);
   u.rate = 0.95;   // a touch slow for young listeners
   u.pitch = 1.1;   // friendly, mascot-like
   u.lang = 'en-US';
-  u.onend   = () => { unduck(); onEnd?.(); };
-  u.onerror = () => { unduck(); onEnd?.(); };
-  speechSynthesis.speak(u);
+  u.onend   = onEnd;
+  u.onerror = onEnd;   // `finish` already un-ducks and is generation-guarded
+  // Chrome applies speechSynthesis.cancel() asynchronously, so an utterance queued
+  // in the same task as the cancel in stop() above gets swallowed — it either never
+  // speaks or errors immediately, which would end the line before it starts. Queue
+  // it a tick later, and only while it is still the line we want.
+  setTimeout(() => { if (myGen === gen) speechSynthesis.speak(u); }, 60);
 }
 
 // Never let narration bleed into the next screen. `speechSynthesis` is a single

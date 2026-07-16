@@ -3,13 +3,6 @@
 // Pulls the current state from Storage/URL, builds 3–4 drag-match pairs
 // from that state's cards, then uses the DragMatch component to run the game.
 // On completion, shows a congratulation overlay and links to Guess My State.
-//
-// Visual updates (Figma frame 226:323):
-//   • No orange topbar — replaced by a HUD bar in the HTML (act-hud).
-//   • Progress pill (act-matched-text) + gold bar (act-progress-fill) in HUD.
-//   • Points pill (act-points-val) in HUD.
-//   • Rimau mascot corner (act-mascot-corner) with a speech bubble.
-//   • DragMatch options.title is passed so the heading can be re-skinned.
 
 import Storage from './utils/storage.js';
 import { requireAuth, getStateParam } from './ui.js';
@@ -18,6 +11,8 @@ import DragMatch from './components/dragMatch.js';
 import Sound from './utils/sound.js';
 import { renderMascot, setMascotPose } from './data/mascots.js';
 import { initHowToPlay } from './components/howToPlay.js';
+import { restartAnimation } from './utils/dom.js';
+import { launchContext } from './utils/launchContext.js';
 
 // ── Auth guard ────────────────────────────────────────────────────────────────
 const session = requireAuth();
@@ -28,17 +23,10 @@ const stateId = getStateParam();
 const state   = STATES_DATA.find(s => s.id === stateId);
 
 // ── Launch context ────────────────────────────────────────────────────────────
-// Reached from the Activities Hub (replay), from a Mission (Help the Chef), or
-// the linear journey. From the hub / a mission, the back button + completion CTA
-// return there instead of advancing to the next journey game.
-const _params = new URLSearchParams(location.search);
-const fromActivities = _params.get('from') === 'activities';
-const fromMission    = _params.get('from') === 'mission';
-const missionId      = _params.get('mission');
-const activitiesHref   = `activities.html${stateId ? `?state=${stateId}` : ''}`;
-const missionsHref     = `missions.html?state=${stateId}`;
-// Finishing a mission returns into the Mission Flow's Reward stage.
-const missionsDoneHref = `mission.html?state=${stateId}&mission=${missionId}&stage=reward`;
+// In the linear journey the back button + completion CTA advance to the next
+// journey game rather than returning to a hub.
+const { fromActivities, fromMission, missionsHref, missionsDoneHref } = launchContext(stateId);
+const activitiesHref = `activities.html${stateId ? `?state=${stateId}` : ''}`;
 
 // ── HUD: back pill ────────────────────────────────────────────────────────────
 const backPill = document.getElementById('act-back');
@@ -113,12 +101,7 @@ function onMatchMade() {
   if (matchedText)  matchedText.textContent = `${matchCount} / ${totalPairs} MATCHED`;
   if (progressFill) progressFill.style.width = `${(matchCount / totalPairs) * 100}%`;
 
-  // Rimau reacts happily
-  if (mascotFig) {
-    mascotFig.classList.remove('react-happy');
-    void mascotFig.offsetWidth;          // trigger reflow to restart the animation
-    mascotFig.classList.add('react-happy');
-  }
+  restartAnimation(mascotFig, 'react-happy');
 
   // Cycle the mascot bubble message as the player progresses
   const msgIdx = Math.min(matchCount, BUBBLE_MESSAGES.length - 1);
@@ -166,7 +149,7 @@ if (!pairs.length) {
 
 // ── Game completion handler ───────────────────────────────────────────────────
 function onComplete() {
-  // Persist progress — these calls are unchanged from the original
+  // Persist progress
   Storage.markCompleted(stateId || 'penang', 'activity');
 
   // In the mission flow the flat +25 mission bonus is the only reward, so the

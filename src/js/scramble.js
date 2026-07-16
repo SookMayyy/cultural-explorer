@@ -11,6 +11,7 @@ import { costumeWordsFor } from './data/costumeMissions.js';
 import { paramsFor } from './data/difficulty.js';
 import { showPopup } from './components/popup.js';
 import { initHowToPlay } from './components/howToPlay.js';
+import { launchContext } from './utils/launchContext.js';
 import Sound from './utils/sound.js';
 
 requireAuth();
@@ -29,18 +30,11 @@ if (!state) {
 }
 
 // ── Launch context ────────────────────────────────────────────────────────────
-// From the Activities Hub (replay) the back button + finish CTA return to the
-// hub; from a Mission (Help the Dancer) they return to the Mission Hub and mark
-// the mission done; in the linear journey they go back to narrative / on to
-// Drag-Match.
-const _params = new URLSearchParams(location.search);
-const fromActivities = _params.get('from') === 'activities';
-const fromMission    = _params.get('from') === 'mission';
-const missionId      = _params.get('mission');
-const activitiesHref   = `activities.html?state=${stateId}`;
-const missionsHref     = `missions.html?state=${stateId}`;
-// Finishing a mission returns into the Mission Flow's Reward stage.
-const missionsDoneHref = `mission.html?state=${stateId}&mission=${missionId}&stage=reward`;
+// In the linear journey the back button goes to narrative and the finish CTA
+// on to Drag-Match.
+const { fromActivities, fromMission, missionId, missionsHref, missionsDoneHref } =
+  launchContext(stateId);
+const activitiesHref = `activities.html?state=${stateId}`;
 const nextHref = fromMission ? missionsDoneHref
               : fromActivities ? activitiesHref
               : `activity.html?state=${stateId}`;
