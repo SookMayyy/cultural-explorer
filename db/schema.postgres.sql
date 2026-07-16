@@ -176,7 +176,7 @@ INSERT INTO states (id, name, region, mascot, color_hex, flag_file, is_locked_de
   (2, 'Melaka',   'west', 'rimau', '#8E44AD', 'melaka-flag.png',   FALSE, 0, 2),
   (3, 'Selangor', 'west', 'rimau', '#1A5276', 'selangor-flag.png', FALSE, 0, 3),
   (4, 'Johor',    'west', 'rimau', '#1E8449', 'johor-flag.png',    FALSE, 0, 4),
-  (5, 'Kelantan', 'west', 'rimau', '#C0392B', 'kelatan-flag.png',  FALSE, 0, 5),
+  (5, 'Kelantan', 'west', 'rimau', '#C0392B', 'kelantan-flag.png', FALSE, 0, 5),
   (6, 'Sabah',    'east', 'wak',   '#117A65', 'sabah-flag.png',    TRUE,  5, 6),
   (7, 'Sarawak',  'east', 'wak',   '#1A5276', 'sarawak-flag.png',  TRUE,  5, 7)
 ON CONFLICT (id) DO UPDATE SET

@@ -220,7 +220,9 @@ describe('FR7 — Icon-based recovery', () => {
   });
 
   test('Grade 1-3 recovery reveals the SAME password after first login', async () => {
-    const NAME = name('Rk2');
+    // Letters only — the display_name validator rejects digits (/^[a-zA-Z ]{1,20}$/),
+    // so a prefix like "Rk2" 422s at registration and the account never exists.
+    const NAME = name('Rkb');
     const reg = await request(app).post('/api/auth/register').send({
       display_name: NAME, grade_group: '1-3', icon_key_1: 3, icon_key_2: 8,
     });
