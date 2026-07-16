@@ -33,3 +33,7 @@ CLAUDE.md
 
 # seed-content.mjs temp ESM twins
 scripts/.gen/
+
+# Retired files kept locally for reference only — they are already in git
+# history (see archive/README.md), so the repo doesn't need a second copy.
+archive/
