@@ -1,4 +1,4 @@
-// js/data/states.js — Cultural data for all 7 states in CP2 scope
+// js/data/states.js — Cultural data for all 6 states in CP2 scope
 
 export const STATES_DATA = [
   {
@@ -613,6 +613,11 @@ const STAMP_FILES = {
 export function stampImgFor(stateId) {
   return STAMP_FILES[stateId] ? `../assets/content/${STAMP_FILES[stateId]}` : null;
 }
+
+// Single source of truth for "how many states does the app ship?" — every
+// counter and "N states" label should read this rather than hardcode a number
+// (the app has been written as "13"/"7"/"6" in different places before).
+export const STATE_COUNT = STATES_DATA.length;
 
 export function getState(id) {
   return STATES_DATA.find(s => s.id === id) || null;

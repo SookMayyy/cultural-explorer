@@ -14,11 +14,8 @@
 
 import Storage from './utils/storage.js';
 import { AVATARS, avatarImg } from './data/avatars.js';
+import { SECRET_ICONS as ICONS } from './data/secretIcons.js';
 import { showError as popup } from './components/popup.js';
-
-// The 12 secret icons — index+1 maps to icon_key values 1–12 stored at
-// registration. Keep in sync with ICONS in home.js / recover.js.
-const ICONS = ['🌺','🦋','⭐','🌙','🐘','🦜','🍃','🎈','🐠','🌈','🦁','🌻'];
 
 let signupGrade   = null;   // selected grade group
 const chosenIcons = [];     // up to 2 chosen icon ids (1–12), in tap order

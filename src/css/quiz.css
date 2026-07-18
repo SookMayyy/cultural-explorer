@@ -110,6 +110,15 @@
   animation: page-enter 0.35s 0.10s ease-out both;
 }
 
+/* Active question view — stack the question card, options grid and feedback
+   panel with a consistent gap between them (the mascot row is display:none, so
+   it adds no space). */
+#quiz-question-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-md);
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    MASCOT ROW — floating character + speech bubble
    Matches the layout used in narrative.css .narrative-mascot-row.
@@ -367,6 +376,35 @@
 .quiz-option.wrong .quiz-option-letter {
   background: var(--clr-red);
   color: #fff;
+}
+
+/* ── Non-colour cue: ✓ / ✗ shape badge on the answered option ──
+   Right/wrong must not be signalled by green/red alone (colour-blind
+   readers). A bold check/cross sits at the trailing edge of the button. */
+.opt-mark {
+  margin-left: auto;
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1;
+  color: #fff;
+  animation: opt-mark-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.quiz-option.correct .opt-mark { background: var(--clr-green); }
+.quiz-option.wrong   .opt-mark { background: var(--clr-red); }
+
+@keyframes opt-mark-pop {
+  from { opacity: 0; transform: scale(0.4); }
+  to   { opacity: 1; transform: scale(1);   }
+}
+@media (prefers-reduced-motion: reduce) {
+  .opt-mark { animation: none; }
 }
 
 /* Letter circle — A, B, C, D */

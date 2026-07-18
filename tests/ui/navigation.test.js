@@ -25,6 +25,7 @@ const CASES = [
 
   // activity.js — the back pill changes label as well as target
   ['activity.html?state=penang',                         '#act-back', 'href', 'narrative.html?state=penang'],
+  ['activity.html?state=penang',                         '#act-back', 'text', '📖 BACK TO STORY'],
   ['activity.html?state=penang&from=activities',         '#act-back', 'href', 'activities.html?state=penang'],
   ['activity.html?state=penang&from=activities',         '#act-back', 'text', '🎮 BACK TO ACTIVITIES'],
   ['activity.html?state=penang&from=mission&mission=chef','#act-back','href', 'missions.html?state=penang'],

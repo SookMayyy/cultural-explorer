@@ -210,6 +210,18 @@ const scoreEl       = document.getElementById('quiz-score-display');
 const mascotFig = document.getElementById('quiz-mascot-figure');
 renderMascot(mascotFig, 'idle');
 
+// Add a ✓ / ✗ shape badge to an option button so right/wrong is legible without
+// relying on the green/red colour alone (colour-blind-friendly). Cleared each
+// question in loadQuestion().
+function addOptMark(btn, glyph) {
+  if (!btn || btn.querySelector('.opt-mark')) return;
+  const mark = document.createElement('span');
+  mark.className = 'opt-mark';
+  mark.setAttribute('aria-hidden', 'true');
+  mark.textContent = glyph;
+  btn.appendChild(mark);
+}
+
 // Play a one-shot mascot reaction (removes + re-adds the class so it retriggers).
 function react(el, cls) {
   if (!el) return;
@@ -252,6 +264,7 @@ function loadQuestion(idx) {
     btn.hidden = !has;
     btn.style.display = has ? '' : 'none';
     btn.classList.remove('correct', 'wrong', 'burst', 'shake');
+    btn.querySelector('.opt-mark')?.remove();   // clear last question's ✓/✗ badge
     if (!has) return;
     btn.disabled = false;
     const textEl = document.getElementById(`opt-${i}`);
@@ -281,8 +294,10 @@ function evaluate(chosen) {
     btn.disabled = true;
     if (i === q.ans) {
       btn.classList.add('correct', 'burst');
+      addOptMark(btn, '✓');   // non-colour cue: shape, not just green
     } else if (i === chosen && !correct) {
       btn.classList.add('wrong', 'shake');
+      addOptMark(btn, '✗');   // non-colour cue: shape, not just red
     }
   });
 

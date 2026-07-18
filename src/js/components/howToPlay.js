@@ -17,6 +17,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { showPopup } from './popup.js';
+import { withPointBullet } from '../utils/instructions.js';
 
 const SEEN_PREFIX = 'ce_howto_';
 let stylesInjected = false;
@@ -54,7 +55,8 @@ function injectStyles() {
 }
 
 function linesToHtml(lines) {
-  return `<ul class="ce-howto-list">${(lines || []).map(l => `<li>${l}</li>`).join('')}</ul>`;
+  // Each line begins with an emoji; swap it for the shared point-form bullet.
+  return `<ul class="ce-howto-list">${(lines || []).map(l => `<li>${withPointBullet(l)}</li>`).join('')}</ul>`;
 }
 
 /** Show a How-to-Play popup now. Resolves when the child taps the button. */

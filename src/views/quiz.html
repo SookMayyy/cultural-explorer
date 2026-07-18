@@ -37,8 +37,8 @@
 
       <!-- Mascot encouragement row — floats above the question card -->
       <div class="quiz-mascot-row">
-        <!-- 📸 IMAGE NEEDED: assets/images/mascots/rimau.png
-             Replace the emoji span with <img> of the Loka Made–style mascot illustration. -->
+        <!-- Rimau art is wired by quiz.js via renderMascot() (assets/characters/
+             rimau_*.png). The 🐯 is only the emoji fallback if the PNG fails. -->
         <div class="quiz-mascot-figure" id="quiz-mascot-figure" aria-hidden="true">🐯</div>
         <div class="quiz-mascot-bubble" role="status" aria-live="polite">
           <p id="quiz-mascot-text">Let's test what you know! You can do it!</p>
@@ -115,8 +115,8 @@
 
       <!-- Celebratory mascot -->
       <div class="complete-mascot-wrap">
-        <!-- 📸 IMAGE NEEDED: assets/images/mascots/rimau-celebrate.png
-             A Loka Made–style "jumping for joy" pose of the mascot. -->
+        <!-- Rimau art is wired by quiz.js via renderMascot(..., 'cheer') on a
+             pass (assets/characters/rimau_cheer.png). 🐯 is the emoji fallback. -->
         <div class="complete-mascot-figure" id="complete-mascot-figure" aria-hidden="true">🐯</div>
       </div>
 

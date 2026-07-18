@@ -44,17 +44,17 @@ export const MISSION_COUNT = TEMPLATES.length;
 // ─────────────────────────────────────────────────────────────────────────────
 //  MISSION FLOW CONTENT
 //  Derives the Discover / Learn / Reward copy for one mission from the state's
-//  existing card data — so every one of the 7 states works with no per-state
+//  existing card data — so every one of the 6 states works with no per-state
 //  authoring. The Laksa-Kedah screenshot is the template; we swap in each
 //  state's real dish / landmark / festival.
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Which card category themes each mission's Discover hero + its play-button label.
 const FLOW_THEME = {
-  chef:     { category: 'Food',     play: '🍳 Start Cooking!'      },
-  dancer:   { category: 'Tradition', play: '👗 Explore the Costume!' },
-  tourist:  { category: 'Landmark', play: '🧭 Guide the Tourist!'  },
-  festival: { category: 'Festival', play: '🏆 Take the Challenge!'  },
+  chef:     { category: 'Food',     play: 'Start Cooking!'      },
+  dancer:   { category: 'Tradition', play: 'Explore the Costume!' },
+  tourist:  { category: 'Landmark', play: 'Guide the Tourist!'  },
+  festival: { category: 'Festival', play: 'Take the Challenge!'  },
 };
 
 // Mission 2-4 reward lines are keyed by mission id (NOT derived from `hero`,
@@ -62,9 +62,9 @@ const FLOW_THEME = {
 // back to a Food card and saying "You're now a Char Kway Teow expert!"). Each
 // mission gets its own topic-appropriate, kid-friendly congratulation line.
 const REWARD_LINES = {
-  dancer:   'You learned all about the traditional costume! 👗',
-  tourist:  "You're a great tour guide now! 🗺️",
-  festival: "You're a festival superstar! 🎉",
+  dancer:   'You learned all about the traditional costume!',
+  tourist:  "You're a great tour guide now!",
+  festival: "You're a festival superstar!",
 };
 
 // Points awarded once per mission on the Reward screen. Four missions per state
@@ -148,7 +148,7 @@ export function missionFlow(stateRef, missionId) {
         reward: {
           bonus:   MISSION_BONUS,
           line:    `You cooked ${food.dish}!`,
-          congrats: 'You\'re a master chef! 🎉',
+          congrats: 'You\'re a master chef!',
         },
       };
     }
@@ -212,7 +212,10 @@ export function missionFlow(stateRef, missionId) {
     discoverSub:   missionId === 'tourist'
       ? 'Tap each place to learn about it — a tourist will need your help next!'
       : 'Tap the cards to learn more.',
-    heroEmoji:     (missionId === 'dancer' && costumeData?.image) ? '👗' : (hero ? hero.icon : '🏞️'),
+    // Fallback shown only when the hero photo is missing/fails: use the mission's
+    // own hub icon (not a random content emoji) so it stays a clean, consistent
+    // "icon", never a decorative food/landmark/nature emoji stand-in.
+    heroEmoji:     tpl.icon,
     heroImage,
     heroDesc:      hero ? hero.desc : (state.story || ''),
     mascotLine:    hero?.mascotLine || `There's so much to discover in ${state.name} — let's go explore!`,
@@ -236,7 +239,7 @@ export function missionFlow(stateRef, missionId) {
     reward: {
       bonus:    MISSION_BONUS,
       line:     REWARD_LINES[missionId] || (hero ? `You're now a ${hero.title} expert!` : 'Great work!'),
-      congrats: 'Well done, explorer! 🎉',
+      congrats: 'Well done, explorer!',
     },
   };
 }

@@ -38,7 +38,10 @@ if (backPill) {
     backPill.href = activitiesHref;
     backPill.textContent = '🎮 BACK TO ACTIVITIES';
   } else if (stateId) {
+    // Journey context: the pill goes back to the state's story (narrative)
+    // screen, not the map — keep the label truthful to that destination.
     backPill.href = `narrative.html?state=${stateId}`;
+    backPill.textContent = '📖 BACK TO STORY';
   }
 }
 

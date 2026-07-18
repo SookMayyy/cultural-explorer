@@ -3,7 +3,7 @@
 
 import Storage from './utils/storage.js';
 import { renderTopbar, renderNavbar, requireAuth } from './ui.js';
-import { STATES_DATA, nextRecommended } from './data/states.js';
+import { STATES_DATA, STATE_COUNT, nextRecommended } from './data/states.js';
 
 const session = requireAuth();
 
@@ -50,6 +50,9 @@ requestAnimationFrame(() => {
 
 // ── Card subtitles + quiz target ─────────────────────────────────────────────────
 document.getElementById('home-stamp-sub').textContent = `${stampsN} / ${total} collected`;
+// Drive the "Discover N states" label from the constant so it can't drift.
+const mapSub = document.getElementById('home-map-sub');
+if (mapSub) mapSub.textContent = `Discover ${STATE_COUNT} states`;
 // Avatar Shop is live — nudge with the points they have to spend on new avatars.
 document.getElementById('home-shop-sub').textContent  = `⭐ ${points} pts to spend`;
 

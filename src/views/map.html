@@ -21,11 +21,11 @@
   <!-- ── Main scrollable area containing the journey map ── -->
   <main class="map-main" id="map-main">
 
-    <!-- Progress header: headline + "X/7 explored" pill -->
+    <!-- Progress header: headline + "X/6 explored" pill (count from STATES_DATA.length) -->
     <div class="map-progress-header">
       <p class="map-headline" id="map-headline">Choose a State!</p>
       <div class="map-progress-pill">
-        <span id="map-completed">0/7</span>
+        <span id="map-completed">0/6</span>
         <span class="pill-sep">·</span>
         <span id="map-pts">0%</span>
       </div>
@@ -39,8 +39,8 @@
     <!-- Mascot row: Rimau with a short greeting bubble.
          map.js populates #map-mascot-figure + #map-mascot-text. -->
     <div class="map-mascot-row">
-      <!-- 📸 IMAGE NEEDED: replace emoji with rimau.svg from assets/characters/.
-           Use an <img> tag with the character illustration. -->
+      <!-- Rimau art is wired by map.js via renderMascot() (assets/characters/
+           rimau_*.png). The 🐯 is only the emoji fallback if the PNG fails. -->
       <div class="map-mascot-figure" id="map-mascot-figure">🐯</div>
       <div class="map-mascot-bubble" id="map-mascot-text">
         Let's explore Malaysia together!

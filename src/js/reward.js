@@ -30,7 +30,7 @@ const headline = document.getElementById('reward-result-label');
 const subline  = document.getElementById('reward-subline');
 
 if (stampEarned && state) {
-  // Make sure this state counts toward the "x/7" tally (idempotent).
+  // Make sure this state counts toward the "x/6" tally (idempotent).
   Storage.earnStamp(stateId);
 
   // Persist completion to the backend so the stamp survives across

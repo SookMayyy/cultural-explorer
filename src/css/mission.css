@@ -560,9 +560,11 @@
   cursor: pointer;   /* stays tappable → replays its line */
 }
 .mn-spot-dot.is-found:active { transform: translate(-50%, -50%) scale(0.9); }
+/* Only the glow ring pulses — the dot (and its number) stays put, no scaling,
+   so the number never appears to move. */
 @keyframes mn-spot-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(255,201,60,0.7),   0 2px 8px rgba(0,0,0,0.35); transform: translate(-50%,-50%) scale(1);    }
-  50%      { box-shadow: 0 0 0 14px rgba(255,201,60,0),   0 2px 8px rgba(0,0,0,0.35); transform: translate(-50%,-50%) scale(1.12); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,201,60,0.7),  0 2px 8px rgba(0,0,0,0.35); }
+  50%      { box-shadow: 0 0 0 14px rgba(255,201,60,0), 0 2px 8px rgba(0,0,0,0.35); }
 }
 
 /* Progress pips (one per hotspot) */
@@ -673,7 +675,9 @@
   background: none;
   pointer-events: none;
 }
-.mn-tour-emoji { margin-right: 6px; }
+/* The landmark photo already shows the place — the emoji badge beside the name
+   was a decorative stand-in, so it's hidden (the name stands on its own). */
+.mn-tour-emoji { display: none; }
 
 /* Bottom panel: description + progress pips + buttons. A lighter gradient scrim
    keeps the landmark photo dominant while the text stays readable via its own

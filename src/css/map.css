@@ -231,7 +231,7 @@
 }
 .map-caption span { color: var(--clr-orange); }
 
-/* ── Progress header row: "X/7 explored · 42%" ──────────────────────────── */
+/* ── Progress header row: "X/6 explored · 42%" ──────────────────────────── */
 .map-progress-header {
   display: flex;
   align-items: center;
@@ -249,7 +249,7 @@
   line-height: 1.2;
 }
 
-/* Pill badge showing "X/7 explored" */
+/* Pill badge showing "X/6 explored" */
 .map-progress-pill {
   display: flex;
   align-items: center;

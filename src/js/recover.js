@@ -4,11 +4,8 @@
 // modal: identify by name + grade, tap the 2 secret icons in order, then
 // (Grade 4+) set a new password. Posts to the same /api/auth/recover route.
 
-// The 12 secret icons — order matters: index+1 maps to icon_key values 1–12
-// stored at registration. Keep this in sync with ICONS in home.js.
 import { showError as popup, showPopup } from './components/popup.js';
-
-const ICONS = ['🌺','🦋','⭐','🌙','🐘','🦜','🍃','🎈','🐠','🌈','🦁','🌻'];
+import { SECRET_ICONS as ICONS } from './data/secretIcons.js';
 
 let recoverGrade = null;
 const recoverIcons = [];   // up to 2 chosen icon ids (1–12), in tap order

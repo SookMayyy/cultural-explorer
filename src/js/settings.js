@@ -5,6 +5,7 @@ import { requireAuth, applyProfileColor } from './ui.js';
 import { STATES_DATA } from './data/states.js';
 import { avatarStackHTML } from './utils/avatarDisplay.js';
 import { confirmPopup, showPopup } from './components/popup.js';
+import { withPointBullet } from './utils/instructions.js';
 import { apiPost } from './utils/api.js';
 import Sound from './utils/sound.js';
 import Voice from './utils/voice.js';
@@ -71,7 +72,7 @@ document.getElementById('btn-guide')?.addEventListener('click', () => {
       '🏅 Complete all 4 to earn that state\'s stamp!',
       '🛍️ Spend your points in the Avatar Shop.',
       '🐯 Rimau will guide you. Have fun exploring Malaysia!',
-    ].join('<br><br>'),
+    ].map(withPointBullet).join('<br><br>'),
     actions: [{ label: 'Got it!', value: true, style: 'primary' }],
   });
 });
@@ -89,7 +90,7 @@ document.getElementById('btn-safety')?.addEventListener('click', () => {
       '🔒 Keep your password and secret icons private.',
       '🙋 Ask your teacher or parent if you need help.',
       '💛 Be kind, and enjoy learning — it is not about winning!',
-    ].join('<br><br>'),
+    ].map(withPointBullet).join('<br><br>'),
     actions: [{ label: 'Okay!', value: true, style: 'primary' }],
   });
 });
@@ -101,8 +102,16 @@ document.getElementById('btn-safety')?.addEventListener('click', () => {
 // namespace, so logging back in restores it.
 const logoutBtn = document.getElementById('btn-logout');
 logoutBtn?.addEventListener('click', async () => {
-  const yes = await confirmPopup('Log out now? Your stamps and points are saved.', {
-    title: 'Log out?', emoji: '🚪', confirmText: 'Log Out', cancelText: 'Stay',
+  // Guests have no account, so their stamps/points are local-only and are lost
+  // on logout — warn them honestly instead of promising the progress is saved.
+  const isGuest = session.type === 'guest';
+  const message = isGuest
+    ? 'Log out now? You are playing as a guest, so your stamps and points will NOT be saved.'
+    : 'Log out now? Your stamps and points are saved.';
+  const yes = await confirmPopup(message, {
+    // Red power symbol (⏻) instead of the door emoji, matching the button.
+    title: 'Log out?', emoji: '<span style="color:#e74c3c;">⏻︎</span>',
+    confirmText: 'Log Out', cancelText: 'Stay',
   });
   if (!yes) return;
 

@@ -308,7 +308,7 @@ function initSpotlight() {
     renderSpots();             // current → found, next → still hidden
 
     if (next === -1) {
-      titleEl.textContent = 'Great exploring! 🎉';
+      titleEl.textContent = 'Great exploring!';
       // Show + speak the transition only AFTER the LAST hotspot line has been
       // heard — chained on the line's real end (onEnd) instead of a fixed delay,
       // so it never cuts the last line short. A safety timer covers the rare
@@ -608,7 +608,7 @@ function startCook() {
         flashPot();
 
         if (added >= total) {
-          feedbackEl.textContent = `Delicious! Your ${g.dish} is ready! 🎉`;
+          feedbackEl.textContent = `Delicious! Your ${g.dish} is ready!`;
           setTimeout(enterReward, 850);
         }
       } else {

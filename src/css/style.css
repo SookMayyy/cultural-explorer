@@ -579,6 +579,24 @@ button {
   background: none;
 }
 
+/* Buttons lift on hover — the same smooth rise + soft shadow as the settings
+   "Avatar Shop" menu cards. Pointer devices only (hover:hover) and motion-safe.
+   Game-mechanic tiles (quiz options, scramble letters, guess choices, and the
+   icon/avatar/grade/tab pickers) are excluded so the lift never interferes with
+   play or selection. Class-styled buttons that already define their own :hover
+   (e.g. .btn-primary) keep it — those selectors out-rank this element rule. */
+@media (prefers-reduced-motion: no-preference) and (hover: hover) {
+  button:not(:disabled):not(.quiz-option):not(.scr-tile):not(.guess-option):not(.icon-pick):not(.avatar-item):not(.grade-btn):not(.tab-btn):not(.mn-spot-dot),
+  a.btn-primary {
+    transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.12s ease;
+  }
+  button:hover:not(:disabled):not(.quiz-option):not(.scr-tile):not(.guess-option):not(.icon-pick):not(.avatar-item):not(.grade-btn):not(.tab-btn):not(.mn-spot-dot),
+  a.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+  }
+}
+
 input {
   font-family: var(--font-body);
 }
