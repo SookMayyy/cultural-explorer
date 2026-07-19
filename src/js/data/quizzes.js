@@ -7,48 +7,52 @@
 // what they just saw, read, or heard.
 //
 // Each question: exactly 4 options, exactly 1 correct (`ans` 0–3), a short
-// kid-friendly `explain`, and a `difficulty` (easy/medium/hard — lets the
-// "harder after 2 correct" adaptive rule step up). Some also carry an OPTIONAL
-// `image` pointing at a real photo already shown in that state's mission
-// (quiz.js displays it above the question when present) — used here for
-// ingredient / costume / festival recognition questions that quiz.js doesn't
-// already auto-generate (it auto-builds a dish photo Q and a landmark photo Q
-// from foodMissions/landmarkMissions, so this file adds DIFFERENT pictures).
+// kid-friendly `explain`, a `difficulty` (easy/medium/hard — lets the
+// "harder after 2 correct" adaptive rule step up), and a `category`
+// ('food' | 'costume' | 'landmark' | 'festival' | 'general') so the quiz can
+// guarantee the right KIND of question — e.g. the Festival mission always
+// serves a `category:'festival'` question (see quiz.js). Every state ships at
+// least one 'festival' question. Some also carry an OPTIONAL `image` pointing
+// at a real photo already shown in that state's mission (quiz.js displays it
+// above the question when present) — used here for ingredient / costume /
+// festival recognition questions that quiz.js doesn't already auto-generate
+// (it auto-builds a dish photo Q and a landmark photo Q from foodMissions/
+// landmarkMissions, so this file adds DIFFERENT pictures).
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const QUIZ_QUESTIONS = [
 
   // ── Penang ──────────────────────────────────────────────────────────────────
   {
-    id: 'penang-q1', stateId: 'penang', difficulty: 'easy',
+    id: 'penang-q1', stateId: 'penang', difficulty: 'easy', category: 'food',
     q: 'What noodle dish is Penang most famous for?',
     opts: ['Nasi Lemak', 'Mee Goreng', 'Char Kway Teow', 'Wonton Mee'],
     ans: 2,
     explain: 'Penang\'s Char Kway Teow is world-famous! Flat rice noodles stir-fried with prawns, eggs, and bean sprouts over high heat.',
   },
   {
-    id: 'penang-q2', stateId: 'penang', difficulty: 'easy',
+    id: 'penang-q2', stateId: 'penang', difficulty: 'easy', category: 'landmark',
     q: 'Which city in Penang is a UNESCO World Heritage Site?',
-    opts: ['Butterworth', 'Georgetown', 'Ipoh', 'Taiping'],
+    opts: ['Butterworth', 'George Town', 'Ipoh', 'Taiping'],
     ans: 1,
-    explain: 'Georgetown is the capital of Penang and a UNESCO World Heritage Site, famous for its colourful street art and old shophouses!',
+    explain: 'George Town is the capital of Penang and a UNESCO World Heritage Site, famous for its colourful street art and old shophouses!',
   },
   {
-    id: 'penang-q3', stateId: 'penang', difficulty: 'easy',
+    id: 'penang-q3', stateId: 'penang', difficulty: 'easy', category: 'general',
     q: 'What is Penang\'s famous nickname?',
     opts: ['Land Below the Wind', 'Pearl of the Orient', 'Garden City', 'City of Lights'],
     ans: 1,
     explain: 'Penang is known as the "Pearl of the Orient" because of its beauty and rich history!',
   },
   {
-    id: 'penang-q4', stateId: 'penang', difficulty: 'medium',
+    id: 'penang-q4', stateId: 'penang', difficulty: 'medium', category: 'festival',
     q: 'About how much can a Thaipusam kavadi weigh?',
     opts: ['5 kg', '30 kg', '100 kg', '500 kg'],
     ans: 1,
     explain: 'A kavadi can weigh up to 30 kg — decorated with flowers, peacock feathers, and lights, and carried as an act of devotion!',
   },
   {
-    id: 'penang-q5', stateId: 'penang', difficulty: 'medium',
+    id: 'penang-q5', stateId: 'penang', difficulty: 'medium', category: 'food',
     q: 'What tiny shellfish topping is this, a classic Char Kway Teow ingredient?',
     image: '../assets/content/Penang/cockles.png',
     opts: ['Cockles', 'Clams', 'Mussels', 'Oysters'],
@@ -56,14 +60,14 @@ export const QUIZ_QUESTIONS = [
     explain: 'Tiny cockles — see-hum — are a classic Penang topping in Char Kway Teow!',
   },
   {
-    id: 'penang-q6', stateId: 'penang', difficulty: 'hard',
+    id: 'penang-q6', stateId: 'penang', difficulty: 'hard', category: 'general',
     q: 'In Penang Hokkien, what does the borrowed Malay word "sabun" mean?',
     opts: ['Bread', 'Soap', 'Chicken', 'Medicine'],
     ans: 1,
     explain: 'Penang Hokkien borrows many Malay words — like "sabun" for soap and "roti" for bread!',
   },
   {
-    id: 'penang-q7', stateId: 'penang', difficulty: 'hard',
+    id: 'penang-q7', stateId: 'penang', difficulty: 'hard', category: 'costume',
     q: 'What is this traditional Penang outfit called?',
     image: '../assets/content/Penang/baba_nyonya_kebaya.png',
     opts: ['Kebaya', 'Baju Kurung', 'Cheongsam', 'Sari'],
@@ -71,38 +75,52 @@ export const QUIZ_QUESTIONS = [
     explain: 'The Kebaya is a fitted blouse worn by the Baba Nyonya community, decorated with beautiful embroidered flower patterns!',
   },
   {
-    id: 'penang-q8', stateId: 'penang', difficulty: 'easy',
+    id: 'penang-q8', stateId: 'penang', difficulty: 'easy', category: 'landmark',
     q: 'How do visitors get to the top of Bukit Bendera (Penang Hill)?',
     image: '../assets/content/Penang/bukit_bendera.jpeg',
     opts: ['A funicular train', 'A boat', 'A submarine', 'A hot-air balloon'],
     ans: 0,
     explain: 'Bukit Bendera — Penang Hill — is reached by a funicular train that climbs steeply up for cool air and big views!',
   },
+  {
+    id: 'penang-q9', stateId: 'penang', difficulty: 'medium', category: 'costume',
+    q: 'What beaded slippers does the Nyonya wear with her Kebaya?',
+    opts: ['Kasut Manek', 'Selipar', 'Capal', 'Terompah'],
+    ans: 0,
+    explain: 'Kasut Manek are handmade slippers covered in tiny colourful glass beads, worn with the Nyonya Kebaya!',
+  },
+  {
+    id: 'penang-q10', stateId: 'penang', difficulty: 'medium', category: 'festival',
+    q: 'What small, sharp metal spear is a special symbol at Thaipusam?',
+    opts: ['The vel', 'The keris', 'The parang', 'The trisula'],
+    ans: 0,
+    explain: 'A vel is a small, sharp metal spear — a special symbol you see during Thaipusam!',
+  },
 
   // ── Selangor ────────────────────────────────────────────────────────────────
   {
-    id: 'selangor-q1', stateId: 'selangor', difficulty: 'easy',
+    id: 'selangor-q1', stateId: 'selangor', difficulty: 'easy', category: 'landmark',
     q: 'How many steps lead up to the Batu Caves temple?',
     opts: ['100', '200', '272', '300'],
     ans: 2,
     explain: 'There are exactly 272 colourful steps leading up to the main temple at Batu Caves in Selangor!',
   },
   {
-    id: 'selangor-q2', stateId: 'selangor', difficulty: 'easy',
+    id: 'selangor-q2', stateId: 'selangor', difficulty: 'easy', category: 'general',
     q: 'Which major city does Selangor wrap all the way around?',
-    opts: ['Kuala Lumpur', 'Johor Bahru', 'Ipoh', 'Georgetown'],
+    opts: ['Kuala Lumpur', 'Johor Bahru', 'Ipoh', 'George Town'],
     ans: 0,
     explain: 'Selangor wraps right around Kuala Lumpur, Malaysia\'s capital city!',
   },
   {
-    id: 'selangor-q3', stateId: 'selangor', difficulty: 'medium',
+    id: 'selangor-q3', stateId: 'selangor', difficulty: 'medium', category: 'general',
     q: 'What amazing natural light show can you see in Selangor\'s mangroves at night?',
     opts: ['Glowing mushrooms', 'Fireflies', 'Shooting stars', 'Lanterns'],
     ans: 1,
     explain: 'Thousands of fireflies light up the mangrove trees along the Selangor River like tiny twinkling lights!',
   },
   {
-    id: 'selangor-q4', stateId: 'selangor', difficulty: 'medium',
+    id: 'selangor-q4', stateId: 'selangor', difficulty: 'medium', category: 'food',
     q: 'What is Satay Kajang dipped in?',
     image: '../assets/content/Selangor/peanut_sauce.png',
     opts: ['Peanut Sauce', 'Chili Sauce', 'Soy Sauce', 'Tomato Sauce'],
@@ -110,7 +128,7 @@ export const QUIZ_QUESTIONS = [
     explain: 'Kajang satay is served with a sweet, nutty peanut sauce for dipping!',
   },
   {
-    id: 'selangor-q5', stateId: 'selangor', difficulty: 'medium',
+    id: 'selangor-q5', stateId: 'selangor', difficulty: 'medium', category: 'festival',
     q: 'This leaf-skirt dance is performed at which Selangor festival?',
     image: '../assets/content/Selangor/mayin_jo_oh.jpg',
     opts: ['Hari Moyang', 'Pesta Kaamatan', 'Gawai Dayak', 'Thaipusam'],
@@ -118,16 +136,44 @@ export const QUIZ_QUESTIONS = [
     explain: 'The Main Jo-oh dance is performed by the sea during Hari Moyang, the Mah Meri ancestor festival!',
   },
   {
-    id: 'selangor-q6', stateId: 'selangor', difficulty: 'hard',
+    id: 'selangor-q6', stateId: 'selangor', difficulty: 'hard', category: 'festival',
     q: 'Who performs the Main Jo-oh dance during Hari Moyang?',
     opts: ['The Mah Meri people', 'The Iban people', 'The Kadazan people', 'The Chinese community'],
     ans: 0,
     explain: 'The Main Jo-oh is danced by the Mah Meri people of Carey Island to thank their ancestors by the sea.',
   },
+  {
+    id: 'selangor-q7', stateId: 'selangor', difficulty: 'easy', category: 'food',
+    q: 'What little rice cakes are eaten with Satay Kajang?',
+    opts: ['Ketupat', 'Lemang', 'Dodol', 'Wajik'],
+    ans: 0,
+    explain: 'Ketupat are little woven rice cakes that soak up the tasty peanut sauce!',
+  },
+  {
+    id: 'selangor-q8', stateId: 'selangor', difficulty: 'easy', category: 'costume',
+    q: 'What long, flowing outfit do Selangor Malay women wear on special days?',
+    opts: ['Baju Kurung', 'Cheongsam', 'Sari', 'Kimono'],
+    ans: 0,
+    explain: 'The Baju Kurung is a long, loose blouse-and-skirt outfit worn by Malay women!',
+  },
+  {
+    id: 'selangor-q9', stateId: 'selangor', difficulty: 'easy', category: 'costume',
+    q: 'What soft cap do Malay men wear with the Baju Melayu?',
+    opts: ['Songkok', 'Tengkolok', 'Beret', 'Turban'],
+    ans: 0,
+    explain: 'The songkok is a soft cap Malay men wear for ceremonies and special days!',
+  },
+  {
+    id: 'selangor-q10', stateId: 'selangor', difficulty: 'medium', category: 'landmark',
+    q: 'Which Selangor place is famous for thousands of fireflies twinkling at night?',
+    opts: ['Kuala Selangor', 'Port Klang', 'Sepang', 'Rawang'],
+    ans: 0,
+    explain: 'At Kuala Selangor, fireflies light up the mangrove trees at night like tiny fairy lights!',
+  },
 
   // ── Kelantan ────────────────────────────────────────────────────────────────
   {
-    id: 'kelantan-q2', stateId: 'kelantan', difficulty: 'medium',
+    id: 'kelantan-q2', stateId: 'kelantan', difficulty: 'medium', category: 'festival',
     q: 'What is "Wayang Kulit"?',
     image: '../assets/content/Kelantan/wayang_kulit.jpg',
     opts: ['A type of kite', 'A shadow puppet show', 'A dance style', 'A type of batik'],
@@ -135,14 +181,14 @@ export const QUIZ_QUESTIONS = [
     explain: 'Wayang Kulit is a traditional shadow puppet show where a skilled puppeteer tells ancient stories using leather puppets behind a lit screen!',
   },
   {
-    id: 'kelantan-q3', stateId: 'kelantan', difficulty: 'easy',
+    id: 'kelantan-q3', stateId: 'kelantan', difficulty: 'easy', category: 'general',
     q: 'Which country does Kelantan border in the north?',
     opts: ['Indonesia', 'Thailand', 'Singapore', 'Brunei'],
     ans: 1,
     explain: 'Kelantan is in the northeast of Peninsular Malaysia and shares a border with Thailand!',
   },
   {
-    id: 'kelantan-q4', stateId: 'kelantan', difficulty: 'medium',
+    id: 'kelantan-q4', stateId: 'kelantan', difficulty: 'medium', category: 'food',
     q: 'This blue flower colours Nasi Kerabu\'s rice. What is it called?',
     image: '../assets/content/Kelantan/butterfly_pea.png',
     opts: ['Butterfly Pea', 'Hibiscus', 'Rose', 'Jasmine'],
@@ -150,51 +196,86 @@ export const QUIZ_QUESTIONS = [
     explain: 'Butterfly-pea flowers (bunga telang) give Nasi Kerabu its natural blue colour — no artificial dye at all!',
   },
   {
-    id: 'kelantan-q5', stateId: 'kelantan', difficulty: 'hard',
+    id: 'kelantan-q5', stateId: 'kelantan', difficulty: 'hard', category: 'costume',
     q: 'Kelantan\'s royal costume, inspired by a legendary warrior queen, is called?',
     opts: ['Cik Siti Wan Kembang', 'Ngepan', 'Baju Kedah', 'Kebaya'],
     ans: 0,
     explain: 'The Cik Siti Wan Kembang costume is inspired by a legendary 17th-century warrior queen of Kelantan!',
   },
   {
-    id: 'kelantan-q6', stateId: 'kelantan', difficulty: 'hard',
+    id: 'kelantan-q6', stateId: 'kelantan', difficulty: 'hard', category: 'general',
     q: 'What is Kelantan\'s traditional fabric art, made with wax and dye, called?',
     opts: ['Batik', 'Songket', 'Ngajat', 'Ikat'],
     ans: 0,
     explain: 'Batik Kelantan uses wax and dye to make beautiful floral patterns — recognised by UNESCO as a cultural treasure in 2009!',
   },
+  {
+    id: 'kelantan-q7', stateId: 'kelantan', difficulty: 'easy', category: 'food',
+    q: 'What crunchy snack is served on the side of Nasi Kerabu?',
+    opts: ['Keropok (prawn crackers)', 'Popcorn', 'Potato chips', 'Biscuits'],
+    ans: 0,
+    explain: 'Crunchy keropok (prawn crackers) add a lovely crunch to the naturally-blue Nasi Kerabu!',
+  },
+  {
+    id: 'kelantan-q8', stateId: 'kelantan', difficulty: 'medium', category: 'costume',
+    q: 'What is the golden crown of the Cik Siti Wan Kembang costume called?',
+    opts: ['Gandik', 'Tengkolok', 'Destar', 'Tanjak'],
+    ans: 0,
+    explain: 'The Gandik is a royal crown made of gold and precious stones!',
+  },
+  {
+    id: 'kelantan-q9', stateId: 'kelantan', difficulty: 'easy', category: 'landmark',
+    q: 'What are Kelantan\'s colourful hand-painted fishing boats called?',
+    opts: ['Perahu Kolek', 'Sampan', 'Tongkang', 'Biduk'],
+    ans: 0,
+    explain: 'Perahu Kolek are Kelantan\'s hand-painted fishing boats — people call them "floating works of art"!',
+  },
+  {
+    id: 'kelantan-q10', stateId: 'kelantan', difficulty: 'easy', category: 'landmark',
+    q: 'What is the capital city of Kelantan?',
+    opts: ['Kota Bharu', 'Kuala Terengganu', 'Kuantan', 'Alor Setar'],
+    ans: 0,
+    explain: 'Kota Bharu is the capital city of Kelantan, full of busy markets and craft villages!',
+  },
+  {
+    id: 'kelantan-q11', stateId: 'kelantan', difficulty: 'medium', category: 'festival',
+    q: 'How long can a Wayang Kulit shadow-puppet show last?',
+    opts: ['All night, from dusk to dawn', 'About ten minutes', 'One hour', 'A whole week'],
+    ans: 0,
+    explain: 'A single Wayang Kulit performance can last from dusk until dawn — the whole night!',
+  },
 
   // ── Kedah ───────────────────────────────────────────────────────────────────
   {
-    id: 'kedah-q1', stateId: 'kedah', difficulty: 'easy',
+    id: 'kedah-q1', stateId: 'kedah', difficulty: 'easy', category: 'general',
     q: 'What is the name of Kedah\'s traditional opening dance?',
     opts: ['Cinta Sayang', 'Zapin', 'Joget', 'Sumazau'],
     ans: 0,
     explain: 'Cinta Sayang is a traditional Malay dance from Kedah, often performed to open important events!',
   },
   {
-    id: 'kedah-q2', stateId: 'kedah', difficulty: 'easy',
+    id: 'kedah-q2', stateId: 'kedah', difficulty: 'easy', category: 'landmark',
     q: 'Which famous sky bridge is found in Kedah\'s Langkawi?',
     opts: ['Langkawi Sky Bridge', 'Penang Bridge', 'Saloma Bridge', 'Second Link'],
     ans: 0,
     explain: 'The Langkawi Sky Bridge sits high on Gunung Mat Cincang, about 700 m above the sea!',
   },
   {
-    id: 'kedah-q3', stateId: 'kedah', difficulty: 'easy',
+    id: 'kedah-q3', stateId: 'kedah', difficulty: 'easy', category: 'costume',
     q: 'What is the traditional women\'s costume of Kedah called?',
     opts: ['Baju Kedah', 'Cheongsam', 'Saree', 'Baju Melayu'],
     ans: 0,
     explain: 'Baju Kedah is a short hip-length tunic with three-quarter sleeves, worn with a matching skirt and a silver belt.',
   },
   {
-    id: 'kedah-q4', stateId: 'kedah', difficulty: 'easy',
+    id: 'kedah-q4', stateId: 'kedah', difficulty: 'easy', category: 'general',
     q: 'What is the main city (capital) of Kedah?',
     opts: ['Alor Setar', 'Kota Bharu', 'Ipoh', 'Kuantan'],
     ans: 0,
     explain: 'Alor Setar is the capital city of Kedah, in the northwest of Malaysia.',
   },
   {
-    id: 'kedah-q5', stateId: 'kedah', difficulty: 'medium',
+    id: 'kedah-q5', stateId: 'kedah', difficulty: 'medium', category: 'food',
     q: 'This fresh herb makes Laksa Kedah smell wonderful. What is it?',
     image: '../assets/content/Kedah/mint_leaf.png',
     opts: ['Mint Leaves', 'Basil', 'Coriander', 'Parsley'],
@@ -202,7 +283,7 @@ export const QUIZ_QUESTIONS = [
     explain: 'Fresh mint (daun kesum) gives Laksa Kedah its lovely fragrant taste!',
   },
   {
-    id: 'kedah-q6', stateId: 'kedah', difficulty: 'easy',
+    id: 'kedah-q6', stateId: 'kedah', difficulty: 'easy', category: 'general',
     q: 'What dance are these Kedah dancers performing?',
     image: '../assets/content/Kedah/kedah_cinta_sayang.jpg',
     opts: ['Cinta Sayang', 'Zapin', 'Ngajat', 'Sumazau'],
@@ -210,30 +291,66 @@ export const QUIZ_QUESTIONS = [
     explain: 'Cinta Sayang is Kedah\'s favourite opening dance, performed at important celebrations!',
   },
   {
-    id: 'kedah-q7', stateId: 'kedah', difficulty: 'hard',
+    id: 'kedah-q7', stateId: 'kedah', difficulty: 'hard', category: 'general',
     q: 'Why is Kedah nicknamed "Jelapang Padi"?',
     opts: ['It grows most of Malaysia\'s rice', 'It has the most padi museums', 'It exports the most rice bowls', 'It has the biggest granary building'],
     ans: 0,
     explain: '"Jelapang Padi" means Rice Bowl — Kedah\'s wide, golden paddy fields grow much of the country\'s rice!',
   },
+  {
+    id: 'kedah-q8', stateId: 'kedah', difficulty: 'easy', category: 'festival',
+    q: 'What does the Kedah Paddy Festival celebrate?',
+    image: '../assets/content/Kedah/kedah_entry_background.avif',
+    opts: ['The rice harvest', 'The fishing season', 'The new year', 'A royal wedding'],
+    ans: 0,
+    explain: 'The Kedah Paddy Festival is a big thank-you for the rice harvest, with music, dancing and food!',
+  },
+  {
+    id: 'kedah-q9', stateId: 'kedah', difficulty: 'medium', category: 'food',
+    q: 'What fish is mashed to make the thick gravy of Laksa Kedah?',
+    opts: ['Mackerel', 'Salmon', 'Tuna', 'Anchovy'],
+    ans: 0,
+    explain: 'The thick, tangy gravy of Laksa Kedah is made from mashed mackerel fish!',
+  },
+  {
+    id: 'kedah-q10', stateId: 'kedah', difficulty: 'medium', category: 'costume',
+    q: 'What shiny accessory is worn with the Baju Kedah?',
+    opts: ['A silver belt', 'A gold crown', 'A feather cape', 'A straw hat'],
+    ans: 0,
+    explain: 'Baju Kedah is worn with a pretty silver belt that shows through the thin, floral cloth!',
+  },
+  {
+    id: 'kedah-q11', stateId: 'kedah', difficulty: 'easy', category: 'landmark',
+    q: 'What giant bird statue is the proud symbol of Langkawi?',
+    opts: ['An eagle', 'A hornbill', 'An owl', 'A peacock'],
+    ans: 0,
+    explain: 'The giant eagle at Dataran Lang is Langkawi\'s symbol — "Langkawi" comes from the reddish-brown eagle!',
+  },
+  {
+    id: 'kedah-q12', stateId: 'kedah', difficulty: 'easy', category: 'festival',
+    q: 'How do people celebrate the Kedah Paddy Festival?',
+    opts: ['With music, dancing and food', 'By staying quiet indoors', 'With ice skating', 'By flying planes'],
+    ans: 0,
+    explain: 'The Kedah Paddy Festival is a lively celebration with music, dancing and delicious food!',
+  },
 
   // ── Sabah ───────────────────────────────────────────────────────────────────
   {
-    id: 'sabah-q1', stateId: 'sabah', difficulty: 'easy',
+    id: 'sabah-q1', stateId: 'sabah', difficulty: 'easy', category: 'landmark',
     q: 'What is the height of Mount Kinabalu?',
     opts: ['2,000 metres', '3,000 metres', '4,095 metres', '5,000 metres'],
     ans: 2,
     explain: 'Mount Kinabalu is 4,095 metres above sea level — the highest mountain in Malaysia and a UNESCO World Heritage Site!',
   },
   {
-    id: 'sabah-q2', stateId: 'sabah', difficulty: 'easy',
+    id: 'sabah-q2', stateId: 'sabah', difficulty: 'easy', category: 'general',
     q: 'What is Sabah\'s well-known nickname?',
     opts: ['Land of the Hornbills', 'Land Below the Wind', 'Pearl of the Orient', 'Garden City'],
     ans: 1,
     explain: 'Sabah is called the "Land Below the Wind" because it sits just below the typhoon belt!',
   },
   {
-    id: 'sabah-q3', stateId: 'sabah', difficulty: 'medium',
+    id: 'sabah-q3', stateId: 'sabah', difficulty: 'medium', category: 'food',
     q: 'What ingredient "cooks" the fish in Hinava without any fire at all?',
     image: '../assets/content/Sabah/lime_juice.png',
     opts: ['Lime Juice', 'Vinegar', 'Hot Water', 'Soy Sauce'],
@@ -241,7 +358,7 @@ export const QUIZ_QUESTIONS = [
     explain: 'Sour lime juice "cooks" the raw fish in Hinava all by itself — that\'s why it\'s sometimes called the "sushi of Sabah"!',
   },
   {
-    id: 'sabah-q4', stateId: 'sabah', difficulty: 'medium',
+    id: 'sabah-q4', stateId: 'sabah', difficulty: 'medium', category: 'festival',
     q: 'The Sumazau dance is performed at which Sabah festival?',
     image: '../assets/content/Sabah/sumazau_dance.png',
     opts: ['Pesta Kaamatan', 'Gawai Dayak', 'Hari Moyang', 'Thaipusam'],
@@ -249,44 +366,72 @@ export const QUIZ_QUESTIONS = [
     explain: 'Dancers spread their arms like a bird during the Sumazau, danced at Pesta Kaamatan — the Kadazandusun harvest festival!',
   },
   {
-    id: 'sabah-q5', stateId: 'sabah', difficulty: 'medium',
+    id: 'sabah-q5', stateId: 'sabah', difficulty: 'medium', category: 'general',
     q: 'Why does the giant Rafflesia flower smell so bad?',
     opts: ['To attract flies for pollination', 'To scare away visitors', 'Because it is rotting', 'To keep away the rain'],
     ans: 0,
     explain: 'The Rafflesia\'s stinky, rotten-meat smell attracts flies to help it make seeds!',
   },
   {
-    id: 'sabah-q6', stateId: 'sabah', difficulty: 'hard',
+    id: 'sabah-q6', stateId: 'sabah', difficulty: 'hard', category: 'festival',
     q: 'In Kadazandusun belief, who is Bambaazon, honoured during Pesta Kaamatan?',
     opts: ['The spirit of the rice', 'A legendary queen', 'A mountain god', 'A sea creature'],
     ans: 0,
     explain: 'Pesta Kaamatan gives thanks to Bambaazon, the spirit of the rice harvest, with music, dance, and a beauty parade.',
   },
+  {
+    id: 'sabah-q7', stateId: 'sabah', difficulty: 'easy', category: 'food',
+    q: 'Besides lime, what fresh root makes the Hinava salad smell wonderful?',
+    opts: ['Ginger', 'Garlic', 'Turmeric', 'Lemongrass'],
+    ans: 0,
+    explain: 'Fresh ginger gives the Hinava fresh-fish salad its lovely fragrant smell!',
+  },
+  {
+    id: 'sabah-q8', stateId: 'sabah', difficulty: 'medium', category: 'costume',
+    q: 'What is the Kadazan woman\'s sleeveless black velvet top called?',
+    opts: ['Sinuangga', 'Kebaya', 'Cheongsam', 'Baju Kurung'],
+    ans: 0,
+    explain: 'The Sinuangga is a short, sleeveless black velvet blouse worn by Kadazan Penampang women!',
+  },
+  {
+    id: 'sabah-q9', stateId: 'sabah', difficulty: 'medium', category: 'costume',
+    q: 'What woven cloth do Kadazan men fold and wear on their heads?',
+    opts: ['Siga', 'Songkok', 'Tanjak', 'Turban'],
+    ans: 0,
+    explain: 'The Siga is a hand-woven cloth the Kadazan men fold into a cap and wear on their heads!',
+  },
+  {
+    id: 'sabah-q10', stateId: 'sabah', difficulty: 'easy', category: 'landmark',
+    q: 'Where in Sabah can you see how the tribes lived long ago?',
+    opts: ['Mari Mari Cultural Village', 'Petronas Towers', 'Batu Caves', 'A shopping mall'],
+    ans: 0,
+    explain: 'Mari Mari Cultural Village shows Sabah\'s traditional tribal houses and old ways of life!',
+  },
 
   // ── Sarawak ─────────────────────────────────────────────────────────────────
   {
-    id: 'sarawak-q1', stateId: 'sarawak', difficulty: 'easy',
+    id: 'sarawak-q1', stateId: 'sarawak', difficulty: 'easy', category: 'general',
     q: 'Why is Sarawak called the "Land of the Hornbills"?',
     opts: ['People wear horns', 'The hornbill bird is its symbol', 'Mountains look like horns', 'Horns are made there'],
     ans: 1,
     explain: 'The Rhinoceros Hornbill is Sarawak\'s state bird and symbol — that\'s why it\'s called the Land of the Hornbills!',
   },
   {
-    id: 'sarawak-q2', stateId: 'sarawak', difficulty: 'medium',
+    id: 'sarawak-q2', stateId: 'sarawak', difficulty: 'medium', category: 'landmark',
     q: "What flies out of Gunung Mulu's caves in their millions every evening?",
     opts: ['Bats', 'Hornbills', 'Butterflies', 'Bees'],
     ans: 0,
     explain: 'Every evening, millions of bats stream out of the giant caves at Gunung Mulu in a spectacular show!',
   },
   {
-    id: 'sarawak-q3', stateId: 'sarawak', difficulty: 'easy',
+    id: 'sarawak-q3', stateId: 'sarawak', difficulty: 'easy', category: 'general',
     q: 'How does Sarawak compare in size to other Malaysian states?',
     opts: ['It is the smallest', 'It is the largest', 'It is the highest', 'It is the newest'],
     ans: 1,
     explain: 'Sarawak is the largest state in Malaysia by land area — bigger than any other state!',
   },
   {
-    id: 'sarawak-q4', stateId: 'sarawak', difficulty: 'medium',
+    id: 'sarawak-q4', stateId: 'sarawak', difficulty: 'medium', category: 'food',
     q: 'What crispy topping is sprinkled on Kolo Mee?',
     image: '../assets/content/Sarawak/fried_onion.png',
     opts: ['Fried Onions', 'Fried Garlic', 'Peanuts', 'Sesame Seeds'],
@@ -294,7 +439,7 @@ export const QUIZ_QUESTIONS = [
     explain: 'Crispy fried onions add a lovely crunch and aroma to Sarawak\'s favourite noodle dish, Kolo Mee!',
   },
   {
-    id: 'sarawak-q5', stateId: 'sarawak', difficulty: 'medium',
+    id: 'sarawak-q5', stateId: 'sarawak', difficulty: 'medium', category: 'costume',
     q: 'What is the traditional dress of Iban women called?',
     image: '../assets/content/Sarawak/ngepan.png',
     opts: ['Ngepan', 'Baju Kedah', 'Kebaya', 'Sinuangga'],
@@ -302,10 +447,38 @@ export const QUIZ_QUESTIONS = [
     explain: 'Ngepan is the traditional dress of Iban women, with a tall silver headdress and shiny coin belts!',
   },
   {
-    id: 'sarawak-q6', stateId: 'sarawak', difficulty: 'hard',
+    id: 'sarawak-q6', stateId: 'sarawak', difficulty: 'hard', category: 'festival',
     q: 'What is Gawai Dayak celebrated for?',
     opts: ['Thanking for the rice harvest', 'Welcoming the new year', 'A wedding tradition', 'A fishing festival'],
     ans: 0,
     explain: 'Gawai Dayak, held every June, gives thanks for the rice harvest with decorated longhouses, dancing, and games!',
+  },
+  {
+    id: 'sarawak-q7', stateId: 'sarawak', difficulty: 'easy', category: 'food',
+    q: 'How are the springy egg noodles in Kolo Mee served?',
+    opts: ['Tossed dry, not in soup', 'In a big bowl of soup', 'Deep-fried', 'Frozen'],
+    ans: 0,
+    explain: 'Kolo Mee noodles are tossed dry — not in soup! — with a bowl of clear soup on the side.',
+  },
+  {
+    id: 'sarawak-q8', stateId: 'sarawak', difficulty: 'medium', category: 'costume',
+    q: 'What tall, shiny silver headdress do Iban women wear with the Ngepan?',
+    opts: ['Sugu Tinggi', 'Gandik', 'Siga', 'Songkok'],
+    ans: 0,
+    explain: 'The Sugu Tinggi is a tall, shining silver headdress worn with the Iban Ngepan dress!',
+  },
+  {
+    id: 'sarawak-q9', stateId: 'sarawak', difficulty: 'easy', category: 'landmark',
+    q: 'Which funny long-nosed monkey lives only on Borneo, near Kuching?',
+    opts: ['Proboscis monkey', 'Orangutan', 'Gibbon', 'Macaque'],
+    ans: 0,
+    explain: 'The proboscis monkey, with its big funny nose, lives only on Borneo — spot it at Bako National Park!',
+  },
+  {
+    id: 'sarawak-q10', stateId: 'sarawak', difficulty: 'medium', category: 'festival',
+    q: 'What proud warrior dance is performed at Gawai Dayak?',
+    opts: ['Ngajat', 'Sumazau', 'Zapin', 'Joget'],
+    ans: 0,
+    explain: 'The Ngajat is a proud Iban warrior dance performed at the Gawai Dayak harvest festival!',
   },
 ];

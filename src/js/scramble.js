@@ -8,10 +8,11 @@ import { renderTopbar, renderNavbar, requireAuth, getStateParam, flyPoints } fro
 import { getState } from './data/states.js';
 import { scrambleWordsFor } from './data/scramble.js';
 import { costumeWordsFor } from './data/costumeMissions.js';
-import { paramsFor } from './data/difficulty.js';
+import { paramsFor, missionCount } from './data/difficulty.js';
 import { showPopup } from './components/popup.js';
 import { initHowToPlay } from './components/howToPlay.js';
 import { launchContext } from './utils/launchContext.js';
+import { shuffle } from './utils/shuffle.js';
 import Sound from './utils/sound.js';
 
 requireAuth();
@@ -59,15 +60,22 @@ else if (fromActivities) scrNext.textContent = '🎮 Back to Activities';
 // Difficulty tunes the set size: Explorer plays only the shortest couple of
 // words, Adventurer plays them all. Both levels can tap letters OR type them.
 const scrParams = paramsFor('scramble');
-// The Dancer mission teaches costume: reuse the exact garment names the mission
-// spotlight just taught (Discover → Play), so unscrambling reinforces real
-// vocabulary. Everywhere else, derive words from the state's own card data.
-const costumeWords = (fromMission && missionId === 'dancer') ? costumeWordsFor(stateId) : [];
-let words = costumeWords.length ? costumeWords : scrambleWordsFor(state);
-if (scrParams.count !== 'all') {
-  words = [...words]
+const isDancerMission = fromMission && missionId === 'dancer';
+let words;
+if (isDancerMission) {
+  // Mission 2: reinforce the exact garment names the costume spotlight just taught
+  // (Discover → Play). Shortest-first so Explorer gets the easier words. Short,
+  // focused set — Explorer 2, Adventurer 4 (missionCount).
+  words = [...costumeWordsFor(stateId)]
     .sort((a, b) => a.answer.length - b.answer.length)
-    .slice(0, scrParams.count);
+    .slice(0, missionCount());
+} else {
+  // Activities Hub / free play: a MIXED cultural word bank for the state — food,
+  // costume, landmark and festival words (≥10 per state, see data/scramble.js) —
+  // drawn at RANDOM so each play surfaces a different set to explore (Explorer 4,
+  // Adventurer 8).
+  words = shuffle(scrambleWordsFor(state));
+  if (scrParams.count !== 'all') words = words.slice(0, scrParams.count);
 }
 const POINTS_PER_WORD = 10;
 const HINT_COST = 5;

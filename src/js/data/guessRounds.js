@@ -38,7 +38,7 @@ export const GUESS_ROUNDS = [
     hints: [
       'I am an island state on the northwest coast of Malaysia.',
       'I am called the "Food Capital of Malaysia"!',
-      'My capital city, Georgetown, is a UNESCO World Heritage Site.',
+      'My capital city, George Town, is a UNESCO World Heritage Site.',
       'My Char Kway Teow is cooked in a super-hot wok — in under 2 minutes flat!',
     ],
     pointValues: [20, 15, 10, 5],

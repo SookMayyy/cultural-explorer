@@ -11,8 +11,8 @@ export const STATES_DATA = [
     tagline: 'Pearl of the Orient',
     // 📸 Entry background (narrative scene + mission-flow backdrop, like Kedah).
     entryBg: '../assets/content/Penang/penang_background.png',
-    story: `Penang is a beautiful island state on the northwest coast of Malaysia. It is famous for its amazing mix of cultures — Malay, Chinese, Indian, and more! Georgetown, the capital, is a UNESCO World Heritage Site full of colourful street art and old shophouses. Penang is also known as the "Food Capital of Malaysia" because of its delicious street food!`,
-    dialectWord: { word: 'Laksa', meaning: 'Spicy noodle soup unique to Penang', pronunciation: 'lak-sah' },
+    story: `Penang is a beautiful island state on the northwest coast of Malaysia. It is famous for its amazing mix of cultures — Malay, Chinese, Indian, and more! George Town, the capital, is a UNESCO World Heritage Site full of colourful street art and old shophouses. Penang is also known as the "Food Capital of Malaysia" because of its delicious street food!`,
+    dialectWord: { word: 'Laksa', meaning: 'A sour, tangy fish noodle soup unique to Penang', pronunciation: 'lak-sah' },
     cards: [
       {
         id: 'penang-1',
@@ -30,12 +30,12 @@ export const STATES_DATA = [
         id: 'penang-2',
         category: 'Landmark',
         icon: '🕌',
-        title: 'Georgetown Heritage',
-        desc: 'Georgetown is the capital city of Penang. Its old town is a UNESCO World Heritage Site with beautiful old buildings, colourful street art, and mix of Malay, Chinese, Indian, and European cultures!',
-        funFact: 'Georgetown is one of only two UNESCO World Heritage cities in Malaysia — the other is Melaka!',
-        mascotLine: 'Georgetown is like a living museum! Every street has a story to tell.',
+        title: 'George Town Heritage',
+        desc: 'George Town is the capital city of Penang. Its old town is a UNESCO World Heritage Site with beautiful old buildings, colourful street art, and mix of Malay, Chinese, Indian, and European cultures!',
+        funFact: 'George Town is one of only two UNESCO World Heritage cities in Malaysia — the other is Melaka!',
+        mascotLine: 'George Town is like a living museum! Every street has a story to tell.',
         // 📸 IMAGE NEEDED: penang-georgetown.png
-        // Export from Figma → Cards/Penang/Landmark — Georgetown heritage street illustration
+        // Export from Figma → Cards/Penang/Landmark — George Town heritage street illustration
         image: null,
       },
       {
@@ -70,7 +70,7 @@ export const STATES_DATA = [
     dragPairs: [
       { image: '../assets/content/Penang/char_kway_teow.jpg', icon: '🍜', label: 'Char Kway Teow', match: 'The traditional food — smoky fried noodles' },
       { image: '../assets/content/Penang/baba_nyonya_kebaya.png', icon: '👘', label: 'Baba Nyonya Kebaya', match: 'The traditional costume' },
-      { image: '../assets/content/Penang/george_town.jpg', icon: '🏛️', label: 'Georgetown', match: 'A famous place to visit' },
+      { image: '../assets/content/Penang/george_town.jpg', icon: '🏛️', label: 'George Town', match: 'A famous place to visit' },
       { image: '../assets/content/Penang/thaipusam_festival.jpg', icon: '🎆', label: 'Thaipusam', match: 'A special celebration' },
     ],
     quizQuestion: {
@@ -219,10 +219,12 @@ export const STATES_DATA = [
       },
       {
         id: 'kelantan-2',
-        category: 'Festival',
+        // A traditional performance art, not a festival — labelled 'Art' so the
+        // badge and copy are honest (it's iconic Kelantan culture either way).
+        category: 'Art',
         icon: '🎭',
         title: 'Wayang Kulit',
-        desc: 'Wayang Kulit is a traditional shadow puppet show. A skilled puppeteer called a "Tok Dalang" moves flat leather puppets behind a lit screen to tell stories from Malay folklore. A bright lamp turns the puppets into moving shadows, and the music is played live!',
+        desc: 'Wayang Kulit is a traditional shadow-puppet performance. A skilled puppeteer called a "Tok Dalang" moves flat leather puppets behind a lit screen to tell stories from Malay folklore. A bright lamp turns the puppets into moving shadows, and the music is played live!',
         funFact: 'A single Wayang Kulit performance can last from dusk until dawn — the whole night!',
         mascotLine: 'The shadow puppets look magical dancing on the screen — the stories come alive!',
         image: '../assets/content/Kelantan/wayang_kulit.jpg',
@@ -356,13 +358,13 @@ export const STATES_DATA = [
         image: null,
       },
     ],
-    // ⚠️ Kedah ships no dedicated Baju Kedah costume photo yet — reusing the
-    // Cinta Sayang dance photo (kedah_cinta_sayang.jpg), which shows dancers
-    // wearing the traditional costume. Swap in a real Baju Kedah photo if/when
-    // one is added to assets/content/Kedah/.
+    // ⚠️ Kedah ships no dedicated women's Baju Kedah costume photo yet — the
+    // costume slot reuses the Cinta Sayang dance photo (kedah_cinta_sayang.jpg,
+    // a male dancer), so it's honestly labelled the "Cinta Sayang costume" here.
+    // Swap in a real Baju Kedah photo + label if/when one is added.
     dragPairs: [
       { image: '../assets/content/Kedah/kedah_laksa.png', icon: '🍜', label: 'Kedah Laksa', match: 'The traditional food — tangy fish laksa' },
-      { image: '../assets/content/Kedah/kedah_cinta_sayang.jpg', icon: '👗', label: 'Baju Kedah', match: 'The traditional costume' },
+      { image: '../assets/content/Kedah/kedah_cinta_sayang.jpg', icon: '👗', label: 'Cinta Sayang costume', match: 'The traditional costume' },
       { image: '../assets/content/Kedah/langkawi_sky_bridge.avif', icon: '🌉', label: 'Langkawi Sky Bridge', match: 'A famous place to visit' },
       { image: '../assets/content/Kedah/kedah_entry_background.avif', icon: '🌾', label: 'Kedah Paddy Festival', match: 'A special celebration' },
     ],

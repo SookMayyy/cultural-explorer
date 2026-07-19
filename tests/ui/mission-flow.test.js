@@ -9,13 +9,16 @@ const { url, launchBrowser, newSeededPage, settle } = require('./helpers');
 
 const MISSION_BONUS = 25;
 
-// A fake Web Speech API whose utterances finish after ~60ms. Lets us test with
-// voice genuinely ON (not muted) but without waiting on real narration — the
-// only way to observe the gates that hold the UI back *while a line is playing*.
-// Headless Chrome ships no TTS voices, so without this the real code would fall
-// through to its 8s safety timers and the suite would crawl.
-// `speechSynthesis` is a read-only attribute on Window — a plain assignment
-// silently does nothing, so both must be installed with defineProperty.
+// A fake narration layer whose lines finish after ~60ms. Lets us test with voice
+// genuinely ON (not muted) but without waiting on real narration — the only way
+// to observe the gates that hold the UI back *while a line is playing*.
+// Two paths must both be sped up: `voice.js` plays a recorded **MP3** (`new Audio`)
+// when a clip exists for the line (they now do — see js/data/voClips.js), and
+// falls back to the **Web Speech API** otherwise. Headless Chrome ships no TTS
+// voices and would not really play the MP3 either, so without these stubs the real
+// code would sit on its 8s safety timers and the suite would crawl.
+// `speechSynthesis`/`Audio` are read-only on Window — a plain assignment silently
+// does nothing, so they must be installed with defineProperty.
 const FAST_TTS = () => {
   Object.defineProperty(window, 'SpeechSynthesisUtterance', {
     configurable: true,
@@ -27,6 +30,20 @@ const FAST_TTS = () => {
       speak(u) { setTimeout(() => u.onend && u.onend(), 60); },
       cancel() {},
       getVoices() { return []; },
+    },
+  });
+  // Fake <audio>: any clip "ends" after ~60ms so recorded MP3 narration is as fast
+  // as the TTS stub. Tolerates the property writes voice.js/music.js make (volume,
+  // loop, currentTime …) since instances take arbitrary assignments.
+  Object.defineProperty(window, 'Audio', {
+    configurable: true,
+    value: class FakeAudio {
+      constructor(src) { this.src = src; this._h = {}; }
+      addEventListener(ev, cb) { this._h[ev] = cb; }
+      removeEventListener(ev) { delete this._h[ev]; }
+      play() { setTimeout(() => this._h.ended && this._h.ended(), 60); return Promise.resolve(); }
+      pause() {}
+      load() {}
     },
   });
 };

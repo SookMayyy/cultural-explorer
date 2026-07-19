@@ -15,7 +15,11 @@
 
 export const COSTUME_MISSIONS = {
   kedah: {
-    costumeName: 'Baju Kedah',
+    // The photo (kedah_cinta_sayang.jpg) shows a MALE Cinta Sayang dancer, and the
+    // hotspots/scramble teach men's garments (songkok, Baju Melayu, samping,
+    // selendang) — so the mission is honestly named the dance costume it shows, not
+    // "Baju Kedah" (the women's outfit, taught separately in the narrative card).
+    costumeName: 'Cinta Sayang dance costume',
     danceName: 'Cinta Sayang',
     image: '../assets/content/Kedah/kedah_cinta_sayang.jpg',
 

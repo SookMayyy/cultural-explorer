@@ -18,12 +18,14 @@
 
 import { duck, unduck } from './music.js';
 import Sound from './sound.js';
+import { VO_CLIPS } from '../data/voClips.js';
 
 const KEY = 'ce_voice';
 
-// Register recorded clips here as they are produced (Canva / ElevenLabs export):
-//   { kedah_food_1: '../assets/audio/vo/kedah_food_1.mp3', ... }
-const CLIPS = {};
+// Recorded clips (id → MP3) are produced by `npm run voiceover` (ElevenLabs) and
+// listed in the auto-generated data/voClips.js. Any id not present there falls
+// back to the browser's Web Speech API below, so partial recordings are fine.
+const CLIPS = VO_CLIPS;
 
 // Muted when EITHER the app-wide "Sound" switch (ce_sfx — the master mute the
 // Settings toggle flips) is off, OR the voice-specific pref (ce_voice) is off.

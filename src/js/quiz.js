@@ -5,7 +5,7 @@ import { renderTopbar, renderNavbar, requireAuth, getStateParam, flyPoints } fro
 import { getState } from './data/states.js';
 import { renderMascot, setMascotPose } from './data/mascots.js';
 import { QUIZ_QUESTIONS } from './data/quizzes.js';
-import { paramsFor } from './data/difficulty.js';
+import { paramsFor, missionCount } from './data/difficulty.js';
 import { festivalMissionFor } from './data/festivalMissions.js';
 import { foodMissionFor } from './data/foodMissions.js';
 import { landmarkTourFor } from './data/landmarkMissions.js';
@@ -92,11 +92,13 @@ const mainQ = {
 // Adventurer gets 4 questions with the full 4 options.
 const qp = paramsFor('quiz');
 
-// The Festival Challenge mission always runs the full 4 questions, regardless of
-// difficulty (difficulty still tunes how many OPTIONS each question shows). It
-// also plays the state's festival music softly on loop.
+// The Festival Challenge mission is a short, focused set — Explorer 2, Adventurer 4
+// (see missionCount) — and still guarantees one festival question (below). The
+// Activities Hub uses the larger qp.count (4 / 8) for free exploration. Difficulty
+// also tunes how many OPTIONS each question shows. The mission plays the state's
+// festival music softly on loop.
 const isFestivalMission = fromMission && missionId === 'festival';
-const qCount = isFestivalMission ? 4 : qp.count;
+const qCount = isFestivalMission ? missionCount() : qp.count;
 if (isFestivalMission) {
   const track = festivalMissionFor(stateId)?.audio;
   if (track) playMusic(track, { volume: 0.22 });
@@ -186,7 +188,23 @@ function imageQuestions(st) {
   return out;
 }
 
-const pool = [...imageQuestions(state), mainQ, ...stateQs].slice(0, qCount).map(q => trimOptions(q, qp.options));
+// Build the ordered candidate list, then take the first `qCount`.
+//  • Festival mission — guarantee at least one category:'festival' question by
+//    prepending it (every state ships one; see data/quizzes.js).
+//  • Everywhere else (Activities Hub / free play) — shuffle the WHOLE mixed pool
+//    so each play draws a different random set across all culture categories
+//    (food / costume / landmark / festival). With 10+ questions per state, the
+//    Hub's Explorer (4) and Adventurer (8) sets stay varied across replays.
+let ordered;
+if (isFestivalMission) {
+  const festQ = stateQs.find(q => q.category === 'festival');
+  ordered = festQ
+    ? [festQ, ...imageQuestions(state), mainQ, ...stateQs.filter(q => q !== festQ)]
+    : [...imageQuestions(state), mainQ, ...stateQs];
+} else {
+  ordered = shuffle([mainQ, ...imageQuestions(state), ...stateQs]);
+}
+const pool = ordered.slice(0, qCount).map(q => trimOptions(q, qp.options));
 
 // ── State variables ───────────────────────────────────────────────────────────
 let qIdx     = 0;   // current question index

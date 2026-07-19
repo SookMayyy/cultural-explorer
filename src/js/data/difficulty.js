@@ -35,22 +35,22 @@ export const LEVELS = {
 const PARAMS = {
   explorer: {
     cook:     { distractors: 1 },                                              // Help the Chef: fewer wrong ingredients
-    scramble: { count: 2 },                                                    // Help the Dancer: shortest 2 words
+    scramble: { count: 4 },                                                    // Activities Hub: 4 random words
     guess:    { options: 3,  maxClues: 4 },                                    // fewer choices, all clues available
-    quiz:     { count: 3,    options: 3 },                                     // 3 questions, 3 options each
+    quiz:     { count: 4,    options: 3 },                                     // 4 random questions, 3 options each
   },
   adventurer: {
     cook:     { distractors: 2 },
-    scramble: { count: 'all' },
+    scramble: { count: 8 },                                                    // Activities Hub: 8 random words
     guess:    { options: 5,  maxClues: 2 },                                    // more choices, fewer clues before it's on you
-    quiz:     { count: 4,    options: 4 },
+    quiz:     { count: 8,    options: 4 },                                     // 8 random questions, 4 options each
   },
   // Reserved for a future release — tuned but not selectable yet.
   master: {
     cook:     { distractors: 3 },
-    scramble: { count: 'all' },
+    scramble: { count: 8 },
     guess:    { options: 5,  maxClues: 1 },
-    quiz:     { count: 4,    options: 4 },
+    quiz:     { count: 8,    options: 4 },
   },
 };
 
@@ -99,4 +99,13 @@ export function setLevel(id) {
 // The parameter block for one game at the active (or given) level.
 export function paramsFor(game, level = currentLevel()) {
   return (PARAMS[level] || PARAMS.explorer)[game];
+}
+
+// Item count for the MISSION flow (Mission 2 Word Scramble, Mission 4 Quiz). The
+// mission is a short, focused taste — Explorer 2, Adventurer 4 — whereas the
+// Activities Hub uses the larger `paramsFor('quiz'/'scramble').count` (4 / 8) so
+// children can explore many more questions/words there.
+const MISSION_COUNTS = { explorer: 2, adventurer: 4, master: 4 };
+export function missionCount(level = currentLevel()) {
+  return MISSION_COUNTS[level] || 2;
 }

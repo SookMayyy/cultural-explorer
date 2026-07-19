@@ -603,7 +603,7 @@ function startCook() {
         Sound.correct?.();
         added++;
         countEl.textContent = `${added} / ${total}`;
-        feedbackEl.textContent = 'Yum! That goes in! 😋';
+        feedbackEl.textContent = 'Yum! That goes in!';
         feedbackEl.className = 'mn-cook-feedback is-good';
         flashPot();
 

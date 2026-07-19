@@ -4,8 +4,8 @@
 // Learn carousel AND the correct answers in the "cook the dish" mini-game), plus
 // a few obviously-wrong distractor ingredients the player must NOT add.
 //
-// Dishes are drawn from each state's Food card in states.js (Sabah has no Food
-// card, so we use Tuaran Mee — Sabah's famous handmade noodles).
+// Dishes are drawn from each state's Food card in states.js (Sabah's is Hinava,
+// the Kadazandusun fresh-fish salad).
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const FOOD_MISSIONS = {

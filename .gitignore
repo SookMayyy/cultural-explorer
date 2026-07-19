@@ -34,6 +34,11 @@ CLAUDE.md
 # seed-content.mjs temp ESM twins
 scripts/.gen/
 
+# Voice-over audition/pitch previews (scratch — not part of the app)
+pitch-previews/
+# Natural-pitch master clips used by `npm run repitch` (regenerated on demand)
+src/assets/audio/vo_master/
+
 # Retired files kept locally for reference only — they are already in git
 # history (see archive/README.md), so the repo doesn't need a second copy.
 archive/

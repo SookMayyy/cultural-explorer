@@ -28,7 +28,7 @@
   --clr-coral:       #FF6B6B;   /* Friendly error / warning coral */
 
   /* ── State theme colors ── */
-  --state-penang:   #E67E22;   /* Orange — Georgetown spice */
+  --state-penang:   #E67E22;   /* Orange — George Town spice */
   --state-melaka:   #8E44AD;   /* Purple — Peranakan heritage */
   --state-selangor: #1A5276;   /* Deep blue — modern, developed */
   --state-johor:    #1E8449;   /* Green — southern tropics */
@@ -46,7 +46,7 @@
   --clr-text-muted: #7A6856;   /* Warm muted brown */
   --clr-grey:       #A89880;   /* Warm grey */
   --clr-grey-light: #F5EFE4;   /* Warm light grey */
-  --clr-margin-bg:  ;   /* Warm parchment — visible on large screens */
+  --clr-margin-bg:  var(--clr-bg-warm);   /* Warm parchment — the side gutters on large screens */
 
   /* ── Drag-Match mini-game colour tokens ──
      Kept separate so other screens can import them without coupling. */
@@ -423,6 +423,27 @@ body {
     left: 50%;
     right: auto;
     width: calc(var(--game-max-w) - 2 * var(--screen-side-gap));
+  }
+}
+
+/* ─── Decorative side gutters (wide screens only) ──────────────────────────────
+   The app frame (max-width 1227px) is centered and opaque, leaving letterbox
+   "white space" on both sides on wide screens. Fill that space with festive
+   Malaysia-flag-coloured flourishes so it doesn't read as plain — swirls up top,
+   fireworks + sparkles down low, one pair per gutter. They're pinned to the
+   viewport corners (background-attachment: fixed) and the images are transparent
+   PNGs, so they only ever sit in the margins; the opaque centred frame covers
+   anything behind it, so the CONTENT is never touched. Only switches on at a
+   width where the gutters are actually wide enough to show them. Any page that
+   sets its own full-screen scene still fills its frame normally — this is purely
+   the margin. */
+@media (min-width: 1360px) {
+  body {
+    background:
+      url('../assets/images/ui/lokalearn_decorative_background_2.png') top 40px    left -30px  / 120px auto no-repeat,
+      url('../assets/images/ui/lokalearn_decorative_background_3.png') bottom 30px     right -30px / 120px auto no-repeat,
+      var(--clr-bg);
+    background-attachment: fixed;
   }
 }
 
