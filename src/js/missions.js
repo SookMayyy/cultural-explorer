@@ -1,9 +1,10 @@
 // js/missions.js — Mission Hub screen
 // ─────────────────────────────────────────────────────────────────────────────
 // The state's "explore the state" hub: four missions (Chef → Dancer → Tourist →
-// Festival Challenge), all open from the start to play in any order. Each
-// launches one of the existing mini-games (tagged from=mission); finishing one
-// returns here with ?done=<id> so we can animate its check and bump the bar.
+// Festival Challenge) played in order — the child starts at Mission 1 and each
+// mission unlocks only after the previous one is completed. Each launches one of
+// the existing mini-games (tagged from=mission); finishing one returns here with
+// ?done=<id> so we can animate its check, bump the bar, and open the next row.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import Storage from './utils/storage.js';
@@ -81,16 +82,18 @@ renderDifficultyChip(document.getElementById('mi-difficulty'), {
 const missions = missionsFor(state);
 const done      = Storage.getMissions(stateId);   // array of completed ids
 
-// Free exploration: every mission is open from the start so children can play
-// them in any order. Kept as a seam — the locked row rendering below is what
-// this would switch back on if sequential unlocking ever returns.
-function isUnlocked() {
-  return true;
+// Sequential unlocking: the child must start with Mission 1 and can only open the
+// next mission after finishing the one before it. Mission at `index` is unlocked
+// when it's the first, or the previous mission has been completed. (Completed
+// missions stay open so they can be replayed — see `isDone` in rowHTML.)
+function isUnlocked(index) {
+  if (index === 0) return true;
+  return done.includes(missions[index - 1].id);
 }
 
 function rowHTML(m, index) {
   const isDone   = done.includes(m.id);
-  const unlocked = isUnlocked();
+  const unlocked = isDone || isUnlocked(index);
   const justDone = m.id === justDoneId;
 
   const stateClass = isDone ? 'is-done' : unlocked ? 'is-open' : 'is-locked';
@@ -144,6 +147,6 @@ if (done.length >= MISSION_COUNT) {
   banner.classList.remove('hidden');
   if (justDoneId) Sound.win?.();
 } else if (justDoneId) {
-  // Cheer the player on; every other mission is already open to play next.
-  showToast('Mission complete! Keep exploring 🎉');
+  // Cheer the player on — finishing this mission has just unlocked the next one.
+  showToast('Mission complete! The next one is unlocked 🎉');
 }

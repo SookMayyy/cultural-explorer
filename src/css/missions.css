@@ -194,7 +194,9 @@
 .mi-status-lock {
   background: var(--clr-grey-light);
   color: var(--clr-text-muted);
-  font-size: var(--text-sm);
+  /* Bigger padlock so "locked" reads clearly at a glance for young players. */
+  font-size: var(--text-xl);
+  line-height: 1;
 }
 
 /* ── Locked row — greyed + inert ───────────────────────────────────────────── */
