@@ -38,12 +38,16 @@ const PARAMS = {
     scramble: { count: 4 },                                                    // Activities Hub: 4 random words
     guess:    { options: 3,  maxClues: 4 },                                    // fewer choices, all clues available
     quiz:     { count: 4,    options: 3 },                                     // 4 random questions, 3 options each
+    // Unreachable today (the game is Adventurer-only), but tuned so opening it
+    // up to Explorer is a one-line change in activities.js.
+    tictactoe: { botAccuracy: 0.55 },
   },
   adventurer: {
     cook:     { distractors: 2 },
     scramble: { count: 8 },                                                    // Activities Hub: 8 random words
     guess:    { options: 5,  maxClues: 2 },                                    // more choices, fewer clues before it's on you
     quiz:     { count: 8,    options: 4 },                                     // 8 random questions, 4 options each
+    tictactoe: { botAccuracy: 0.72 },                                          // beatable on purpose — see js/tictactoe.js
   },
   // Reserved for a future release — tuned but not selectable yet.
   master: {
@@ -51,6 +55,7 @@ const PARAMS = {
     scramble: { count: 8 },
     guess:    { options: 5,  maxClues: 1 },
     quiz:     { count: 8,    options: 4 },
+    tictactoe: { botAccuracy: 0.90 },
   },
 };
 

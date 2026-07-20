@@ -119,6 +119,21 @@
 .act-tile--blue   { background: #D9ECFB; }
 .act-tile--purple { background: #EAE3FB; }
 .act-tile--green  { background: #DEF3E2; }
+.act-tile--teal   { background: #D6F0E7; }
+
+/* A card with no partner on its row (the Adventurer-only 5th game) would
+   otherwise sit alone at half width. Span it and lay it out sideways — a very
+   tall full-width square reads worse than a wide banner. */
+.act-card--wide {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: var(--sp-md);
+  min-height: 108px;
+  padding-left: var(--sp-lg);
+}
+.act-card--wide .act-card-icon { width: 64px; height: 64px; flex: 0 0 64px; }
+.act-card--wide .act-card-label { text-align: left; }
 
 .act-card-label {
   font-family: var(--font-body);

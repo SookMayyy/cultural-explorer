@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Cultural Tic-Tac-Toe — Cultural Explorer MY</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Fredoka+One&family=Ribeye&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/tictactoe.css">
+</head>
+<body>
+
+<div class="app-container">
+
+  <!-- Topbar rendered by tictactoe.js via renderTopbar() -->
+  <header class="topbar" id="topbar"></header>
+
+  <main class="ttt-screen">
+
+    <!-- Whose go it is. aria-live so a screen reader announces every switch. -->
+    <div class="ttt-turn" id="ttt-turn" role="status" aria-live="polite">
+      <span class="ttt-turn-mark is-x" id="ttt-turn-mark" aria-hidden="true">X</span>
+      <span class="ttt-turn-text" id="ttt-turn-text">Player 1's turn</span>
+    </div>
+
+    <div class="ttt-arena">
+      <!-- 3×3 picture board (left) -->
+      <div class="ttt-board" id="ttt-board" role="grid" aria-label="Picture board"></div>
+      <!-- Draggable name pills (right) -->
+      <div class="ttt-pills" id="ttt-pills" role="list" aria-label="Name cards"></div>
+    </div>
+
+    <p class="ttt-feedback" id="ttt-feedback" role="status">&nbsp;</p>
+
+  </main>
+
+  <nav class="bottom-nav" id="navbar"></nav>
+
+</div>
+
+<script type="module" src="../js/tictactoe.js"></script>
+</body>
+</html>

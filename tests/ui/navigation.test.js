@@ -36,6 +36,9 @@ const CASES = [
   ['guess.html?state=kedah&from=activities',             '.topbar-back', 'href', 'activities.html'],
   ['guess.html?state=kedah&from=mission&mission=tourist', '.topbar-back', 'href', 'missions.html?state=kedah'],
 
+  // tictactoe.js — multi-state, so like guess.js from the hub it carries no ?state=
+  ['tictactoe.html?from=activities',                     '.topbar-back', 'href', 'activities.html'],
+
   // mission.js
   ['mission.html?state=kedah&mission=chef',              '.topbar-back', 'href', 'missions.html?state=kedah'],
 ];

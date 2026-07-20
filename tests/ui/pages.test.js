@@ -28,6 +28,9 @@ const PAGES = [
   ['scramble — journey',     'scramble.html?state=kedah'],
   ['scramble — from mission','scramble.html?state=kedah&from=mission&mission=dancer'],
   ['activities hub',         'activities.html?state=kedah'],
+  // Not gated on difficulty — the Activity Hub card is the gate, so a direct
+  // load works at any level and needs no seeded difficulty here.
+  ['tic-tac-toe',            'tictactoe.html?from=activities'],
   ['narrative',              'narrative.html?state=kedah'],
   ['stampbook',              'stampbook.html'],
   ['avatar shop',            'avatar.html'],

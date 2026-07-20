@@ -59,11 +59,18 @@ function linesToHtml(lines) {
   return `<ul class="ce-howto-list">${(lines || []).map(l => `<li>${withPointBullet(l)}</li>`).join('')}</ul>`;
 }
 
-/** Show a How-to-Play popup now. Resolves when the child taps the button. */
-export function showHowToPlay({ title = 'How to Play', emoji = '🎮', lines = [], buttonLabel = "Let's Play!" } = {}) {
+/**
+ * Show a How-to-Play popup now. Resolves when the child taps the button.
+ * `cls` and `bodyHtml` are passed straight through to showPopup, so a game can
+ * reskin the card or slot in an illustrated demo below the instruction lines.
+ */
+export function showHowToPlay({
+  title = 'How to Play', emoji = '🎮', lines = [], buttonLabel = "Let's Play!",
+  cls = '', bodyHtml = '',
+} = {}) {
   injectStyles();
   return showPopup({
-    title, emoji,
+    title, emoji, cls, bodyHtml,
     message: linesToHtml(lines),
     actions: [{ label: buttonLabel, value: true, style: 'primary' }],
   });
@@ -89,15 +96,23 @@ function mountHelpButton(config) {
  * Auto-show the instructions the FIRST time a child opens this activity, then
  * mount the "?" help button so they can re-open it. `key` namespaces the "seen"
  * flag so each activity remembers on its own.
+ *
+ * Returns a Promise that resolves once the popup is dismissed — or immediately
+ * when it has been seen before. Games that follow up with a second dialog (e.g.
+ * Tic-Tac-Toe's mode picker) await it so the two never stack on top of each
+ * other; the older call sites simply ignore the return value.
  */
 export function initHowToPlay(key, config, { button = true } = {}) {
   const seenKey = SEEN_PREFIX + key;
   let seen = false;
   try { seen = localStorage.getItem(seenKey) === '1'; } catch { /* private mode */ }
-  if (!seen) {
-    showHowToPlay(config).then(() => {
-      try { localStorage.setItem(seenKey, '1'); } catch { /* ignore */ }
-    });
-  }
+
+  const shown = seen
+    ? Promise.resolve()
+    : showHowToPlay(config).then(() => {
+        try { localStorage.setItem(seenKey, '1'); } catch { /* ignore */ }
+      });
+
   if (button) mountHelpButton(config);
+  return shown;
 }

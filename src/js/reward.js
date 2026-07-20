@@ -5,6 +5,7 @@ import { requireAuth } from './ui.js';
 import { STATES_DATA, getState, nextRecommended, stampImgFor } from './data/states.js';
 import { pushStateComplete } from './utils/sync.js';
 import Sound from './utils/sound.js';
+import { burstConfetti } from './utils/confetti.js';
 
 requireAuth();
 
@@ -133,25 +134,8 @@ if (starsEl) {
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // ── Falling confetti on a pass ──────────────────────────────────────────────────
-if (pass && !reduceMotion) {
-  const COLORS = ['#C0392B', '#FCD116', '#1A3A5C', '#27AE60', '#E67E22', '#8E44AD'];
-  for (let i = 0; i < 50; i++) {
-    const p = document.createElement('div');
-    p.className = 'confetti-piece';
-    // Mix round "dot" confetti in with the classic square flakes for variety.
-    const round = Math.random() > 0.5;
-    p.style.cssText = `
-      left:${Math.random() * 100}vw;top:-10px;
-      background:${COLORS[Math.floor(Math.random() * COLORS.length)]};
-      border-radius:${round ? '50%' : '2px'};
-      animation-duration:${2 + Math.random() * 2}s;
-      animation-delay:${Math.random()}s;
-      transform:rotate(${Math.random() * 360}deg);
-    `;
-    document.body.appendChild(p);
-    setTimeout(() => p.remove(), 4200);
-  }
-}
+// burstConfetti() does its own reduced-motion check, so this only gates on `pass`.
+if (pass) burstConfetti();
 
 // ── Sparkle burst radiating from the stamp on reveal ─────────────────────────────
 // A quick ring of ✨ that pops outward right as the stamp lands — extra "juice"

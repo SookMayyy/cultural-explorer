@@ -61,8 +61,19 @@ function injectStyles() {
  * Show a popup. Returns a Promise that resolves with the chosen action's
  * `value` (or null if dismissed by backdrop/Esc).
  * actions: [{ label, value, style: 'primary'|'ghost' }]
+ *
+ * Optional extras (all default to the original behaviour):
+ *   cls          extra class on the OVERLAY, so a page stylesheet can reskin
+ *                both the backdrop and the card (e.g. `.ttt-mode .ce-popup-card`)
+ *   bodyHtml     markup injected between the message and the buttons — for
+ *                illustrations or demo animations
+ *   dismissible  false removes backdrop-click and Esc, for popups the flow
+ *                cannot continue without (e.g. "choose a game mode")
  */
-export function showPopup({ title = '', message = '', emoji = '💬', image = '', actions } = {}) {
+export function showPopup({
+  title = '', message = '', emoji = '💬', image = '', actions,
+  cls = '', bodyHtml = '', dismissible = true,
+} = {}) {
   injectStyles();
   const acts = actions && actions.length ? actions : [{ label: 'OK', value: true, style: 'primary' }];
 
@@ -76,7 +87,7 @@ export function showPopup({ title = '', message = '', emoji = '💬', image = ''
 
   return new Promise(resolve => {
     const overlay = document.createElement('div');
-    overlay.className = 'ce-popup-overlay';
+    overlay.className = `ce-popup-overlay${cls ? ' ' + cls : ''}`;
     overlay.setAttribute('role', 'dialog');
     overlay.setAttribute('aria-modal', 'true');
 
@@ -89,6 +100,7 @@ export function showPopup({ title = '', message = '', emoji = '💬', image = ''
         ${iconHtml}
         ${title ? `<h2 class="ce-popup-title">${title}</h2>` : ''}
         <p class="ce-popup-msg${isSteps ? ' ce-popup-msg--steps' : ''}">${message}</p>
+        ${bodyHtml}
         <div class="ce-popup-actions"></div>
       </div>`;
 
@@ -108,9 +120,12 @@ export function showPopup({ title = '', message = '', emoji = '💬', image = ''
     }
     function onKey(e) { if (e.key === 'Escape') close(null); }
 
-    // Tap the dark backdrop to dismiss (resolves null).
-    overlay.addEventListener('click', e => { if (e.target === overlay) close(null); });
-    document.addEventListener('keydown', onKey);
+    // Tap the dark backdrop to dismiss (resolves null). Both escape hatches are
+    // skipped when `dismissible:false` — the caller needs a real choice.
+    if (dismissible) {
+      overlay.addEventListener('click', e => { if (e.target === overlay) close(null); });
+      document.addEventListener('keydown', onKey);
+    }
 
     document.body.appendChild(overlay);
     requestAnimationFrame(() => overlay.classList.add('show'));
