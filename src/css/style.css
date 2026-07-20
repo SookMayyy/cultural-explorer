@@ -56,13 +56,12 @@
   --clr-dm-play-border: #8AABCC;   /* Border ring on the play card */
   --clr-dm-ink:         #1A1A1A;   /* Near-black ink for pill borders / badges */
   /* ── Mini-game page wash ──
-     Every mini-game SCREEN shares this soft lavender so playing a game always
-     feels like the same place: Word Scramble, Drag & Match, Quiz, Guess My
-     State and Cultural Tic-Tac-Toe. The hubs (Activities, the state picker) and
-     the journey screens deliberately keep the warm cream/batik look, so the
-     switch in background is what signals "you are now IN a game".
-     Each game still keeps its own accent colour on top of this. */
-  --clr-game-bg:        #f5f0ff;   /* Soft lavender — the mini-game backdrop */
+     The soft lavender shared by Drag & Match, Guess My State and Cultural
+     Tic-Tac-Toe. Word Scramble (cream stage) and Quiz (warm cream) keep their
+     own backgrounds by choice — this is not "every game", so don't assume it
+     when adding one; pick whichever fits the screen.
+     Each game keeps its own accent colour on top of whatever it uses. */
+  --clr-game-bg:        #f5f0ff;   /* Soft lavender — used by 3 of the games */
 
   /* ── Typography ── */
   --font-display: 'Fredoka One', 'Baloo 2', cursive;

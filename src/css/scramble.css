@@ -1,16 +1,8 @@
 /* ═══════════════════════════════════════════════════════
    WORD SCRAMBLE  —  scramble.css
-   First activity in the per-state journey. Tappable letter
-   tiles, answer slots with correct/wrong states.
+   First activity in the per-state journey. Cream game stage,
+   tappable letter tiles, answer slots with correct/wrong states.
    ═══════════════════════════════════════════════════════ */
-
-/* ── Page background ──
-   The shared mini-game lavender (--clr-game-bg in style.css) rather than the
-   cream stage this screen used to have — every mini-game uses the same wash so
-   playing always feels like the same place. Set on the frame (not just the
-   screen) so it also sits behind the floating topbar. */
-:root { --screen-bg: var(--clr-game-bg); }
-.app-container { background: var(--clr-game-bg); }
 
 .scr-screen {
   flex: 1;
@@ -18,9 +10,10 @@
   flex-direction: column;
   align-items: center;
   gap: var(--sp-lg);
-  /* Top padding clears the floating topbar (see --topbar-overflow in style.css). */
+  /* Top padding clears the floating topbar, whose contents hang below its 20px
+     layout box (see --topbar-overflow in style.css). */
   padding: calc(var(--sp-lg) + var(--topbar-overflow)) var(--sp-md) calc(var(--navbar-h) + var(--sp-xl));
-  background: transparent;
+  background: linear-gradient(180deg, #FFF6E0, #F3E8C8);
   overflow-y: auto;
 }
 
