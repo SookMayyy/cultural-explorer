@@ -5,11 +5,10 @@
    ═══════════════════════════════════════════════════════════════════ */
 
 /* ── Page background (full-screen: body letterbox + frame) ─────────
-   The shared mini-game lavender (--clr-game-bg) rather than the batik scene:
-   this screen is dense with photos and text, and the pattern competed with
-   them. Every mini-game uses the same wash. */
-:root { --screen-bg: var(--clr-game-bg); }
-.app-container { background: var(--clr-game-bg); }
+   The same batik scene as the Activities hub, shared with Cultural Tic-Tac-Toe
+   (which replaces this game at Adventurer). Setting --screen-bg alone is enough:
+   style.css feeds it to BOTH the body letterbox and .app-container. */
+:root { --screen-bg: var(--clr-bg) url('../assets/images/ui/batick_background.png') center / cover no-repeat; }
 
 
 /* ════════════════════════════════════════════════════════════════════

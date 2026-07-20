@@ -55,13 +55,6 @@
   --clr-dm-play-bg:     #D6E8F5;   /* Soft blue-grey play-card background */
   --clr-dm-play-border: #8AABCC;   /* Border ring on the play card */
   --clr-dm-ink:         #1A1A1A;   /* Near-black ink for pill borders / badges */
-  /* ── Mini-game page wash ──
-     The soft lavender shared by Drag & Match, Guess My State and Cultural
-     Tic-Tac-Toe. Word Scramble (cream stage) and Quiz (warm cream) keep their
-     own backgrounds by choice — this is not "every game", so don't assume it
-     when adding one; pick whichever fits the screen.
-     Each game keeps its own accent colour on top of whatever it uses. */
-  --clr-game-bg:        #f5f0ff;   /* Soft lavender — used by 3 of the games */
 
   /* ── Typography ── */
   --font-display: 'Fredoka One', 'Baloo 2', cursive;
