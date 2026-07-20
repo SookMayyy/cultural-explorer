@@ -30,7 +30,7 @@ import { pickItems } from './data/tictactoeItems.js';
 import { chooseSquare, winningLine, emptySquares } from './data/tictactoeBot.js';
 import { paramsFor } from './data/difficulty.js';
 import { showPopup } from './components/popup.js';
-import { initHowToPlay } from './components/howToPlay.js';
+import { showHowToPlay, mountHelpButton } from './components/howToPlay.js';
 import { initPointerDrag } from './utils/pointerDrag.js';
 import { burstConfetti } from './utils/confetti.js';
 import { shuffle } from './utils/shuffle.js';
@@ -55,6 +55,13 @@ const WIN_POINTS    = 15;
 const GRID_SIZE     = 9;
 
 const BACK_HREF = 'activities.html';
+
+// Artwork (paths are relative to views/, like every other asset path).
+const TTT_ICON = '../assets/images/ui/tic_tac_toe_icon.png';
+const MODE_ICONS = {
+  bot:     '../assets/images/ui/computer_mode.png',
+  hotseat: '../assets/images/ui/player_mode.png',
+};
 
 // ── Chrome ────────────────────────────────────────────────────────────────────
 renderTopbar({ title: 'Tic-Tac-Toe', showBack: true, backHref: BACK_HREF });
@@ -395,11 +402,12 @@ async function chooseMode() {
     cls: 'ttt-mode',
     emoji: '',
     dismissible: false,
-    title: 'How do you want to play?',
-    message: 'Player 1 is X and always goes first.',
+    title: 'Choose a play mode:',
+    message: '',
+    actionsLayout: 'row',
     actions: [
-      { label: 'Play against the computer', value: 'bot',     style: 'primary' },
-      { label: 'Two-player game',           value: 'hotseat', style: 'ghost'   },
+      { label: 'Play against the computer', value: 'bot',     style: 'mode', image: MODE_ICONS.bot },
+      { label: 'Two player game',           value: 'hotseat', style: 'mode', image: MODE_ICONS.hotseat },
     ],
   });
   mode = choice || 'bot';
@@ -428,13 +436,13 @@ const DEMO_HTML = `
     <span class="ttt-demo-pill">${escapeHtml(demoItem.label)}</span>
   </div>`;
 
-// First play shows the instructions; after that the "?" button re-opens them.
-// Awaited so the mode picker queues behind it instead of stacking on top.
-initHowToPlay('tictactoe', {
+const HOW_TO_PLAY = {
   title: 'Match each word with the correct picture!',
-  emoji: '⭕',
+  emoji: '',
+  image: TTT_ICON,
   cls: 'ttt-howto',
-  bodyHtml: DEMO_HTML,
+  // Above the words: children look at the demo first and often need nothing else.
+  topHtml: DEMO_HTML,
   lines: [
     '👆 Drag a name onto the picture it belongs to.',
     '✅ Get it right and the square is yours.',
@@ -442,4 +450,11 @@ initHowToPlay('tictactoe', {
     '🏆 Three squares in a line wins the game.',
   ],
   buttonLabel: 'Play',
-}).then(chooseMode);
+};
+
+// The rules come first EVERY time the page is opened, then the mode picker —
+// never both at once. `initHowToPlay` is deliberately not used here: it only
+// auto-shows on the first visit, and this game is meant to re-teach the rule
+// each session. It still mounts the "?" button to re-open on demand.
+mountHelpButton(HOW_TO_PLAY);
+showHowToPlay(HOW_TO_PLAY).then(chooseMode);

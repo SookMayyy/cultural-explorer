@@ -1,16 +1,22 @@
 /* css/tictactoe.css — Cultural Tic-Tac-Toe
    ─────────────────────────────────────────────────────────────────────────────
-   3×3 board of cultural photos on the left, draggable name pills on the right.
-   The reference art is white rounded cards on teal with dark-teal pills; the
-   LokaLearn tokens (--clr-teal, --r-md, --shadow-sm, --font-display …) win
-   wherever the two disagree, so the screen still reads as part of the app.
+   3×3 board of cultural photos on the left, draggable name pills on the right,
+   on the same soft lavender wash the Guess-the-State screen uses.
 
    Two rules here are load-bearing, not cosmetic:
      • .ttt-pill { touch-action: none }  — without it Android claims the gesture
        as a scroll and cancels the drag on the first move.
-     • .ttt-pill.is-used { visibility: hidden } — NOT display:none, so removing a
-       pill mid-drag can't reflow the column under the player's finger.
+     • .ce-drag-ghost { transition: none } — the ghost is a CLONE of a pill, so
+       it inherits the pill's transform transition. Left in, every drag frame
+       eases over ~120ms and the ghost visibly lags the finger.
 */
+
+/* ── Page background ───────────────────────────────────────────────────────── */
+/* Set on :root so it fills the body's letterbox margins too, and on the frame
+   itself — the topbar is a transparent floating strip inside .app-container, so
+   colouring the frame is what puts the wash BEHIND the back button and points. */
+:root { --screen-bg: #f7f0fa; }
+.app-container { background: #f7f0fa; }
 
 /* ── Screen ─────────────────────────────────────────────────────────────────── */
 .ttt-screen {
@@ -18,9 +24,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;          /* centres the game in the leftover height */
   gap: var(--sp-md);
-  padding: var(--sp-md) var(--sp-md) calc(var(--navbar-h) + var(--sp-xl));
-  background: linear-gradient(180deg, #17A085, #0F8B6A 60%, #0B6F55);
+  /* Top padding clears the floating topbar; bottom clears the nav bar. */
+  padding: calc(var(--topbar-h) + 44px) var(--sp-md) calc(var(--navbar-h) + var(--sp-lg));
+  background: transparent;
   overflow-y: auto;
 }
 
@@ -31,25 +39,26 @@
   display: flex;
   align-items: center;
   gap: var(--sp-sm);
-  padding: 10px 22px 10px 12px;
+  padding: 10px 26px 10px 12px;
   background: var(--clr-card);
   border-radius: var(--r-pill);
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 4px 0 rgba(124, 58, 237, .18), var(--shadow-sm);
   font-family: var(--font-display);
-  font-size: clamp(17px, 4.6vw, 23px);
-  color: var(--clr-text);
+  font-size: clamp(18px, 4.4vw, 25px);
+  color: #4c1d95;
   max-width: 100%;
+  flex: 0 0 auto;
 }
 .ttt-turn-mark {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
-  flex: 0 0 38px;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
   border-radius: 50%;
   font-family: var(--font-display);
-  font-size: 22px;
+  font-size: 24px;
   color: #fff;
   background: var(--clr-grey);
 }
@@ -73,20 +82,23 @@
 }
 
 /* ── Arena: board + pills ───────────────────────────────────────────────────── */
+/* Sized off the viewport height as well as width so the board grows to fill a
+   tall screen instead of sitting small in the middle of it. */
 .ttt-arena {
   display: grid;
-  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
-  gap: var(--sp-md);
+  grid-template-columns: minmax(0, auto) minmax(150px, 210px);
+  gap: var(--sp-lg);
+  align-items: center;
+  justify-content: center;
   width: 100%;
-  max-width: 620px;
-  align-items: start;
+  flex: 0 0 auto;
 }
 
 .ttt-board {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: var(--sp-sm);
-  width: 100%;
+  gap: 10px;
+  width: min(60vw, 58vh, 520px);
   aspect-ratio: 1;
 }
 
@@ -96,9 +108,9 @@
   padding: 0;
   overflow: hidden;
   background: var(--clr-card);
-  border: 3px solid #fff;
+  border: 4px solid #fff;
   border-radius: var(--r-md);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 3px 10px rgba(76, 29, 149, .14);
   cursor: pointer;
   transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
 }
@@ -122,7 +134,7 @@
 
 /* Hover / drag-over affordance. */
 .ttt-cell.is-over {
-  transform: scale(1.05);
+  transform: scale(1.06);
   border-color: var(--clr-gold);
   box-shadow: 0 0 0 4px rgba(245, 166, 35, .5), var(--shadow-md);
 }
@@ -141,7 +153,7 @@
   align-items: center;
   justify-content: center;
   font-family: var(--font-display);
-  font-size: clamp(38px, 12vw, 68px);
+  font-size: clamp(42px, 11vw, 80px);
   color: #fff;
   animation: ttt-mark-in .28s cubic-bezier(.34, 1.56, .64, 1);
 }
@@ -170,7 +182,8 @@
 .ttt-pills {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  justify-content: center;
+  gap: 7px;
   width: 100%;
   overflow: visible;
 }
@@ -181,40 +194,45 @@
   -webkit-tap-highlight-color: transparent;
   display: block;
   width: 100%;
-  min-height: 40px;
-  padding: 9px 14px;
+  min-height: 42px;
+  padding: 10px 14px;
   border: none;
   border-radius: var(--r-pill);
-  background: #0B5C48;
+  background: #7c3aed;
   color: #fff;
   font-family: var(--font-body);
-  font-size: clamp(12px, 3.1vw, 15px);
+  font-size: clamp(12px, 2.6vw, 15px);
   font-weight: 700;
   line-height: 1.25;
   text-align: center;
   cursor: grab;
-  box-shadow: 0 3px 0 rgba(0, 0, 0, .22);
+  box-shadow: 0 3px 0 #5b21b6;
   transition: transform .12s ease, background .12s ease, box-shadow .12s ease;
 }
-.ttt-pill:hover { background: #0E7259; }
-.ttt-pill:active { cursor: grabbing; transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,.22); }
+.ttt-pill:hover { background: #9f67fa; }
+.ttt-pill:active { cursor: grabbing; transform: translateY(2px); box-shadow: 0 1px 0 #5b21b6; }
 .ttt-pill:focus-visible { outline: 3px solid var(--clr-gold); outline-offset: 2px; }
 .ttt-pill.is-selected {
   background: var(--clr-gold);
-  color: var(--clr-text);
+  color: #4c1d95;
   transform: translateY(-2px) scale(1.03);
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, .85), var(--shadow-md);
+  box-shadow: 0 0 0 3px #fff, var(--shadow-md);
 }
-.ttt-pill.is-dragging { opacity: .35; }
-/* Claimed — hidden, but still occupying its slot. */
+.ttt-pill.is-dragging { opacity: .3; }
+/* Claimed — hidden, but still occupying its slot so the column never reflows
+   under a dragging finger. */
 .ttt-pill.is-used { visibility: hidden; }
 
-/* The floating clone that follows the finger. */
+/* The floating clone that follows the finger. It must not animate its own
+   transform (see the file header) and must not eat the hit-test. */
 .ce-drag-ghost.ttt-pill {
-  opacity: .95;
+  transition: none !important;
+  animation: none !important;
+  opacity: .97;
   transform-origin: center;
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 10px 24px rgba(76, 29, 149, .4);
   cursor: grabbing;
+  pointer-events: none;
 }
 
 /* ── Feedback line ──────────────────────────────────────────────────────────── */
@@ -224,37 +242,49 @@
   font-family: var(--font-body);
   font-size: var(--text-base);
   font-weight: 700;
-  color: #fff;
+  color: #5b21b6;
   text-align: center;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+  flex: 0 0 auto;
 }
-.ttt-feedback.is-good  { color: #D9FFE9; }
-.ttt-feedback.is-wrong { color: #FFE0D6; }
+.ttt-feedback.is-good  { color: #1E8449; }
+.ttt-feedback.is-wrong { color: #C0392B; }
 
 /* ── Narrow screens: stack the board over the pills ─────────────────────────── */
-@media (max-width: 480px) {
-  .ttt-arena { grid-template-columns: 1fr; }
-  .ttt-board { max-width: 340px; margin: 0 auto; }
+@media (max-width: 560px) {
+  .ttt-screen { justify-content: flex-start; }
+  .ttt-arena { grid-template-columns: 1fr; gap: var(--sp-md); }
+  .ttt-board { width: min(92vw, 420px); margin: 0 auto; }
   .ttt-pills {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
   }
+  .ttt-pill { font-size: clamp(12px, 3.2vw, 15px); }
 }
 
 /* ── Popup skins ────────────────────────────────────────────────────────────── */
-/* Instructions — first play only, plus the "?" button. */
-.ttt-howto .ce-popup-title { font-size: 21px; }
+/* Instructions — shown on every entry, plus the "?" button. */
+.ttt-howto .ce-popup-card { max-width: 470px; }
+.ttt-howto .ce-popup-title { font-size: 22px; color: #4c1d95; }
+.ttt-howto .ce-popup-emoji--img { width: 56px; height: 56px; margin-bottom: 8px; }
 
-/* Mode picker — light purple, so it reads as a different question from the
-   instruction card that precedes it. */
-.ttt-mode .ce-popup-card { background: #f7f0fa; }
+/* Mode picker — light purple, two side-by-side cards (see the reference). */
+.ttt-mode .ce-popup-card { background: #f7f0fa; max-width: 430px; }
 .ttt-mode .ce-popup-emoji { display: none; }
-.ttt-mode .ce-popup-msg { margin-bottom: 18px; }
+.ttt-mode .ce-popup-title { font-size: 24px; color: #2b7a6b; margin-bottom: 20px; }
+.ttt-mode .ce-popup-btn--mode {
+  background: #fff;
+  color: #2b7a6b;
+  font-size: 16px;
+  line-height: 1.3;
+  box-shadow: 0 3px 10px rgba(76, 29, 149, .14);
+}
+.ttt-mode .ce-popup-btn--mode:hover { filter: brightness(1); box-shadow: 0 6px 16px rgba(76, 29, 149, .22); }
+.ttt-mode .ce-popup-btn-icon { width: 56px; height: 56px; }
 
 /* Win / draw — no emoji anywhere in this one, by design. */
 .ttt-win .ce-popup-emoji { display: none; }
-.ttt-win .ce-popup-title { font-size: 28px; color: var(--clr-teal); }
+.ttt-win .ce-popup-title { font-size: 28px; color: #6B50CE; }
 
 /* ── Instruction demo animation ─────────────────────────────────────────────── */
 /* A pill slides onto its matching photo, a tick appears, then it resets — pure
@@ -265,15 +295,16 @@
   align-items: center;
   justify-content: center;
   gap: 18px;
-  height: 120px;
-  margin: 0 0 18px;
+  height: 124px;
+  margin: 4px 0 16px;
 }
 .ttt-demo-card {
   position: relative;
-  width: 96px;
-  height: 96px;
+  width: 100px;
+  height: 100px;
   border-radius: var(--r-md);
-  border: 3px solid var(--clr-border-warm);
+  border: 3px solid #fff;
+  box-shadow: 0 3px 10px rgba(76, 29, 149, .18);
   overflow: hidden;
   background: var(--clr-grey-light);
   flex: 0 0 auto;
@@ -288,26 +319,26 @@
   background: rgba(39, 174, 96, .72);
   color: #fff;
   font-family: var(--font-display);
-  font-size: 42px;
+  font-size: 44px;
   opacity: 0;
   animation: ttt-demo-tick 3s ease-in-out infinite;
 }
 .ttt-demo-pill {
-  padding: 8px 16px;
+  padding: 9px 16px;
   border-radius: var(--r-pill);
-  background: #0B5C48;
+  background: #7c3aed;
   color: #fff;
   font-family: var(--font-body);
   font-size: 14px;
   font-weight: 700;
   white-space: nowrap;
-  box-shadow: 0 3px 0 rgba(0, 0, 0, .22);
+  box-shadow: 0 3px 0 #5b21b6;
   animation: ttt-demo-drag 3s ease-in-out infinite;
 }
 @keyframes ttt-demo-drag {
   0%, 12%   { transform: translate(0, 0) scale(1); opacity: 1; }
-  45%, 62%  { transform: translate(-108px, 0) scale(.9); opacity: 1; }
-  70%, 88%  { transform: translate(-108px, 0) scale(.9); opacity: 0; }
+  45%, 62%  { transform: translate(-112px, 0) scale(.9); opacity: 1; }
+  70%, 88%  { transform: translate(-112px, 0) scale(.9); opacity: 0; }
   100%      { transform: translate(0, 0) scale(1); opacity: 1; }
 }
 @keyframes ttt-demo-tick {
@@ -329,6 +360,6 @@
     transition: none !important;
     animation: none !important;
   }
-  .ttt-demo-pill { animation: none; transform: translate(-108px, 0) scale(.9); opacity: 0; }
+  .ttt-demo-pill { animation: none; transform: translate(-112px, 0) scale(.9); opacity: 0; }
   .ttt-demo-tick { animation: none; opacity: 1; }
 }

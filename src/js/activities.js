@@ -81,10 +81,29 @@ renderDifficultyChip(document.getElementById('act-difficulty'), {
 // standalone straight away.
 // Rebuilt on every render because the menu now varies by difficulty level.
 function gamesList() {
-  const games = [
-    { id: 'scramble',  label: 'Word Scramble',  emoji: '🔤', href: 'activity-states.html?game=scramble',  tile: 'act-tile--yellow' },
-    { id: 'dragmatch', label: 'Drag & Match',   emoji: '🧩', href: 'activity-states.html?game=dragmatch', tile: 'act-tile--blue'   },
-    { id: 'quiz',      label: 'Quiz',           emoji: '❓', href: 'activity-states.html?game=quiz',      tile: 'act-tile--purple' },
+  // Slot 2 is the "match things up" game, and it steps up with the level:
+  // Explorer plays Drag & Match (one state, guided), while Adventurer gets
+  // Cultural Tic-Tac-Toe instead — same skill, but cross-state and competitive.
+  // It REPLACES Drag & Match rather than joining it, so the grid stays a tidy
+  // 2×2 and the older cohort isn't offered the easier version.
+  //
+  // Grade group 1-3 is locked to Explorer (see canChoose() in difficulty.js), so
+  // those accounts always get Drag & Match here. That's intended, not a bug.
+  const matchGame = currentLevel() === 'adventurer'
+    ? {
+        // Standalone (no ?state=) like Guess the State — it draws from every
+        // state at once, so the per-state picker would make no sense.
+        id: 'tictactoe', label: 'Cultural Tic-Tac-Toe', emoji: '⭕',
+        icon: '../assets/images/ui/tic_tac_toe_icon.png',
+        href: 'tictactoe.html?from=activities', tile: 'act-tile--teal',
+      }
+    : { id: 'dragmatch', label: 'Drag & Match', emoji: '🧩',
+        href: 'activity-states.html?game=dragmatch', tile: 'act-tile--blue' };
+
+  return [
+    { id: 'scramble', label: 'Word Scramble', emoji: '🔤', href: 'activity-states.html?game=scramble', tile: 'act-tile--yellow' },
+    matchGame,
+    { id: 'quiz',     label: 'Quiz',          emoji: '❓', href: 'activity-states.html?game=quiz',     tile: 'act-tile--purple' },
     {
       // Launched standalone (no ?state=) so it plays the full shuffled set —
       // a proper "replay", not the linear journey single-round → quiz chain.
@@ -94,21 +113,6 @@ function gamesList() {
       lockNote: `Unlocks after exploring ${GUESS_UNLOCK_AT} states`,
     },
   ];
-
-  // Adventurer gets a harder fifth game: Drag & Match stays for everyone, but
-  // only the older cohort is offered the cross-state noughts-and-crosses. Like
-  // Guess the State it launches standalone — it draws from every state at once.
-  //
-  // Grade group 1-3 is locked to Explorer (see canChoose() in difficulty.js), so
-  // those accounts never see this card. That's intended, not a bug.
-  if (currentLevel() === 'adventurer') {
-    games.push({
-      id: 'tictactoe', label: 'Cultural Tic-Tac-Toe', emoji: '⭕',
-      href: 'tictactoe.html?from=activities', tile: 'act-tile--teal', wide: true,
-    });
-  }
-
-  return games;
 }
 
 // ── Build a single card ───────────────────────────────────────────────────────
@@ -117,19 +121,21 @@ function gamesList() {
 function cardHTML(g, index) {
   const delay = `${index * 70}ms`;
   const locked = !!g.locked;
-  // An odd card out would sit alone at half width on its own row — span it.
-  const wide = g.wide ? ' act-card--wide' : '';
 
   // 📸 IMAGE NEEDED: assets/images/activities/${g.id}.png — game icon.
-  // Falls back to the emoji placeholder below until exported.
+  // Games with real art set `icon`; the rest still fall back to the emoji
+  // placeholder, and so does a game whose art fails to load.
+  const art = g.icon
+    ? `<img class="act-card-img" src="${g.icon}" alt=""
+         onerror="this.replaceWith(Object.assign(document.createElement('span'),
+                  {className:'act-card-emoji',textContent:'${g.emoji}'}))">`
+    : `<span class="act-card-emoji">${g.emoji}</span>`;
   const iconSlot = `
-    <span class="act-card-icon ${g.tile}" aria-hidden="true">
-      <span class="act-card-emoji">${g.emoji}</span>
-    </span>`;
+    <span class="act-card-icon ${g.tile}" aria-hidden="true">${art}</span>`;
 
   if (locked) {
     return `
-      <div class="act-card is-locked${wide}" style="animation-delay:${delay}" aria-disabled="true">
+      <div class="act-card is-locked" style="animation-delay:${delay}" aria-disabled="true">
         ${iconSlot}
         <span class="act-card-label">${g.label}</span>
         <span class="act-card-lock" aria-hidden="true">🔒</span>
@@ -138,7 +144,7 @@ function cardHTML(g, index) {
   }
 
   return `
-    <a class="act-card${wide}" href="${g.href}" style="animation-delay:${delay}">
+    <a class="act-card" href="${g.href}" style="animation-delay:${delay}">
       ${iconSlot}
       <span class="act-card-label">${g.label}</span>
     </a>`;

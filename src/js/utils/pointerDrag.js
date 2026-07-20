@@ -79,7 +79,7 @@ export function initPointerDrag({
     el.addEventListener('lostpointercapture', onPointerCancel);
   }
 
-  function beginDrag() {
+  function beginDrag(x, y) {
     dragging = true;
     const rect = source.getBoundingClientRect();
     ghost = createGhost ? createGhost(source) : source.cloneNode(true);
@@ -93,6 +93,14 @@ export function initPointerDrag({
     ghost.style.zIndex        = '10000';
     ghost.style.pointerEvents = 'none';           // critical for elementFromPoint
     ghost.style.willChange    = 'transform';
+    // The clone inherits the source's transition (pills animate their transform
+    // on hover/press). Left in place, EVERY drag frame would be eased over
+    // ~120ms and the ghost would visibly lag the finger — kill it outright.
+    ghost.style.transition    = 'none';
+    ghost.style.animation     = 'none';
+    // Position it before it is ever painted, or it flashes at the viewport
+    // corner for one frame.
+    ghost.style.transform     = `translate3d(${x - grabDX}px, ${y - grabDY}px, 0)`;
     document.body.appendChild(ghost);
     onDragStart?.(source, ghost);
   }
@@ -109,10 +117,14 @@ export function initPointerDrag({
 
     if (!dragging) {
       if (Math.hypot(e.clientX - startX, e.clientY - startY) < threshold) return;
-      beginDrag();
+      beginDrag(e.clientX, e.clientY);
     }
 
-    pendingX = e.clientX; pendingY = e.clientY;
+    // getCoalescedEvents gives every sample the OS captured between frames, so
+    // on a 120Hz digitiser the ghost lands on the freshest position rather than
+    // whichever sample happened to fire last.
+    const last = e.getCoalescedEvents ? (e.getCoalescedEvents().at(-1) || e) : e;
+    pendingX = last.clientX; pendingY = last.clientY;
     if (rafId === null) rafId = requestAnimationFrame(flush);
 
     const over = targetUnder(e.clientX, e.clientY);

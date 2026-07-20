@@ -40,6 +40,15 @@ function injectStyles() {
   .ce-popup-msg{ font-size:18px; font-weight:600; color:#3a3a3a; line-height:1.65; margin:0 0 22px; text-align:center; }
   .ce-popup-msg--steps{ text-align:left; }
   .ce-popup-actions{ display:flex; flex-direction:column; gap:10px; }
+  /* Side-by-side picker cards — pair with an image on each action. */
+  .ce-popup-actions--row{
+    flex-direction:row; gap:14px; justify-content:center; align-items:stretch;
+  }
+  .ce-popup-actions--row .ce-popup-btn{
+    flex:1 1 0; display:flex; flex-direction:column; align-items:center;
+    justify-content:center; gap:10px; border-radius:18px; padding:20px 12px;
+  }
+  .ce-popup-btn-icon{ width:52px; height:52px; object-fit:contain; }
   .ce-popup-btn{
     width:100%; padding:14px 16px; border:none; border-radius:999px;
     font-family:inherit; font-size:17px; font-weight:700; cursor:pointer;
@@ -65,14 +74,21 @@ function injectStyles() {
  * Optional extras (all default to the original behaviour):
  *   cls          extra class on the OVERLAY, so a page stylesheet can reskin
  *                both the backdrop and the card (e.g. `.ttt-mode .ce-popup-card`)
+ *   topHtml      markup injected between the TITLE and the message — for a
+ *                demo or illustration that should be read before the words
  *   bodyHtml     markup injected between the message and the buttons — for
  *                illustrations or demo animations
  *   dismissible  false removes backdrop-click and Esc, for popups the flow
  *                cannot continue without (e.g. "choose a game mode")
+ *   actionsLayout 'stack' (default, full-width buttons) or 'row' (side-by-side
+ *                cards). Pair 'row' with `image` on each action to get the
+ *                icon-above-label picker cards.
+ *
+ * Each action may carry `image` (an icon rendered above its label).
  */
 export function showPopup({
   title = '', message = '', emoji = '💬', image = '', actions,
-  cls = '', bodyHtml = '', dismissible = true,
+  cls = '', topHtml = '', bodyHtml = '', dismissible = true, actionsLayout = 'stack',
 } = {}) {
   injectStyles();
   const acts = actions && actions.length ? actions : [{ label: 'OK', value: true, style: 'primary' }];
@@ -99,16 +115,28 @@ export function showPopup({
       <div class="ce-popup-card">
         ${iconHtml}
         ${title ? `<h2 class="ce-popup-title">${title}</h2>` : ''}
-        <p class="ce-popup-msg${isSteps ? ' ce-popup-msg--steps' : ''}">${message}</p>
+        ${topHtml}
+        ${message ? `<p class="ce-popup-msg${isSteps ? ' ce-popup-msg--steps' : ''}">${message}</p>` : ''}
         ${bodyHtml}
-        <div class="ce-popup-actions"></div>
+        <div class="ce-popup-actions ce-popup-actions--${actionsLayout}"></div>
       </div>`;
 
     const actionsEl = overlay.querySelector('.ce-popup-actions');
     acts.forEach(a => {
       const btn = document.createElement('button');
       btn.className = `ce-popup-btn ce-popup-btn--${a.style || 'primary'}`;
-      btn.textContent = a.label;
+      btn.type = 'button';
+      if (a.image) {
+        const img = document.createElement('img');
+        img.className = 'ce-popup-btn-icon';
+        img.src = a.image;
+        img.alt = '';
+        btn.appendChild(img);
+      }
+      const label = document.createElement('span');
+      label.className = 'ce-popup-btn-label';
+      label.textContent = a.label;
+      btn.appendChild(label);
       btn.addEventListener('click', () => close(a.value));
       actionsEl.appendChild(btn);
     });
