@@ -91,9 +91,27 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
 const isBotTurn   = () => mode === 'bot' && turn === 'O';
 const isHumanTurn = () => !isBotTurn();
 
+// Against the computer the child IS player one, so address them directly. In a
+// two-player game "You" would be ambiguous — there are two children at the
+// tablet — so that mode keeps the numbered names.
 function playerName(mark) {
-  if (mark === 'X') return 'Player 1';
-  return mode === 'bot' ? 'The computer' : 'Player 2';
+  if (mode === 'bot') return mark === 'X' ? 'You' : 'The computer';
+  return mark === 'X' ? 'Player 1' : 'Player 2';
+}
+
+// "You claimed …" but "You LOSE a turn" — the verb has to agree with "You".
+function verb(mark, thirdPerson, secondPerson) {
+  return (mode === 'bot' && mark === 'X') ? secondPerson : thirdPerson;
+}
+
+// "Player 1's turn" / "Player 2's turn", but "Your turn" — not "You's turn".
+function turnLabel(mark) {
+  return (mode === 'bot' && mark === 'X') ? 'Your turn' : `${playerName(mark)}'s turn`;
+}
+
+// "Player 1 wins!" / "The computer wins!", but "You win!" — not "You wins!".
+function winLabel(mark) {
+  return `${playerName(mark)} ${verb(mark, 'wins', 'win')}!`;
 }
 
 // ── Rendering ─────────────────────────────────────────────────────────────────
@@ -122,7 +140,7 @@ function renderTurn() {
   turnMarkEl.classList.toggle('is-o', turn === 'O');
   turnTextEl.textContent = thinking
     ? 'Rimau is thinking'
-    : `${playerName(turn)}'s turn`;
+    : turnLabel(turn);
 }
 
 function say(message, tone = '') {
@@ -184,7 +202,7 @@ function attempt(pillSq, targetSq) {
     const cell = cellEl(targetSq);
     cell?.classList.add('is-wrong');
     setTimeout(() => cell?.classList.remove('is-wrong'), 600);
-    say(`Not a match — ${playerName(turn)} loses a turn!`, 'wrong');
+    say(`Not a match — ${playerName(turn)} ${verb(turn, 'loses', 'lose')} a turn!`, 'wrong');
     passTurn();
   }
 
@@ -226,7 +244,7 @@ async function endGame(result) {
     say('A draw — nobody got three in a row!');
     Sound.tap();
   } else {
-    say(`${playerName(result)} wins!`, result === 'X' ? 'good' : 'wrong');
+    say(winLabel(result), result === 'X' ? 'good' : 'wrong');
     Sound.unlock();
   }
 
@@ -245,14 +263,14 @@ async function endGame(result) {
   let message = '';
   if (draw) message = 'The board is full and nobody got three in a row. Great effort!';
   else if (earned) message = `Three in a row! You earned ${earned} points.`;
-  else if (result === 'X') message = 'Three in a row!';
+  else if (result === 'X') message = 'Three in a row — nice matching!';
   else message = 'Good try — start a new game and take it back!';
 
   const again = await showPopup({
     cls: 'ttt-win',
     emoji: '',
     dismissible: false,
-    title: draw ? "It's a draw!" : `${playerName(result)} wins!`,
+    title: draw ? "It's a draw!" : winLabel(result),
     message,
     actions: [
       { label: 'Play again',         value: true,  style: 'primary' },

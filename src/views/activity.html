@@ -14,17 +14,15 @@
 
 <div class="app-container">
 
-  <!-- ── HUD bar ──────────────────────────────────────────────────────────────
-       Replaces the old orange topbar. Three parts in one row:
-         1. "📖 BACK TO MAP" pill (left)
-         2. Level progress bar + matched counter (centre)
-         3. Points pill with ⭐ (right)
-       activity.js sets the href on #act-back and populates the counters.       -->
-  <header class="act-hud" id="act-hud">
-    <a class="act-back-pill" id="act-back" href="narrative.html" aria-label="Back to map">
-      📖 BACK TO MAP
-    </a>
+  <!-- Shared topbar (back button + points + avatar), rendered by activity.js via
+       renderTopbar() — same as every other mini-game. This screen used to carry
+       its own bespoke HUD with a "BACK TO MAP" pill, which made its back button
+       the odd one out. -->
+  <header class="topbar" id="topbar"></header>
 
+  <!-- Progress strip: what remains of the old HUD, now a slim bar of its own
+       below the topbar (mirrors .quiz-progress-strip). -->
+  <div class="act-strip">
     <div class="act-progress-area">
       <div class="act-progress-labels">
         <span class="act-plabel-left">LEVEL PROGRESS</span>
@@ -35,12 +33,7 @@
         <div class="act-progress-fill" id="act-progress-fill" style="width:0%"></div>
       </div>
     </div>
-
-    <div class="act-points-pill" id="act-points-pill">
-      <span class="act-points-star" aria-hidden="true">⭐</span>
-      <span class="act-points-val" id="act-points-val">0</span>
-    </div>
-  </header>
+  </div>
 
   <!-- ── Main scrollable area ──────────────────────────────────────────────── -->
   <main class="act-main">
@@ -86,29 +79,9 @@
        re-opens the illustrated instructions. No separate hint button here, so the
        screen shows a single "?" instead of two. -->
 
-  <!-- ── Bottom navigation bar ─────────────────────────────────────────────── -->
-  <nav class="bottom-nav">
-    <a href="dashboard.html" class="map-nav-item">
-      <img src="../assets/images/ui/home-icon.png"    alt="" class="nav-icon">
-      <span>Home</span>
-    </a>
-    <a href="map.html" class="map-nav-item">
-      <img src="../assets/images/ui/my-map-icon.png"  alt="" class="nav-icon">
-      <span>Map</span>
-    </a>
-    <a href="stampbook.html" class="map-nav-item">
-      <img src="../assets/images/ui/stamp-icon.png"   alt="" class="nav-icon">
-      <span>Stamps</span>
-    </a>
-    <a href="activities.html" class="map-nav-item active">
-      <img src="../assets/images/ui/quiz-icon.png"    alt="" class="nav-icon">
-      <span>Activities</span>
-    </a>
-    <a href="settings.html" class="map-nav-item">
-      <img src="../assets/images/ui/setting-icon.png" alt="" class="nav-icon">
-      <span>Me</span>
-    </a>
-  </nav>
+  <!-- Bottom nav, rendered by activity.js via renderNavbar() — it used to be
+       hardcoded here and so drifted from the shared one. -->
+  <nav class="bottom-nav" id="navbar"></nav>
 
 </div><!-- /.app-container -->
 

@@ -44,7 +44,11 @@ const nextHref = fromMission ? missionsDoneHref
 renderTopbar({
   title:      'Word Scramble',
   showBack:   true,
-  backHref:   fromMission ? missionsHref : fromActivities ? activitiesHref : `narrative.html?state=${stateId}`,
+  // From the hub the player picked a game and THEN a state, so back undoes one
+  // step to the state picker rather than jumping out to the hub.
+  backHref:   fromMission ? missionsHref
+            : fromActivities ? 'activity-states.html?game=scramble'
+            : `narrative.html?state=${stateId}`,
   showPoints: true,
   color:      null,
 });

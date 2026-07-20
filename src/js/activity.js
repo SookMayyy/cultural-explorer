@@ -5,13 +5,13 @@
 // On completion, shows a congratulation overlay and links to Guess My State.
 
 import Storage from './utils/storage.js';
-import { requireAuth, getStateParam } from './ui.js';
+import { requireAuth, getStateParam, renderTopbar, renderNavbar } from './ui.js';
 import { STATES_DATA } from './data/states.js';
 import DragMatch from './components/dragMatch.js';
 import Sound from './utils/sound.js';
 import { renderMascot, setMascotPose } from './data/mascots.js';
 import { initHowToPlay } from './components/howToPlay.js';
-import { restartAnimation } from './utils/dom.js';
+import { restartAnimation, escapeHtml } from './utils/dom.js';
 import { launchContext } from './utils/launchContext.js';
 
 // ── Auth guard ────────────────────────────────────────────────────────────────
@@ -27,27 +27,22 @@ const state   = STATES_DATA.find(s => s.id === stateId);
 // journey game rather than returning to a hub.
 const { fromActivities, fromMission, missionsHref, missionsDoneHref } = launchContext(stateId);
 const activitiesHref = `activities.html${stateId ? `?state=${stateId}` : ''}`;
+// Reached from the Activities hub, the player picked a game and THEN a state.
+// Back should undo one step — return to the state picker for this game, not all
+// the way out to the hub. Matches scramble.js and quiz.js.
+const pickerHref = 'activity-states.html?game=dragmatch';
 
-// ── HUD: back pill ────────────────────────────────────────────────────────────
-const backPill = document.getElementById('act-back');
-if (backPill) {
-  if (fromMission) {
-    backPill.href = missionsHref;
-    backPill.textContent = '🏰 BACK TO MISSIONS';
-  } else if (fromActivities) {
-    backPill.href = activitiesHref;
-    backPill.textContent = '🎮 BACK TO ACTIVITIES';
-  } else if (stateId) {
-    // Journey context: the pill goes back to the state's story (narrative)
-    // screen, not the map — keep the label truthful to that destination.
-    backPill.href = `narrative.html?state=${stateId}`;
-    backPill.textContent = '📖 BACK TO STORY';
-  }
-}
-
-// ── HUD: points pill ──────────────────────────────────────────────────────────
-const pointsVal = document.getElementById('act-points-val');
-if (pointsVal) pointsVal.textContent = Storage.getPoints().toLocaleString();
+// ── Shared chrome ─────────────────────────────────────────────────────────────
+renderTopbar({
+  title:      'Match the Culture!',
+  showBack:   true,
+  backHref:   fromMission    ? missionsHref
+            : fromActivities ? pickerHref
+            : stateId        ? `narrative.html?state=${stateId}`
+            : 'map.html',
+  showPoints: true,
+});
+renderNavbar('activities');
 
 // ── Build drag pairs for this state ──────────────────────────────────────────
 // Prefer the curated dragPairs authored per state in states.js; fall back to
@@ -182,8 +177,8 @@ function onComplete() {
       : `You earned +${bonus} pts! Next up: Guess My State 🔍`;
   }
 
-  // Refresh points pill
-  if (pointsVal) pointsVal.textContent = Storage.getPoints().toLocaleString();
+  // The topbar's points pill refreshes itself off the `ce:points` event that
+  // Storage.addPoints fires, so there is nothing to update by hand here.
 
   // Rimau celebrates
   if (mascotFig) setMascotPose(mascotFig, 'cheer');
@@ -195,7 +190,26 @@ function onComplete() {
 // ── Kid-friendly "How to Play" (first visit + a "?" button to re-open) ────────
 // This mounts the single floating "?" button (howToPlay.js) that re-opens the
 // illustrated instructions — the previous separate hint button was removed.
+// The demo uses a real pair from THIS round, so the child sees the actual
+// treasure they are about to match rather than a generic example.
+const demoPair  = pairs[0] || {};
+const demoLabel = demoPair.label || demoPair.food || 'Treasure';
+const demoZone  = demoPair.match || demoPair.state || 'Its matching clue';
+const demoEmoji = demoPair.icon || '🧩';
+
+const DEMO_HTML = `
+  <div class="dm-demo" aria-hidden="true">
+    <span class="dm-demo-chip">
+      <span class="dm-demo-chip-emoji">${demoEmoji}</span>${escapeHtml(demoLabel)}
+    </span>
+    <span class="dm-demo-zone">
+      ${escapeHtml(demoZone)}
+      <span class="dm-demo-tick">✓</span>
+    </span>
+  </div>`;
+
 initHowToPlay('activity', {
   title: 'Match the Culture!', emoji: '🧩',
+  topHtml: DEMO_HTML,
   lines: ['👆 Tap a card on the left.', '➡️ Then tap the box it matches.', '✅ Match them all to win!'],
 });

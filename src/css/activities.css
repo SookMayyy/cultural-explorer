@@ -119,7 +119,6 @@
 .act-tile--blue   { background: #D9ECFB; }
 .act-tile--purple { background: #EAE3FB; }
 .act-tile--green  { background: #DEF3E2; }
-.act-tile--teal   { background: #EDE6FA; }
 
 /* Real game art, where a card has it (see cardHTML in activities.js). */
 .act-card-img {

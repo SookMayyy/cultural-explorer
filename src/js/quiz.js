@@ -43,7 +43,11 @@ const activitiesHref = `activities.html?state=${stateId}`;
 renderTopbar({
   title:    state.name + ' Quiz',
   showBack: true,
-  backHref: fromMission ? missionsHref : fromActivities ? activitiesHref : `narrative.html?state=${stateId}`,
+  // From the hub the player picked a game and THEN a state, so back undoes one
+  // step to the state picker rather than jumping out to the hub.
+  backHref: fromMission ? missionsHref
+          : fromActivities ? 'activity-states.html?game=quiz'
+          : `narrative.html?state=${stateId}`,
   showPoints: true,
   color:    null,   // keeps purple override in quiz.css intact
 });

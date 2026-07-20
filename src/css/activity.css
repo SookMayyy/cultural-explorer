@@ -4,55 +4,36 @@
    Visual layer only — game logic lives in js/components/dragMatch.js
    ═══════════════════════════════════════════════════════════════════ */
 
-/* ── Page background (full-screen: body letterbox + frame) ───────── */
-:root { --screen-bg: var(--clr-bg) url('../assets/images/ui/batick_background.png') center / cover no-repeat; }
+/* ── Page background (full-screen: body letterbox + frame) ─────────
+   A calm light blue rather than the batik scene: this screen is dense with
+   photos and text, and the pattern competed with them. Shared with Cultural
+   Tic-Tac-Toe (which replaces this game at Adventurer) via --clr-match-bg, so
+   the pair always look like the same game at two difficulties. */
+:root { --screen-bg: var(--clr-match-bg); }
+.app-container { background: var(--clr-match-bg); }
 
 
 /* ════════════════════════════════════════════════════════════════════
-   HUD BAR  (replaces old orange topbar)
-   Three sections in one sticky row:
-     left  → "📖 BACK TO MAP" pill
-     centre → progress bar + "N / M MATCHED"
-     right  → ⭐ points pill
+   PROGRESS STRIP
+   Was a bespoke three-part HUD (back pill + progress + points pill). The
+   back button and points now come from the shared topbar like every other
+   mini-game, so all that is left here is the progress bar itself — a slim
+   white strip below the topbar, mirroring .quiz-progress-strip.
    ════════════════════════════════════════════════════════════════════ */
-.act-hud {
+.act-strip {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 14px;
-  background: var(--clr-bg);
+  padding: 8px 14px;
+  background: #fff;
   border-bottom: 1px solid rgba(0,0,0,0.07);
   flex-shrink: 0;
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  /* The floating topbar's avatar hangs below its 20px layout box — drop the
+     strip clear of it (see --topbar-overflow in style.css). */
+  margin-top: var(--topbar-overflow);
   /* Entry animation matching other screens in this app */
   animation: page-enter 0.25s ease-out both;
 }
-
-/* "📖 BACK TO MAP" — white pill with ink border, fully rounded */
-.act-back-pill {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 6px 12px;
-  background: #fff;
-  border: 2px solid var(--clr-dm-ink);
-  border-radius: var(--r-pill);
-  font-family: var(--font-display);
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--clr-text);
-  text-decoration: none;
-  white-space: nowrap;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-  flex-shrink: 0;
-  transition: transform 0.1s;
-  /* Minimum tap target height */
-  min-height: 32px;
-}
-.act-back-pill:active { transform: scale(0.94); }
 
 /* Centre section: label row + progress bar */
 .act-progress-area {
@@ -109,26 +90,8 @@
   transition: width 0.5s ease;
 }
 
-/* ⭐ points pill — gold background, ink border */
-.act-points-pill {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 12px;
-  background: var(--clr-yellow);
-  border: 2px solid var(--clr-dm-ink);
-  border-radius: var(--r-pill);
-  font-family: var(--font-display);
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--clr-text);
-  flex-shrink: 0;
-  white-space: nowrap;
-  min-height: 32px;
-}
-
-.act-points-star { font-size: 14px; line-height: 1; }
-.act-points-val  { min-width: 2ch; text-align: right; font-variant-numeric: tabular-nums; }
+/* The bespoke ⭐ points pill that lived here is gone — the shared topbar
+   provides it now, and it stays in sync via the `ce:points` event. */
 
 
 /* ════════════════════════════════════════════════════════════════════
@@ -817,4 +780,99 @@
   .act-mascot-corner {
     animation: page-enter 0.4s 0.2s ease-out both;
   }
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   "HOW TO PLAY" DEMO
+   A looping mini-demo shown in the instruction popup: a treasure chip
+   slides across onto its matching drop zone and a tick appears. This
+   game is tap-to-match rather than drag, but showing the movement is
+   what actually communicates "these two belong together" to a child —
+   the written steps below it explain the tapping.
+
+   Pure CSS on purpose: the popup is removed from the DOM when it closes,
+   so there is no timer to tear down.
+   ════════════════════════════════════════════════════════════════════ */
+.dm-demo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  height: 96px;
+  margin: 4px 0 16px;
+}
+
+/* The drop zone on the right — where the chip is heading. */
+.dm-demo-zone {
+  position: relative;
+  width: 116px;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: var(--r-md);
+  border: 2px dashed var(--clr-dm-zone);
+  background: #EAF7EF;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--clr-dm-zone-deep);
+  text-align: center;
+  flex: 0 0 auto;
+}
+.dm-demo-tick {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: calc(var(--r-md) - 2px);
+  background: rgba(39, 174, 96, .82);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 34px;
+  opacity: 0;
+  animation: dm-demo-tick 3s ease-in-out infinite;
+}
+
+/* The treasure chip that travels. */
+.dm-demo-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: var(--r-pill);
+  border: 2px solid var(--clr-dm-ink);
+  background: #fff;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--clr-text);
+  white-space: nowrap;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, .18);
+  animation: dm-demo-move 3s ease-in-out infinite;
+}
+.dm-demo-chip-emoji { font-size: 16px; line-height: 1; }
+
+@keyframes dm-demo-move {
+  0%, 12%   { transform: translate(0, 0) scale(1); opacity: 1; }
+  45%, 62%  { transform: translate(132px, 0) scale(.88); opacity: 1; }
+  70%, 88%  { transform: translate(132px, 0) scale(.88); opacity: 0; }
+  100%      { transform: translate(0, 0) scale(1); opacity: 1; }
+}
+@keyframes dm-demo-tick {
+  0%, 62%   { opacity: 0; }
+  72%, 90%  { opacity: 1; }
+  100%      { opacity: 0; }
+}
+
+/* Reduced motion: render the finished "after" frame instead of looping —
+   it teaches the same rule without the movement. */
+@media (prefers-reduced-motion: reduce) {
+  .dm-demo-chip { animation: none; transform: translate(132px, 0) scale(.88); opacity: 0; }
+  .dm-demo-tick { animation: none; opacity: 1; }
 }

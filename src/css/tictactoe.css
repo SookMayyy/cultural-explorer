@@ -1,7 +1,8 @@
 /* css/tictactoe.css — Cultural Tic-Tac-Toe
    ─────────────────────────────────────────────────────────────────────────────
    3×3 board of cultural photos on the left, draggable name pills on the right,
-   on the same soft lavender wash the Guess-the-State screen uses.
+   on the same light-blue wash as Drag & Match — this game replaces it at
+   Adventurer, so the two are styled as one game at two difficulties.
 
    Two rules here are load-bearing, not cosmetic:
      • .ttt-pill { touch-action: none }  — without it Android claims the gesture
@@ -12,11 +13,13 @@
 */
 
 /* ── Page background ───────────────────────────────────────────────────────── */
-/* Set on :root so it fills the body's letterbox margins too, and on the frame
+/* The same light blue as Drag & Match, which this game replaces at Adventurer —
+   one shared token (--clr-match-bg in style.css) so the pair can't drift apart.
+   Set on :root so it fills the body's letterbox margins too, and on the frame
    itself — the topbar is a transparent floating strip inside .app-container, so
    colouring the frame is what puts the wash BEHIND the back button and points. */
-:root { --screen-bg: #f7f0fa; }
-.app-container { background: #f7f0fa; }
+:root { --screen-bg: var(--clr-match-bg); }
+.app-container { background: var(--clr-match-bg); }
 
 /* ── Screen ─────────────────────────────────────────────────────────────────── */
 .ttt-screen {
@@ -42,10 +45,10 @@
   padding: 10px 26px 10px 12px;
   background: var(--clr-card);
   border-radius: var(--r-pill);
-  box-shadow: 0 4px 0 rgba(124, 58, 237, .18), var(--shadow-sm);
+  box-shadow: 0 4px 0 rgba(27, 95, 174, .18), var(--shadow-sm);
   font-family: var(--font-display);
   font-size: clamp(18px, 4.4vw, 25px);
-  color: #4c1d95;
+  color: #12406E;
   max-width: 100%;
   flex: 0 0 auto;
 }
@@ -110,7 +113,7 @@
   background: var(--clr-card);
   border: 4px solid #fff;
   border-radius: var(--r-md);
-  box-shadow: 0 3px 10px rgba(76, 29, 149, .14);
+  box-shadow: 0 3px 10px rgba(27, 95, 174, .14);
   cursor: pointer;
   transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
 }
@@ -198,7 +201,7 @@
   padding: 10px 14px;
   border: none;
   border-radius: var(--r-pill);
-  background: #7c3aed;
+  background: #2C7BE5;
   color: #fff;
   font-family: var(--font-body);
   font-size: clamp(12px, 2.6vw, 15px);
@@ -206,15 +209,15 @@
   line-height: 1.25;
   text-align: center;
   cursor: grab;
-  box-shadow: 0 3px 0 #5b21b6;
+  box-shadow: 0 3px 0 #1B5FAE;
   transition: transform .12s ease, background .12s ease, box-shadow .12s ease;
 }
-.ttt-pill:hover { background: #9f67fa; }
-.ttt-pill:active { cursor: grabbing; transform: translateY(2px); box-shadow: 0 1px 0 #5b21b6; }
+.ttt-pill:hover { background: #4A9BEE; }
+.ttt-pill:active { cursor: grabbing; transform: translateY(2px); box-shadow: 0 1px 0 #1B5FAE; }
 .ttt-pill:focus-visible { outline: 3px solid var(--clr-gold); outline-offset: 2px; }
 .ttt-pill.is-selected {
   background: var(--clr-gold);
-  color: #4c1d95;
+  color: #12406E;
   transform: translateY(-2px) scale(1.03);
   box-shadow: 0 0 0 3px #fff, var(--shadow-md);
 }
@@ -230,7 +233,7 @@
   animation: none !important;
   opacity: .97;
   transform-origin: center;
-  box-shadow: 0 10px 24px rgba(76, 29, 149, .4);
+  box-shadow: 0 10px 24px rgba(27, 95, 174, .4);
   cursor: grabbing;
   pointer-events: none;
 }
@@ -242,7 +245,7 @@
   font-family: var(--font-body);
   font-size: var(--text-base);
   font-weight: 700;
-  color: #5b21b6;
+  color: #1B5FAE;
   text-align: center;
   flex: 0 0 auto;
 }
@@ -265,10 +268,11 @@
 /* ── Popup skins ────────────────────────────────────────────────────────────── */
 /* Instructions — shown on every entry, plus the "?" button. */
 .ttt-howto .ce-popup-card { max-width: 470px; }
-.ttt-howto .ce-popup-title { font-size: 22px; color: #4c1d95; }
+.ttt-howto .ce-popup-title { font-size: 22px; color: #12406E; }
 .ttt-howto .ce-popup-emoji--img { width: 56px; height: 56px; margin-bottom: 8px; }
 
-/* Mode picker — light purple, two side-by-side cards (see the reference). */
+/* Mode picker — kept light purple on purpose: the brief asks for it to read as
+   visually distinct from the instruction card that comes immediately before. */
 .ttt-mode .ce-popup-card { background: #f7f0fa; max-width: 430px; }
 .ttt-mode .ce-popup-emoji { display: none; }
 .ttt-mode .ce-popup-title { font-size: 24px; color: #2b7a6b; margin-bottom: 20px; }
@@ -277,14 +281,14 @@
   color: #2b7a6b;
   font-size: 16px;
   line-height: 1.3;
-  box-shadow: 0 3px 10px rgba(76, 29, 149, .14);
+  box-shadow: 0 3px 10px rgba(27, 95, 174, .14);
 }
-.ttt-mode .ce-popup-btn--mode:hover { filter: brightness(1); box-shadow: 0 6px 16px rgba(76, 29, 149, .22); }
+.ttt-mode .ce-popup-btn--mode:hover { filter: brightness(1); box-shadow: 0 6px 16px rgba(27, 95, 174, .22); }
 .ttt-mode .ce-popup-btn-icon { width: 56px; height: 56px; }
 
 /* Win / draw — no emoji anywhere in this one, by design. */
 .ttt-win .ce-popup-emoji { display: none; }
-.ttt-win .ce-popup-title { font-size: 28px; color: #6B50CE; }
+.ttt-win .ce-popup-title { font-size: 28px; color: #2C7BE5; }
 
 /* ── Instruction demo animation ─────────────────────────────────────────────── */
 /* A pill slides onto its matching photo, a tick appears, then it resets — pure
@@ -304,7 +308,7 @@
   height: 100px;
   border-radius: var(--r-md);
   border: 3px solid #fff;
-  box-shadow: 0 3px 10px rgba(76, 29, 149, .18);
+  box-shadow: 0 3px 10px rgba(27, 95, 174, .18);
   overflow: hidden;
   background: var(--clr-grey-light);
   flex: 0 0 auto;
@@ -326,13 +330,13 @@
 .ttt-demo-pill {
   padding: 9px 16px;
   border-radius: var(--r-pill);
-  background: #7c3aed;
+  background: #2C7BE5;
   color: #fff;
   font-family: var(--font-body);
   font-size: 14px;
   font-weight: 700;
   white-space: nowrap;
-  box-shadow: 0 3px 0 #5b21b6;
+  box-shadow: 0 3px 0 #1B5FAE;
   animation: ttt-demo-drag 3s ease-in-out infinite;
 }
 @keyframes ttt-demo-drag {

@@ -55,6 +55,11 @@
   --clr-dm-play-bg:     #D6E8F5;   /* Soft blue-grey play-card background */
   --clr-dm-play-border: #8AABCC;   /* Border ring on the play card */
   --clr-dm-ink:         #1A1A1A;   /* Near-black ink for pill borders / badges */
+  /* Page wash shared by the two "match things up" games — Drag & Match and
+     Cultural Tic-Tac-Toe (which replaces it at Adventurer). One token so the
+     pair can't drift apart. Lighter than --clr-dm-play-bg so the play card
+     still reads as a raised surface on top of it. */
+  --clr-match-bg:       #E8F3FC;   /* Light blue page background */
 
   /* ── Typography ── */
   --font-display: 'Fredoka One', 'Baloo 2', cursive;
@@ -100,6 +105,15 @@
   --game-h:          650px;
   --game-max-w:      1227px;
   --topbar-h:        20px;
+  /* The topbar is a FLOATING strip: it reserves only --topbar-h of layout
+     height (20px), but its contents — back button, points pill, avatar — stand
+     ~56px tall and hang well below that box, bottoming out around y=62. Anything
+     placed directly beneath the topbar (a progress strip, a heading) must add
+     this much clearance or the avatar sits on top of it.
+     Sized for a DIRECT SIBLING of the topbar, which is the tight case; a strip
+     nested inside <main> inherits some padding already and ends up a little
+     roomier. Used by .quiz-progress-strip, .guess-strip and .act-strip. */
+  --topbar-overflow: 34px;
   --navbar-h:        64px;
   --screen-side-gap: 20px;
 }
@@ -441,7 +455,9 @@ body {
   body {
     background:
       url('../assets/images/ui/lokalearn_decorative_background_2.png') top 40px    left -30px  / 120px auto no-repeat,
+      url('../assets/images/ui/lokalearn_decorative_background_4.png') bottom 0px    left -10px  / 150px auto no-repeat,
       url('../assets/images/ui/lokalearn_decorative_background_3.png') bottom 30px     right -30px / 120px auto no-repeat,
+      url('../assets/images/ui/lokalearn_decorative_background_1.png') top 0px     right -10px / 150px auto no-repeat,
       var(--clr-bg);
     background-attachment: fixed;
   }

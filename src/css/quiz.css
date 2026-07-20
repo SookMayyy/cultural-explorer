@@ -35,6 +35,10 @@
   border-bottom: 1.5px solid var(--clr-border-warm);
   flex-shrink: 0;
 
+  /* The floating topbar's avatar hangs below its 20px layout box and was
+     covering the progress bar — drop the strip clear of it. */
+  margin-top: var(--topbar-overflow);
+
   /* Slide in just after the topbar */
   animation: page-enter 0.28s 0.06s ease-out both;
 }

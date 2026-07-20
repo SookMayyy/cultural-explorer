@@ -95,7 +95,9 @@ function gamesList() {
         // state at once, so the per-state picker would make no sense.
         id: 'tictactoe', label: 'Cultural Tic-Tac-Toe', emoji: '⭕',
         icon: '../assets/images/ui/tic_tac_toe_icon.png',
-        href: 'tictactoe.html?from=activities', tile: 'act-tile--teal',
+        // Same blue tile as Drag & Match — it takes that slot, so it should
+        // read as the same kind of game.
+        href: 'tictactoe.html?from=activities', tile: 'act-tile--blue',
       }
     : { id: 'dragmatch', label: 'Drag & Match', emoji: '🧩',
         href: 'activity-states.html?game=dragmatch', tile: 'act-tile--blue' };

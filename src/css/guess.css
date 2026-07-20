@@ -23,9 +23,10 @@
   align-items: center;
   gap: var(--sp-md);
   padding: var(--sp-sm) var(--sp-lg);
-  /* Nudge the whole strip down a bit from the topbar — it sat cramped right
-     against it, giving the round counter / progress bar no breathing room. */
-  margin-top: var(--sp-sm);
+  /* The floating topbar's avatar hangs below its 20px layout box and was
+     covering the round counter / progress bar — drop the strip clear of it.
+     (var(--sp-sm) used to be here and was not enough.) */
+  margin-top: var(--topbar-overflow);
   /* White strip contrasts with the lavender page */
   background: #fff;
   border-bottom: 1px solid #e0d4f7;
