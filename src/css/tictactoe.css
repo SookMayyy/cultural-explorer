@@ -293,6 +293,60 @@
 /* Win / draw — no emoji anywhere in this one, by design. */
 .ttt-win .ce-popup-emoji { display: none; }
 .ttt-win .ce-popup-title { font-size: 28px; color: #2C7BE5; }
+/* Losing to the computer is stated plainly but not celebrated — softer, warmer
+   heading than the blue used for a win. */
+.ttt-win--lost .ce-popup-title { color: var(--clr-text-muted); font-size: 24px; }
+.ttt-win--lost .ce-popup-msg { display: none; }
+
+/* ── Rimau's encouragement (shown only after losing to the computer) ────────── */
+.ttt-rimau {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 6px 0 18px;
+}
+.ttt-rimau-fig {
+  width: 92px;
+  height: 92px;
+  flex: 0 0 92px;
+}
+.ttt-rimau-fig .img-slot__fb { font-size: 56px; }
+/* Speech bubble to Rimau's left, with a tail pointing at him. */
+.ttt-rimau-bubble {
+  position: relative;
+  margin: 0;
+  padding: 12px 16px;
+  border-radius: 16px;
+  background: #FFF3C9;
+  border: 2px solid var(--clr-gold);
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--clr-text);
+  text-align: center;
+  max-width: 210px;
+}
+.ttt-rimau-bubble::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -9px;
+  margin-top: -8px;
+  border: 8px solid transparent;
+  border-left-color: var(--clr-gold);
+}
+
+/* A small wave-in so Rimau arrives rather than just appearing. */
+@media (prefers-reduced-motion: no-preference) {
+  .ttt-rimau-fig { animation: ttt-rimau-in .45s cubic-bezier(.34, 1.56, .64, 1) both; }
+  .ttt-rimau-bubble { animation: ttt-rimau-in .45s .12s cubic-bezier(.34, 1.56, .64, 1) both; }
+}
+@keyframes ttt-rimau-in {
+  from { transform: translateY(10px) scale(.85); opacity: 0; }
+  to   { transform: translateY(0)    scale(1);   opacity: 1; }
+}
 
 /* ── Instruction demo animation ─────────────────────────────────────────────── */
 /* A pill slides onto its matching photo, a tick appears, then it resets — pure

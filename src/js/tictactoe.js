@@ -35,6 +35,8 @@ import { initPointerDrag } from './utils/pointerDrag.js';
 import { burstConfetti } from './utils/confetti.js';
 import { shuffle } from './utils/shuffle.js';
 import { escapeHtml } from './utils/dom.js';
+import { assetImg } from './utils/assetImg.js';
+import { mascotPose } from './data/mascots.js';
 import Sound from './utils/sound.js';
 
 requireAuth();
@@ -53,6 +55,17 @@ const BOT_DELAY_MAX = 1200;
 /** Awarded for beating the computer only — two-player games score nothing. */
 const WIN_POINTS    = 15;
 const GRID_SIZE     = 9;
+
+// Losing to the computer is the moment a child is most likely to quit, so Rimau
+// turns up to soften it. Several lines so a run of losses doesn't feel canned.
+// The `wave` pose is deliberate: `happy`/`cheer` are arms-up celebrations and
+// would read as gloating right after the child has lost.
+const RIMAU_LINES = [
+  "So close! Want to try again?",
+  "Good try! You'll get it next time.",
+  "Nice matching — one more game?",
+  "Don't give up, you're learning lots!",
+];
 
 const BACK_HREF = 'activities.html';
 
@@ -260,17 +273,31 @@ async function endGame(result) {
     flyPoints(turnEl, earned);
   }
 
+  // Beaten by the computer: Rimau shows up with a word of encouragement rather
+  // than a bare "you lost". Only in bot mode — in a two-player game the loser
+  // is another child at the same tablet, and singling them out would sting.
+  const lostToBot = !draw && result === 'O' && mode === 'bot';
+
   let message = '';
   if (draw) message = 'The board is full and nobody got three in a row. Great effort!';
   else if (earned) message = `Three in a row! You earned ${earned} points.`;
   else if (result === 'X') message = 'Three in a row — nice matching!';
-  else message = 'Good try — start a new game and take it back!';
+  else if (!lostToBot) message = 'Good game! Start a new one and take it back.';
+  // lostToBot leaves `message` empty — Rimau's speech bubble says it instead.
+
+  const rimauHtml = lostToBot ? `
+    <div class="ttt-rimau">
+      <p class="ttt-rimau-bubble">${escapeHtml(
+        RIMAU_LINES[Math.floor(Math.random() * RIMAU_LINES.length)])}</p>
+      ${assetImg(mascotPose('wave'), '🐯', { alt: 'Rimau', cls: 'ttt-rimau-fig' })}
+    </div>` : '';
 
   const again = await showPopup({
-    cls: 'ttt-win',
+    cls: lostToBot ? 'ttt-win ttt-win--lost' : 'ttt-win',
     emoji: '',
     dismissible: false,
     title: draw ? "It's a draw!" : winLabel(result),
+    topHtml: rimauHtml,
     message,
     actions: [
       { label: 'Play again',         value: true,  style: 'primary' },
