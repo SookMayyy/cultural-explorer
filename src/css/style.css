@@ -55,11 +55,14 @@
   --clr-dm-play-bg:     #D6E8F5;   /* Soft blue-grey play-card background */
   --clr-dm-play-border: #8AABCC;   /* Border ring on the play card */
   --clr-dm-ink:         #1A1A1A;   /* Near-black ink for pill borders / badges */
-  /* Page wash shared by the two "match things up" games — Drag & Match and
-     Cultural Tic-Tac-Toe (which replaces it at Adventurer). One token so the
-     pair can't drift apart. Lighter than --clr-dm-play-bg so the play card
-     still reads as a raised surface on top of it. */
-  --clr-match-bg:       #E8F3FC;   /* Light blue page background */
+  /* ── Mini-game page wash ──
+     Every mini-game SCREEN shares this soft lavender so playing a game always
+     feels like the same place: Word Scramble, Drag & Match, Quiz, Guess My
+     State and Cultural Tic-Tac-Toe. The hubs (Activities, the state picker) and
+     the journey screens deliberately keep the warm cream/batik look, so the
+     switch in background is what signals "you are now IN a game".
+     Each game still keeps its own accent colour on top of this. */
+  --clr-game-bg:        #f5f0ff;   /* Soft lavender — the mini-game backdrop */
 
   /* ── Typography ── */
   --font-display: 'Fredoka One', 'Baloo 2', cursive;

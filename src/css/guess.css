@@ -3,9 +3,12 @@
    Background: #f5f0ff (soft lavender wash)
    ─────────────────────────────────────────────── */
 
-/* ── Page background ── */
+/* ── Page background ──
+   This screen's lavender is now the shared mini-game wash (--clr-game-bg in
+   style.css) that every mini-game uses. Changing it here changes all of them. */
+:root { --screen-bg: var(--clr-game-bg); }
 .app-container {
-  background: #f5f0ff;
+  background: var(--clr-game-bg);
 }
 
 /* ── Topbar gradient (purple) ── */

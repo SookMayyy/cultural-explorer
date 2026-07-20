@@ -42,7 +42,7 @@ describe('UI — tic-tac-toe gameplay', () => {
 
   afterAll(async () => { if (browser) await browser.close(); });
 
-  test('instructions come first, with the demo above the written steps', async () => {
+  test('first visit shows the instructions, with the demo above the written steps', async () => {
     await page.waitForSelector('.ttt-howto', { timeout: 5000 });
 
     // Order inside the card: icon, title, demo, then the steps.
@@ -106,5 +106,16 @@ describe('UI — tic-tac-toe gameplay', () => {
     const turn = await text(page, '#ttt-turn-text');
     expect(turn).not.toBe('Rimau is thinking');
     expect(marks).toBeGreaterThanOrEqual(1);
+  });
+
+  test('a return visit skips the instructions and goes straight to the mode picker', async () => {
+    // The "seen" flag was set by the first visit above, in this same origin.
+    await page.goto(url(GAME), { waitUntil: 'networkidle2', timeout: 20000 });
+    await settle(700);
+
+    expect(await page.$('.ttt-howto')).toBeNull();
+    expect(await page.$('.ttt-mode')).not.toBeNull();
+    // …and the "?" button is still there to re-open them on demand.
+    expect(await page.$('#ce-help-fab')).not.toBeNull();
   });
 });

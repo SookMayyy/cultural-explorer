@@ -13,13 +13,13 @@
 */
 
 /* ── Page background ───────────────────────────────────────────────────────── */
-/* The same light blue as Drag & Match, which this game replaces at Adventurer —
-   one shared token (--clr-match-bg in style.css) so the pair can't drift apart.
-   Set on :root so it fills the body's letterbox margins too, and on the frame
-   itself — the topbar is a transparent floating strip inside .app-container, so
-   colouring the frame is what puts the wash BEHIND the back button and points. */
-:root { --screen-bg: var(--clr-match-bg); }
-.app-container { background: var(--clr-match-bg); }
+/* The shared mini-game lavender (--clr-game-bg in style.css), the same wash
+   every other mini-game uses. Set on :root so it fills the body's letterbox
+   margins too, and on the frame itself — the topbar is a transparent floating
+   strip inside .app-container, so colouring the frame is what puts the wash
+   BEHIND the back button and points. */
+:root { --screen-bg: var(--clr-game-bg); }
+.app-container { background: var(--clr-game-bg); }
 
 /* ── Screen ─────────────────────────────────────────────────────────────────── */
 .ttt-screen {
@@ -266,7 +266,7 @@
 }
 
 /* ── Popup skins ────────────────────────────────────────────────────────────── */
-/* Instructions — shown on every entry, plus the "?" button. */
+/* Instructions — first visit only, then via the "?" button. */
 .ttt-howto .ce-popup-card { max-width: 470px; }
 .ttt-howto .ce-popup-title { font-size: 22px; color: #12406E; }
 .ttt-howto .ce-popup-emoji--img { width: 56px; height: 56px; margin-bottom: 8px; }

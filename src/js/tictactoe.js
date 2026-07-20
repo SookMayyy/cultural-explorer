@@ -30,7 +30,7 @@ import { pickItems } from './data/tictactoeItems.js';
 import { chooseSquare, winningLine, emptySquares } from './data/tictactoeBot.js';
 import { paramsFor } from './data/difficulty.js';
 import { showPopup } from './components/popup.js';
-import { showHowToPlay, mountHelpButton } from './components/howToPlay.js';
+import { initHowToPlay } from './components/howToPlay.js';
 import { initPointerDrag } from './utils/pointerDrag.js';
 import { burstConfetti } from './utils/confetti.js';
 import { shuffle } from './utils/shuffle.js';
@@ -470,9 +470,7 @@ const HOW_TO_PLAY = {
   buttonLabel: 'Play',
 };
 
-// The rules come first EVERY time the page is opened, then the mode picker —
-// never both at once. `initHowToPlay` is deliberately not used here: it only
-// auto-shows on the first visit, and this game is meant to re-teach the rule
-// each session. It still mounts the "?" button to re-open on demand.
-mountHelpButton(HOW_TO_PLAY);
-showHowToPlay(HOW_TO_PLAY).then(chooseMode);
+// First visit shows the rules, then the mode picker — never both at once, which
+// is why this is awaited. Afterwards the "?" button re-opens them on demand.
+// Same first-visit-only convention as the other four mini-games.
+initHowToPlay('tictactoe', HOW_TO_PLAY).then(chooseMode);

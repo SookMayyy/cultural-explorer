@@ -76,12 +76,8 @@ export function showHowToPlay({
   });
 }
 
-/**
- * Mount the floating "?" help button (once) that re-opens the instructions.
- * Exported for games that show their rules on every entry rather than only the
- * first, and so can't use initHowToPlay's first-visit gate.
- */
-export function mountHelpButton(config) {
+/** Mount the floating "?" help button (once) that re-opens the instructions. */
+function mountHelpButton(config) {
   injectStyles();
   if (document.getElementById('ce-help-fab')) return;
   const btn = document.createElement('button');
