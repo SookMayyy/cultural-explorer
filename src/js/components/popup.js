@@ -1,13 +1,8 @@
-// js/components/popup.js — reusable popup dialogs for the whole app.
-//
-// MPA-friendly: styles are injected once on first use, so any page can just
-// `import { showError, showPopup, confirmPopup } from './components/popup.js'`
-// without adding markup or a <link>. Child-appropriate: big text, one or two
-// large buttons, friendly emoji, tap-outside / Esc to dismiss.
-//
-//   showError('Something went wrong')           → friendly error popup (OK)
-//   showPopup({ title, message, emoji, actions }) → custom; resolves to value
-//   confirmPopup('Log out?')                     → resolves true/false
+/* popup.js — reusable popup dialogs for the whole app */
+
+// Styles inject once on first use, so any page can import and call these without
+// markup or a link. Note: the CSS below is a template literal — never put a
+// backtick in its comments.
 
 let stylesInjected = false;
 
@@ -66,26 +61,12 @@ function injectStyles() {
   document.head.appendChild(el);
 }
 
-/**
- * Show a popup. Returns a Promise that resolves with the chosen action's
- * `value` (or null if dismissed by backdrop/Esc).
- * actions: [{ label, value, style: 'primary'|'ghost' }]
- *
- * Optional extras (all default to the original behaviour):
- *   cls          extra class on the OVERLAY, so a page stylesheet can reskin
- *                both the backdrop and the card (e.g. `.ttt-mode .ce-popup-card`)
- *   topHtml      markup injected between the TITLE and the message — for a
- *                demo or illustration that should be read before the words
- *   bodyHtml     markup injected between the message and the buttons — for
- *                illustrations or demo animations
- *   dismissible  false removes backdrop-click and Esc, for popups the flow
- *                cannot continue without (e.g. "choose a game mode")
- *   actionsLayout 'stack' (default, full-width buttons) or 'row' (side-by-side
- *                cards). Pair 'row' with `image` on each action to get the
- *                icon-above-label picker cards.
- *
- * Each action may carry `image` (an icon rendered above its label).
- */
+// Show a popup; resolves with the chosen action's value (null if dismissed).
+//   actions:       [{ label, value, style: 'primary'|'ghost', image }]
+//   cls            extra class on the overlay, for a page-specific reskin
+//   topHtml        markup between title and message; bodyHtml between message and buttons
+//   dismissible    false drops backdrop-click + Esc, for a required choice
+//   actionsLayout  'stack' (default) or 'row' (side-by-side picker cards)
 export function showPopup({
   title = '', message = '', emoji = '💬', image = '', actions,
   cls = '', topHtml = '', bodyHtml = '', dismissible = true, actionsLayout = 'stack',
@@ -161,14 +142,14 @@ export function showPopup({
   });
 }
 
-/** Friendly error popup. `message` may contain a leading emoji; we strip it. */
+// Friendly error popup (strips a leading emoji from the message).
 export function showError(message, { title = 'Oops!', emoji = '😅' } = {}) {
   const clean = String(message || 'Something went wrong. Please try again.')
     .replace(/^[❌⚠️\s]+/, '').trim();
   return showPopup({ title, message: clean, emoji, actions: [{ label: 'OK', value: true, style: 'primary' }] });
 }
 
-/** Yes/No confirmation. Resolves true (confirm) or false (cancel/dismiss). */
+// Yes/No confirmation. Resolves true (confirm) or false (cancel/dismiss).
 export async function confirmPopup(message, { title = 'Are you sure?', emoji = '🤔', image = '', confirmText = 'Yes', cancelText = 'Cancel' } = {}) {
   const result = await showPopup({
     title, message, emoji, image,

@@ -1,21 +1,8 @@
-// js/data/festivalMissions.js — Mission 4 (Festival Challenge) content per state.
-// ─────────────────────────────────────────────────────────────────────────────
-// The Festival mission teaches a state's signature FESTIVAL the same "learn
-// before you play" way, then runs the Quiz (quiz.html) — the state's own
-// quizQuestion + questions. Like the Tourist mission, the game needs no
-// injection (it already runs from the state's quiz data), so this file only
-// supplies the Discover spotlight.
-//
-// Kedah's festival is the Paddy Festival, a harvest celebration — so its
-// spotlight uses the paddy-field scene (also the state's entry background). The
-// Discover deliberately teaches "these fields grow much of Malaysia's rice",
-// which is exactly what the Kedah quiz then asks ("Why is Kedah the Rice
-// Bowl?") — Discover → Play. States without a festival photo keep the tap-cards
-// Discover, so nothing is broken.
-//
-// The spotlight only turns on when `image` is a real file (missions.js gates on
-// `festival.image`).
-// ─────────────────────────────────────────────────────────────────────────────
+/* festivalMissions.js — Mission 4 (Festival Challenge) content per state */
+
+// Teaches a state's signature festival, then runs the Quiz. The game runs from
+// the state's quiz data, so this file supplies only the Discover spotlight, which
+// turns on only when `image` is a real file (missions.js gates on festival.image).
 
 export const FESTIVAL_MISSIONS = {
   selangor: {

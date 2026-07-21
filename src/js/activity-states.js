@@ -1,12 +1,8 @@
-// js/activity-states.js — Activity → State picker
-// ─────────────────────────────────────────────────────────────────────────────
+/* activity-states.js — Activity → State picker */
+
 // Reached from the Activities Hub after the player picks a game (?game=<id>).
-// Lists the states as cards so the player chooses which one to play that game for
-// — keeping each activity tied to one state instead of mixing them up. A state is
-// playable only once the player has COMPLETED ALL FOUR of its missions (which also
-// earns its stamp); until then it shows as locked. Tapping a playable state opens
-// the chosen game with ?state=<id>&from=activities.
-// ─────────────────────────────────────────────────────────────────────────────
+// Lists states as cards; a state is playable only once all four of its missions
+// are done. Tapping one opens the game with ?state=<id>&from=activities.
 
 import Storage from './utils/storage.js';
 import { renderTopbar, renderNavbar, requireAuth } from './ui.js';
@@ -16,10 +12,8 @@ import Sound from './utils/sound.js';
 
 requireAuth();
 
-// ── Which game are we picking a state for? ─────────────────────────────────────
-// Each entry knows its friendly label, an emoji for the header, and how to build
-// the play URL for a given state. Guess the State is intentionally absent — it is
-// multi-state and launches straight from the hub.
+/* Which game are we picking a state for? */
+// Guess the State is intentionally absent — it is multi-state and launches from the hub.
 const GAMES = {
   scramble:  { label: 'Word Scramble', emoji: '🔤', build: (id) => `scramble.html?state=${id}&from=activities` },
   dragmatch: { label: 'Drag & Match',  emoji: '🧩', build: (id) => `activity.html?state=${id}&from=activities` },
@@ -35,7 +29,7 @@ if (!game) {
   throw new Error('Unknown activity game: ' + gameId);
 }
 
-// ── Chrome ────────────────────────────────────────────────────────────────────
+/* Chrome */
 // color:null keeps the purple .activities-topbar override (shared CSS).
 renderTopbar({
   title:      game.label,
@@ -48,10 +42,8 @@ renderNavbar('activities');
 
 document.getElementById('as-heading').textContent = `${game.emoji} ${game.label}`;
 
-// ── Build the state cards ──────────────────────────────────────────────────────
-// A state is playable only once the player has COMPLETED ALL FOUR of its missions
-// (which also earns its stamp). Until then it renders as locked and isn't
-// clickable — the player has to finish that state's missions first.
+/* Build the state cards */
+// Locked until all four of the state's missions are done.
 const progress = Storage.getProgress();
 
 function isExplored(id) {

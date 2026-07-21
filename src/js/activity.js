@@ -1,8 +1,7 @@
-// js/activity.js — "Match the Culture!" activity page
-//
-// Pulls the current state from Storage/URL, builds 3–4 drag-match pairs
-// from that state's cards, then uses the DragMatch component to run the game.
-// On completion, shows a congratulation overlay and links to Guess My State.
+/* activity.js — "Match the Culture!" activity page */
+
+// Builds 3–4 drag-match pairs from the current state's cards and runs the DragMatch
+// component. On completion, shows an overlay and links on to Guess My State.
 
 import Storage from './utils/storage.js';
 import { requireAuth, getStateParam, renderTopbar, renderNavbar } from './ui.js';
@@ -14,25 +13,20 @@ import { initHowToPlay } from './components/howToPlay.js';
 import { restartAnimation, escapeHtml } from './utils/dom.js';
 import { launchContext } from './utils/launchContext.js';
 
-// ── Auth guard ────────────────────────────────────────────────────────────────
 const session = requireAuth();
 if (!session) throw new Error('Not logged in');
 
-// ── Load state ────────────────────────────────────────────────────────────────
+/* Load state */
 const stateId = getStateParam();
 const state   = STATES_DATA.find(s => s.id === stateId);
 
-// ── Launch context ────────────────────────────────────────────────────────────
-// In the linear journey the back button + completion CTA advance to the next
-// journey game rather than returning to a hub.
+/* Launch context (journey: back + CTA advance to the next game) */
 const { fromActivities, fromMission, missionsHref, missionsDoneHref } = launchContext(stateId);
 const activitiesHref = `activities.html${stateId ? `?state=${stateId}` : ''}`;
-// Reached from the Activities hub, the player picked a game and THEN a state.
-// Back should undo one step — return to the state picker for this game, not all
-// the way out to the hub. Matches scramble.js and quiz.js.
+// From the hub, back undoes one step to the state picker (matches scramble/quiz).
 const pickerHref = 'activity-states.html?game=dragmatch';
 
-// ── Shared chrome ─────────────────────────────────────────────────────────────
+/* Shared chrome */
 renderTopbar({
   title:      'Match the Culture!',
   showBack:   true,
@@ -44,9 +38,7 @@ renderTopbar({
 });
 renderNavbar('activities');
 
-// ── Build drag pairs for this state ──────────────────────────────────────────
-// Prefer the curated dragPairs authored per state in states.js; fall back to
-// deriving pairs from cards so the game still works during development.
+/* Build drag pairs — prefer curated dragPairs, else derive from cards */
 function buildPairs(stateData) {
   if (stateData?.dragPairs?.length) return stateData.dragPairs;
   if (!stateData?.cards?.length)    return [];
@@ -66,21 +58,20 @@ const FALLBACK_PAIRS = [
 const pairs      = state ? buildPairs(state) : FALLBACK_PAIRS;
 const totalPairs = pairs.length;
 
-// ── HUD: progress bar initial state ──────────────────────────────────────────
+/* HUD: progress bar initial state */
 const matchedText  = document.getElementById('act-matched-text');
 const progressFill = document.getElementById('act-progress-fill');
 
 if (matchedText)  matchedText.textContent = `0 / ${totalPairs} MATCHED`;
 if (progressFill) progressFill.style.width = '0%';
 
-// ── Mascot corner (Rimau) ─────────────────────────────────────────────────────
+/* Mascot corner (Rimau) */
 const mascotFig = document.getElementById('act-mascot-fig');
-// renderMascot() swaps the emoji placeholder for the real PNG (with emoji fallback).
 if (mascotFig) renderMascot(mascotFig, 'happy');
 
 const bubbleText = document.getElementById('act-bubble-text');
 
-// ── Mascot bubble messages — cycle on each correct match ──────────────────────
+// Mascot bubble messages — cycle on each correct match.
 const BUBBLE_MESSAGES = [
   'Can you match each clue to the right state?',
   'Great start! Keep going!',
@@ -95,23 +86,21 @@ function onMatchMade() {
   matchCount++;
   Sound.correct();
 
-  // Update HUD progress bar and matched counter
   if (matchedText)  matchedText.textContent = `${matchCount} / ${totalPairs} MATCHED`;
   if (progressFill) progressFill.style.width = `${(matchCount / totalPairs) * 100}%`;
 
   restartAnimation(mascotFig, 'react-happy');
 
-  // Cycle the mascot bubble message as the player progresses
   const msgIdx = Math.min(matchCount, BUBBLE_MESSAGES.length - 1);
   if (bubbleText) bubbleText.textContent = BUBBLE_MESSAGES[msgIdx];
 }
 
-// ── DOM references ────────────────────────────────────────────────────────────
+/* DOM references */
 const gameArea   = document.getElementById('act-game-area');
 const completeEl = document.getElementById('act-complete');
 const btnToQuiz  = document.getElementById('btn-to-quiz');
 
-// ── Build game via DragMatch component ────────────────────────────────────────
+/* Build game via DragMatch component */
 if (!pairs.length) {
   gameArea.innerHTML = `
     <p style="text-align:center;color:var(--clr-text-muted);padding:var(--sp-xl)">
@@ -122,16 +111,14 @@ if (!pairs.length) {
   gameArea.innerHTML  = '';
   gameArea.appendChild(gameContainer);
 
-  // Pass the title as an option so future mission themes can override it.
   const game = new DragMatch(gameContainer, pairs, onComplete, {
     title:      'MATCH THE TREASURE!',
     colHeading: 'TREASURES',
   });
   game.render();
 
-  // Watch for .correct-zone class additions to trigger per-match feedback.
-  // DragMatch only fires onComplete when ALL pairs are done; we need the
-  // per-match mascot reactions and progress bar updates too.
+  // DragMatch only fires onComplete at the end, so watch .correct-zone additions
+  // for the per-match mascot reaction and progress bar.
   const matchObserver = new MutationObserver(() => {
     const corrects = gameContainer.querySelectorAll('.correct-zone').length;
     if (corrects > matchCount) {
@@ -145,18 +132,16 @@ if (!pairs.length) {
   });
 }
 
-// ── Game completion handler ───────────────────────────────────────────────────
+/* Game completion handler */
 function onComplete() {
-  // Persist progress
   Storage.markCompleted(stateId || 'penang', 'activity');
 
-  // In the mission flow the flat +25 mission bonus is the only reward, so the
-  // per-game bonus is NOT persisted (keeps a state worth exactly 100).
+  // In the mission flow the flat +25 bonus is the only reward, so the per-game
+  // bonus isn't persisted (keeps a state worth exactly 100).
   const bonus = 20;
   if (!fromMission) Storage.addPoints(bonus);
 
-  // Wire the primary CTA: back to the mission / hub when replaying, otherwise
-  // advance the journey to the Guess My State game.
+  // Primary CTA: back to mission/hub when replaying, else on to Guess My State.
   if (btnToQuiz) {
     if (fromMission) {
       btnToQuiz.href = missionsDoneHref;
@@ -169,7 +154,6 @@ function onComplete() {
     }
   }
 
-  // Update completion card subtitle
   const sub = document.getElementById('act-complete-sub');
   if (sub) {
     sub.textContent = (fromMission || fromActivities)
@@ -177,21 +161,13 @@ function onComplete() {
       : `You earned +${bonus} pts! Next up: Guess My State 🔍`;
   }
 
-  // The topbar's points pill refreshes itself off the `ce:points` event that
-  // Storage.addPoints fires, so there is nothing to update by hand here.
-
-  // Rimau celebrates
-  if (mascotFig) setMascotPose(mascotFig, 'cheer');
+  if (mascotFig) setMascotPose(mascotFig, 'cheer');   // Rimau celebrates
 
   Sound.unlock();
   completeEl.classList.remove('hidden');
 }
 
-// ── Kid-friendly "How to Play" (first visit + a "?" button to re-open) ────────
-// This mounts the single floating "?" button (howToPlay.js) that re-opens the
-// illustrated instructions — the previous separate hint button was removed.
-// The demo uses a real pair from THIS round, so the child sees the actual
-// treasure they are about to match rather than a generic example.
+/* Kid-friendly "How to Play" — the demo uses a real pair from this round */
 const demoPair  = pairs[0] || {};
 const demoLabel = demoPair.label || demoPair.food || 'Treasure';
 const demoZone  = demoPair.match || demoPair.state || 'Its matching clue';

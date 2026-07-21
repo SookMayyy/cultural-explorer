@@ -1,9 +1,7 @@
-// js/utils/api.js — tiny fetch wrapper for the backend API.
-//
-// Always sends the session cookie (credentials: 'include'), parses JSON, and
-// throws a friendly Error on non-2xx or { ok:false } responses so callers can
-// `try/catch` and surface a popup. Keep all API calls going through here.
+/* api.js — fetch wrapper for the backend API */
 
+// Sends the session cookie, parses JSON, and throws a friendly Error on
+// non-2xx or { ok:false } so callers can try/catch and surface a popup.
 async function request(method, url, body) {
   const opts = { method, credentials: 'include', headers: {} };
   if (body !== undefined) {

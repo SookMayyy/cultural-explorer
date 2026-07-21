@@ -1,4 +1,4 @@
-// js/stampbook.js — stamp book page (dynamic; reflects real progress)
+/* stampbook.js — stamp book page (dynamic; reflects real progress) */
 
 import Storage from './utils/storage.js';
 import { renderTopbar, renderNavbar, requireAuth, showToast } from './ui.js';
@@ -14,15 +14,13 @@ const stamps = Storage.getStamps();
 const earned = stamps.length;
 const total  = STATES_DATA.length;
 
-// ── Collection Progress card ─────────────────────────────────────────────────
+/* Collection Progress card */
 document.getElementById('sb-fill').style.width = `${total ? Math.round((earned / total) * 100) : 0}%`;
 document.getElementById('sb-count').textContent = `${earned} of ${total} stamps earned`;
 document.getElementById('sb-big').textContent   = `${earned}/${total}`;
 
-// ── Region sections (West / East Malaysia) ───────────────────────────────────
-// Mirrors Figma 38:7: each region is a cream card with a title block and a row
-// of circular stamp slots. Earned → coloured circle with the state's flag + ✓;
-// not yet earned → a dashed "?" mystery circle linking into that state's story.
+/* Region sections (West / East Malaysia) */
+// Earned → coloured circle with the state's stamp + ✓; not yet → a "?" mystery circle.
 const REGIONS = [
   { id: 'west', label: 'WEST<br>MALAYSIA' },
   { id: 'east', label: 'EAST<br>MALAYSIA' },
@@ -65,17 +63,14 @@ sectionsEl.innerHTML = REGIONS.map(region => {
           </div>`;
 }).join('');
 
-// ── Footer celebration when all collected ───────────────────────────────────
+/* Footer celebration when all collected */
 if (earned === total && earned > 0) {
   showToast('🏆 Wow! You collected ALL stamps — a true Cultural Explorer!', 3500);
 }
 
-// ── Interaction ─────────────────────────────────────────────────────────────
-// Earned → little confirmation toast. Locked → a friendly popup that explains
-// how to earn the stamp, then lets the child choose to explore that state or
-// stay here. (We no longer navigate on the tap itself: doing so dropped the
-// child into the story page, whose Back button returns to the map — a dead end
-// if they hadn't started. The popup makes exploring an explicit choice.)
+/* Interaction */
+// Earned → confirmation toast. Locked → a popup explaining how to earn it, with
+// an explicit choice to explore that state (not a silent navigation on tap).
 async function handle(slot) {
   const id   = slot.dataset.state;
   const name = slot.dataset.name;

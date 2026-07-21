@@ -1,12 +1,7 @@
-// js/data/avatars.js — single source of truth for selectable avatars.
-//
-// Avatars are stored in the session as a NUMERIC INDEX into this array
-// (session.avatarId). Every screen imports this list and looks up by index,
-// so the avatar a student picks shows consistently on the home modal,
-// the topbar, and the dashboard.
-//
-// Each avatar has an illustrated PNG (src/assets/characters/avatar_*.png) with
-// an emoji fallback that shows until the image loads. Render with avatarImg().
+/* avatars.js — single source of truth for selectable avatars */
+
+// Stored in the session as a numeric index (session.avatarId). Each has an
+// illustrated PNG with an emoji fallback; render with avatarImg().
 
 import { assetImg } from '../utils/assetImg.js';
 
@@ -24,8 +19,6 @@ export const AVATARS = [
 ];
 
 // HTML for the avatar's illustration with emoji fallback (use with innerHTML).
-// The slot is sized by its parent's font-size — see the .img-slot rules per
-// context (home modal, signup grid, avatar showcase, avatar-stack).
 export function avatarImg(index, opts = {}) {
   const a = AVATARS[Number(index)] || AVATARS[0];
   return assetImg(a.img, a.emoji, { alt: a.name, ...opts });

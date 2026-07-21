@@ -1,12 +1,8 @@
-// js/activities.js — Activities Hub screen
-// ─────────────────────────────────────────────────────────────────────────────
-// A GLOBAL games menu (reached from the navbar): a 2×2 grid of replayable
-// mini-games (Word Scramble, Drag & Match, Quiz, Guess the State). The three
-// state-specific games hand off to the state picker (activity-states.html) so
-// the player chooses which state to play — activities never get mixed up across
-// states. Every game is open from the start (free exploration) — including the
-// multi-state "Guess the State".
-// ─────────────────────────────────────────────────────────────────────────────
+/* activities.js — Activities Hub screen */
+
+// A global games menu (from the navbar): a 2×2 grid of replayable mini-games.
+// State-specific games hand off to the state picker (activity-states.html); the
+// multi-state "Guess the State" launches standalone. Every game is open from the start.
 
 import Storage from './utils/storage.js';
 import { renderTopbar, renderNavbar, requireAuth, getStateParam, showToast } from './ui.js';
@@ -14,18 +10,14 @@ import { getState } from './data/states.js';
 import { renderDifficultyChip } from './components/difficultyChip.js';
 import { currentLevel } from './data/difficulty.js';
 
-// ── Auth guard ────────────────────────────────────────────────────────────────
 requireAuth();
 
-// Optional state context (from ?state= or the last-visited state) — used only to
-// tint the panel. The games themselves get their state from the picker screen.
+// Optional state context — used only to tint the panel; games get their state
+// from the picker screen.
 const stateId = getStateParam();
 const state   = getState(stateId);
 
-// ── Shared chrome ─────────────────────────────────────────────────────────────
-// This is a GLOBAL games menu (reached from the navbar). The player picks a game
-// here, then a state on the next screen — so it stays state-agnostic and never
-// locks the games to one possibly-stale "current" state.
+/* Shared chrome */
 // color:null keeps the purple .activities-topbar override (in activities.css).
 renderTopbar({
   title:      'Activities',
@@ -43,9 +35,7 @@ if (main && state?.color) {
   if (state.colorLight) main.style.setProperty('--state-color-light', state.colorLight);
 }
 
-// ── "Guess the State" unlock gate ─────────────────────────────────────────────
-// Free exploration: every game (including Guess the State) is open from the
-// start, so the gate is disabled (threshold 0 = always unlocked).
+/* "Guess the State" unlock gate (disabled — threshold 0 = always unlocked) */
 const GUESS_UNLOCK_AT = 0;
 function exploredCount() {
   const p = Storage.getProgress();
@@ -54,16 +44,15 @@ function exploredCount() {
 const explored      = exploredCount();
 const guessUnlocked = explored >= GUESS_UNLOCK_AT;
 
-// ── Sub-heading ───────────────────────────────────────────────────────────────
+/* Sub-heading */
 const subhead = document.getElementById('act-subhead');
 if (subhead) {
   subhead.textContent = 'Pick a game — then choose a state!';
 }
 
-// ── Difficulty selector ─────────────────────────────────────────────────────────
-// The same games replay here, so the level toggle lives on this hub too. The
-// chip only re-paints itself (no reload), and the menu itself now differs by
-// level — Tic-Tac-Toe is Adventurer-only — so the grid must be rebuilt here too.
+/* Difficulty selector */
+// The chip re-paints without a reload, and the menu differs by level
+// (Tic-Tac-Toe is Adventurer-only), so onChange rebuilds the grid too.
 renderDifficultyChip(document.getElementById('act-difficulty'), {
   onChange: (id) => {
     renderGrid();
@@ -73,30 +62,16 @@ renderDifficultyChip(document.getElementById('act-difficulty'), {
   },
 });
 
-// ── Game definitions ──────────────────────────────────────────────────────────
-// emoji = placeholder art in the icon slot (📸 real icons to be exported later).
-// The three state-specific games go through the state picker (activity-states.html)
-// so the player chooses which state to play — keeping activities from mixing up
-// across states. "Guess the State" is inherently multi-state, so it launches
-// standalone straight away.
-// Rebuilt on every render because the menu now varies by difficulty level.
+/* Game definitions (rebuilt each render — the menu varies by difficulty) */
 function gamesList() {
-  // Slot 2 is the "match things up" game, and it steps up with the level:
-  // Explorer plays Drag & Match (one state, guided), while Adventurer gets
-  // Cultural Tic-Tac-Toe instead — same skill, but cross-state and competitive.
-  // It REPLACES Drag & Match rather than joining it, so the grid stays a tidy
-  // 2×2 and the older cohort isn't offered the easier version.
-  //
-  // Grade group 1-3 is locked to Explorer (see canChoose() in difficulty.js), so
-  // those accounts always get Drag & Match here. That's intended, not a bug.
+  // Slot 2 steps up with the level: Explorer plays Drag & Match; Adventurer gets
+  // Cultural Tic-Tac-Toe instead (cross-state), replacing it so the grid stays 2×2.
+  // Grade 1-3 is locked to Explorer (canChoose() in difficulty.js), so always Drag & Match.
   const matchGame = currentLevel() === 'adventurer'
     ? {
-        // Standalone (no ?state=) like Guess the State — it draws from every
-        // state at once, so the per-state picker would make no sense.
+        // Standalone (no ?state=) — it draws from every state at once.
         id: 'tictactoe', label: 'Cultural Tic-Tac-Toe', emoji: '⭕',
         icon: '../assets/images/ui/tic_tac_toe_icon.png',
-        // Same blue tile as Drag & Match — it takes that slot, so it should
-        // read as the same kind of game.
         href: 'tictactoe.html?from=activities', tile: 'act-tile--blue',
       }
     : { id: 'dragmatch', label: 'Drag & Match', emoji: '🧩',
@@ -107,8 +82,7 @@ function gamesList() {
     matchGame,
     { id: 'quiz',     label: 'Quiz',          emoji: '❓', href: 'activity-states.html?game=quiz',     tile: 'act-tile--purple' },
     {
-      // Launched standalone (no ?state=) so it plays the full shuffled set —
-      // a proper "replay", not the linear journey single-round → quiz chain.
+      // Standalone (no ?state=) so it plays the full shuffled set.
       id: 'guess', label: 'Guess the State', emoji: '🌳',
       href: 'guess.html?from=activities', tile: 'act-tile--green',
       locked: !guessUnlocked,
@@ -117,16 +91,12 @@ function gamesList() {
   ];
 }
 
-// ── Build a single card ───────────────────────────────────────────────────────
-// • locked  → non-clickable, greyed, lock badge + caption.
-// • otherwise → links to the game's href (state picker, or Guess standalone).
+/* Build a single card (locked → greyed + badge; otherwise → links to href) */
 function cardHTML(g, index) {
   const delay = `${index * 70}ms`;
   const locked = !!g.locked;
 
-  // 📸 IMAGE NEEDED: assets/images/activities/${g.id}.png — game icon.
-  // Games with real art set `icon`; the rest still fall back to the emoji
-  // placeholder, and so does a game whose art fails to load.
+  // Games with real art set `icon`; the rest fall back to the emoji placeholder.
   const art = g.icon
     ? `<img class="act-card-img" src="${g.icon}" alt=""
          onerror="this.replaceWith(Object.assign(document.createElement('span'),
@@ -152,9 +122,7 @@ function cardHTML(g, index) {
     </a>`;
 }
 
-// ── Render the grid ───────────────────────────────────────────────────────────
-// A function, not a one-shot: the difficulty chip changes the menu without
-// reloading the page, so this is re-run from its onChange too.
+/* Render the grid (re-run from the difficulty chip's onChange too) */
 function renderGrid() {
   const grid = document.getElementById('act-grid');
   if (!grid) return;

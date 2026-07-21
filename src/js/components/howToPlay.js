@@ -1,20 +1,7 @@
-// js/components/howToPlay.js — kid-friendly "How to Play" instruction popups.
-// ─────────────────────────────────────────────────────────────────────────────
-// A tiny wrapper over popup.js that shows a short, friendly instruction card for
-// young children (age 7–12): a big title, a friendly mascot emoji, and 1–3 short
-// lines each starting with an icon. It also mounts an always-visible "?" help
-// button so a child can re-open the instructions any time.
-//
-//   initHowToPlay('quiz', {                       // auto-shows the FIRST visit,
-//     title: 'Quiz Time!', emoji: '🧠',           // then just the "?" button
-//     lines: ['🤔 Read the question.', '👆 Tap the best answer.'],
-//   });
-//
-//   showHowToPlay({ title, emoji, lines })         // show it on demand (returns a Promise)
-//
-// The "seen" flag is stored in localStorage (key `ce_howto_<key>`) so the popup
-// doesn't nag on every visit — but the "?" button always re-opens it.
-// ─────────────────────────────────────────────────────────────────────────────
+/* howToPlay.js — kid-friendly "How to Play" instruction popups */
+
+// A wrapper over popup.js that shows a short instruction card on first play, then
+// mounts a "?" button to re-open it. The "seen" flag lives at ce_howto_<key>.
 
 import { showPopup } from './popup.js';
 import { withPointBullet } from '../utils/instructions.js';
@@ -59,11 +46,8 @@ function linesToHtml(lines) {
   return `<ul class="ce-howto-list">${(lines || []).map(l => `<li>${withPointBullet(l)}</li>`).join('')}</ul>`;
 }
 
-/**
- * Show a How-to-Play popup now. Resolves when the child taps the button.
- * `cls` and `bodyHtml` are passed straight through to showPopup, so a game can
- * reskin the card or slot in an illustrated demo below the instruction lines.
- */
+// Show a How-to-Play popup now (resolves when the child taps the button).
+// `cls`/`bodyHtml` pass through to showPopup for a reskin or illustrated demo.
 export function showHowToPlay({
   title = 'How to Play', emoji = '🎮', image = '', lines = [], buttonLabel = "Let's Play!",
   cls = '', topHtml = '', bodyHtml = '',
@@ -76,7 +60,7 @@ export function showHowToPlay({
   });
 }
 
-/** Mount the floating "?" help button (once) that re-opens the instructions. */
+// Mount the floating "?" help button (once) that re-opens the instructions.
 function mountHelpButton(config) {
   injectStyles();
   if (document.getElementById('ce-help-fab')) return;
@@ -92,16 +76,9 @@ function mountHelpButton(config) {
   (document.querySelector('.app-container') || document.body).appendChild(btn);
 }
 
-/**
- * Auto-show the instructions the FIRST time a child opens this activity, then
- * mount the "?" help button so they can re-open it. `key` namespaces the "seen"
- * flag so each activity remembers on its own.
- *
- * Returns a Promise that resolves once the popup is dismissed — or immediately
- * when it has been seen before. Games that follow up with a second dialog (e.g.
- * Tic-Tac-Toe's mode picker) await it so the two never stack on top of each
- * other; the older call sites simply ignore the return value.
- */
+// Auto-show the instructions the first time this activity is opened, then mount
+// the "?" button. Returns a Promise resolving on dismiss (or immediately if seen),
+// so a game can await it before showing a second dialog. `key` namespaces the flag.
 export function initHowToPlay(key, config, { button = true } = {}) {
   const seenKey = SEEN_PREFIX + key;
   let seen = false;

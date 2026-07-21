@@ -1,17 +1,9 @@
-// js/utils/music.js — looping background-music helper (one track at a time).
-// ─────────────────────────────────────────────────────────────────────────────
-// Unlike Sound (synthesised SFX blips), this plays a real audio FILE softly on
-// loop under a screen — e.g. a state's festival track under all four of its
-// missions. Autoplay is blocked until a user gesture, so if the first play() is
-// refused we start on the first tap/keypress instead. Respects the shared mute
-// (ce_sfx) so muting the app also silences the music.
-//
-//   import { playMusic, stopMusic } from './utils/music.js';
-//   playMusic('../assets/content/Kedah/kedah_dance_music.mp3', { volume: 0.25 });
-//
-// music.js is the single OWNER of the currently-playing track, so callers that
-// just need to get out of the way of narration (voice.js) call `duck()` /
-// `unduck()` rather than touching the <audio> element themselves.
+/* music.js — looping background-music helper (one track at a time) */
+
+// Plays a real audio file softly on loop under a screen. If autoplay is refused,
+// starts on the first tap/keypress. Respects the shared mute (ce_sfx). This module
+// owns the current track, so voice.js ducks it via duck()/unduck() rather than
+// touching the <audio> element itself.
 
 import Sound from './sound.js';
 
@@ -31,9 +23,7 @@ function clearFade() {
   if (fadeTimer) { clearInterval(fadeTimer); fadeTimer = null; }
 }
 
-// Smoothly ramp the current track's volume to `target` over `ms` ms. No-ops
-// if nothing is playing — ducking must never throw just because music was
-// already stopped, muted, or blocked by autoplay.
+// Ramp the current track's volume to `target` over `ms`. No-ops if nothing is playing.
 function fadeTo(target, ms = 220) {
   if (!el) return;
   clearFade();
@@ -46,8 +36,7 @@ function fadeTo(target, ms = 220) {
   }, 30);
 }
 
-// Duck the music down under a voice-over line (called by voice.js when a line
-// starts speaking) so the narration is always clearly audible.
+// Duck the music under a voice-over line (called by voice.js while it speaks).
 export function duck(level = 0.06) {
   fadeTo(level);
 }
@@ -63,9 +52,8 @@ export function stopMusic() {
   if (el) { try { el.pause(); } catch {} el.src = ''; el = null; }
 }
 
-// Restoring a state page from the browser's back-forward cache resumes its
-// paused <audio> WITHOUT re-running playMusic(), so a track muted in Settings
-// could sing again on "Back". Re-check the master mute on restore and cut it.
+// A bfcache restore resumes the paused <audio> without re-running playMusic(),
+// so re-check the master mute on pageshow and cut a muted track.
 if (typeof window !== 'undefined') {
   window.addEventListener('pageshow', () => {
     if (Sound.isMuted && Sound.isMuted()) stopMusic();

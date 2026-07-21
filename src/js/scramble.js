@@ -1,7 +1,7 @@
-// js/scramble.js — Word Scramble (first activity in the per-state journey).
-//
-// Unscramble cultural keywords for the current state by tapping letter tiles
-// into answer slots. On finishing all words, advance to the Drag-Match game.
+/* scramble.js — Word Scramble (first activity in the per-state journey) */
+
+// Unscramble cultural keywords by tapping (or typing) letters into answer slots.
+// On finishing all words, advance to the Drag-Match game.
 
 import Storage from './utils/storage.js';
 import { renderTopbar, renderNavbar, requireAuth, getStateParam, flyPoints } from './ui.js';
@@ -30,9 +30,7 @@ if (!state) {
   throw new Error('State not found: ' + stateId);
 }
 
-// ── Launch context ────────────────────────────────────────────────────────────
-// In the linear journey the back button goes to narrative and the finish CTA
-// on to Drag-Match.
+/* Launch context (linear journey: back → narrative, finish → Drag-Match) */
 const { fromActivities, fromMission, missionId, missionsHref, missionsDoneHref } =
   launchContext(stateId);
 const activitiesHref = `activities.html?state=${stateId}`;
@@ -40,12 +38,11 @@ const nextHref = fromMission ? missionsDoneHref
               : fromActivities ? activitiesHref
               : `activity.html?state=${stateId}`;
 
-// ── Chrome ──────────────────────────────────────────────────────────────────
+/* Chrome */
 renderTopbar({
   title:      'Word Scramble',
   showBack:   true,
-  // From the hub the player picked a game and THEN a state, so back undoes one
-  // step to the state picker rather than jumping out to the hub.
+  // From the hub, back undoes one step to the state picker.
   backHref:   fromMission ? missionsHref
             : fromActivities ? 'activity-states.html?game=scramble'
             : `narrative.html?state=${stateId}`,
@@ -60,24 +57,17 @@ scrNext.href = nextHref;
 if (fromMission)         scrNext.textContent = '✅ Mission Complete!';
 else if (fromActivities) scrNext.textContent = '🎮 Back to Activities';
 
-// ── Data ──────────────────────────────────────────────────────────────────────
-// Difficulty tunes the set size: Explorer plays only the shortest couple of
-// words, Adventurer plays them all. Both levels can tap letters OR type them.
+/* Data — difficulty tunes the set size */
 const scrParams = paramsFor('scramble');
 const isDancerMission = fromMission && missionId === 'dancer';
 let words;
 if (isDancerMission) {
-  // Mission 2: reinforce the exact garment names the costume spotlight just taught
-  // (Discover → Play). Shortest-first so Explorer gets the easier words. Short,
-  // focused set — Explorer 2, Adventurer 4 (missionCount).
+  // Mission 2: reinforce the garment names the costume spotlight taught, shortest-first.
   words = [...costumeWordsFor(stateId)]
     .sort((a, b) => a.answer.length - b.answer.length)
     .slice(0, missionCount());
 } else {
-  // Activities Hub / free play: a MIXED cultural word bank for the state — food,
-  // costume, landmark and festival words (≥10 per state, see data/scramble.js) —
-  // drawn at RANDOM so each play surfaces a different set to explore (Explorer 4,
-  // Adventurer 8).
+  // Free play: a random mixed cultural word bank for the state (Explorer 4, Adventurer 8).
   words = shuffle(scrambleWordsFor(state));
   if (scrParams.count !== 'all') words = words.slice(0, scrParams.count);
 }
@@ -108,7 +98,7 @@ if (!words.length) {
   window.location.href = nextHref;
 }
 
-// ── Shuffle helper (avoids returning the solved order for len > 1) ─────────────
+/* Shuffle helper (avoids returning the solved order for len > 1) */
 function shuffled(letters) {
   const arr = [...letters];
   for (let attempt = 0; attempt < 6; attempt++) {
@@ -121,7 +111,7 @@ function shuffled(letters) {
   return arr;
 }
 
-// ── Render the current word ────────────────────────────────────────────────────
+/* Render the current word */
 function loadWord(idx) {
   locked = false;
   placed = [];
@@ -147,9 +137,7 @@ function loadWord(idx) {
   ).join('');
 }
 
-// ── Place / remove letters ──────────────────────────────────────────────────────
-// Placing is shared by tapping a tile AND typing on the keyboard, so both input
-// methods stay in sync on the same answer slots.
+/* Place / remove letters (shared by tapping tiles and typing) */
 function placeTile(tile) {
   if (!tile || locked || tile.classList.contains('used')) return;
 
@@ -165,10 +153,8 @@ function placeTile(tile) {
   if (placed.length === words[wordIdx].answer.length) check();
 }
 
-// Remove one specific placed letter, returning its tile to the tray. Used both
-// by tapping a placed (greyed) tile and — for the last letter — by Backspace.
-// The freed slot becomes the next slot placeTile() fills, so removing a letter
-// in the middle and retyping just drops back into the same gap.
+// Remove one placed letter, returning its tile to the tray. The freed slot is the
+// next one placeTile() fills, so removing mid-word and retyping fills the same gap.
 function removeTile(tileIdx) {
   if (locked) return;
   const pos = placed.indexOf(tileIdx);
@@ -190,8 +176,7 @@ function removeLast() {
   removeTile(placed[placed.length - 1]);
 }
 
-// Tap a tile: an unused tile drops into the next slot; a placed (greyed) tile
-// pops back out — so tapping is both "place" and "un-place".
+// Tap: an unused tile places; a placed tile pops back out.
 tilesEl.addEventListener('click', e => {
   const tile = e.target.closest('.scr-tile');
   if (!tile) return;
@@ -199,9 +184,8 @@ tilesEl.addEventListener('click', e => {
   else placeTile(tile);
 });
 
-// Type on the keyboard: a letter fills the next slot using a matching unused
-// tile; Backspace removes the last placed letter. Both input methods (tap +
-// type) are always available. Case-insensitive match.
+// Type: a letter fills the next slot via a matching unused tile (case-insensitive);
+// Backspace removes the last placed letter.
 document.addEventListener('keydown', e => {
   if (locked) return;
   if (e.key === 'Backspace') { e.preventDefault(); removeLast(); return; }
@@ -226,7 +210,7 @@ function clearWord() {
 }
 clearBtn.addEventListener('click', clearWord);
 
-// ── Hint: reveal the first letter + a fuller description (costs points) ─────────
+/* Hint: reveal the first letter + a fuller description (costs points) */
 function useHint() {
   if (locked || hintUsed) return;
 
@@ -257,7 +241,7 @@ function useHint() {
 }
 hintBtn.addEventListener('click', useHint);
 
-// ── Check the assembled answer ────────────────────────────────────────────────
+/* Check the assembled answer */
 function check() {
   const guess  = [...slotsEl.querySelectorAll('.scr-slot')].map(s => s.textContent).join('');
   const answer = words[wordIdx].answer;
@@ -267,8 +251,8 @@ function check() {
     Sound.correct();
     slotsEl.querySelectorAll('.scr-slot').forEach(s => s.classList.add('correct', 'burst'));
     earned += POINTS_PER_WORD;
-    // In the mission flow the flat +25 mission bonus is the only reward, so the
-    // per-word points are NOT persisted (keeps a state worth exactly 100).
+    // In the mission flow the flat +25 bonus is the only reward, so per-word points
+    // aren't persisted (keeps a state worth exactly 100).
     if (!fromMission) Storage.addPoints(POINTS_PER_WORD);
     scoreEl.textContent  = `${earned} pts`;
     flyPoints(scoreEl, POINTS_PER_WORD);       // "+N" floats up from the score
@@ -287,7 +271,7 @@ function check() {
   }
 }
 
-// ── Finish → advance to the next game (Drag-Match) ─────────────────────────────
+/* Finish → advance to the next game (Drag-Match) */
 function finish() {
   Sound.unlock();
   gameEl.classList.add('hidden');
@@ -296,10 +280,10 @@ function finish() {
   completeEl.classList.remove('hidden');
 }
 
-// ── Kick off ────────────────────────────────────────────────────────────────────
+/* Kick off */
 if (words.length) loadWord(0);
 
-// ── Kid-friendly "How to Play" (first visit + a "?" button to re-open) ────────
+/* Kid-friendly "How to Play" (first visit + a "?" button to re-open) */
 initHowToPlay('scramble', {
   title: 'Word Scramble!', emoji: '🔤',
   lines: ['🔀 The letters are all mixed up.', '👆 Tap them in the right order.', '📝 Spell the word to win!'],

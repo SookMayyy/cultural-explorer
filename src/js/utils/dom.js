@@ -1,14 +1,12 @@
-// js/utils/dom.js — small DOM helpers shared across screens.
+/* dom.js — small DOM helpers shared across screens */
 
-// Escape text before injecting it into innerHTML. Content is authored data
-// (state names, captions), but it still flows through innerHTML, so escape it.
+// Escape text before injecting it into innerHTML.
 export function escapeHtml(text) {
   return String(text).replace(/[&<>"]/g, c =>
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 }
 
-// Wrap the first occurrence of `key` in a <mark> so young readers can spot the
-// important word. Text is escaped first, then the key is matched case-insensitively.
+// Wrap the first case-insensitive match of `key` in a <mark>.
 export function highlightKeyword(text, key, markClass) {
   const html = escapeHtml(text);
   if (!key) return html;
@@ -16,8 +14,7 @@ export function highlightKeyword(text, key, markClass) {
   return html.replace(new RegExp(`(${safe})`, 'i'), `<mark class="${markClass}">$1</mark>`);
 }
 
-// Re-trigger a CSS animation. Removing the class alone won't replay it — the
-// browser only restarts the animation after a reflow, which reading offsetWidth forces.
+// Re-trigger a CSS animation (reading offsetWidth forces the reflow that replays it).
 export function restartAnimation(el, className) {
   if (!el) return;
   el.classList.remove(className);

@@ -1,22 +1,9 @@
-// js/data/landmarkMissions.js — Mission 3 (Help the Tourist) landmark content.
-// ─────────────────────────────────────────────────────────────────────────────
-// The Tourist mission is a guided TOUR: a run of spotlight cards (a real photo +
-// spoken lines + a little "fun activity"), one per famous spot, then a
-// story-framed "Guess My State!":
-//   Round 1 — which state is this?  (the state's normal GUESS_ROUNDS clues)
-//   Round 2 — Rimau says a tourist wants to visit "one more place"; the child
-//             picks which spot the tourist means, from clues that echo what the
-//             tour just taught. Lower grades choose from a few spots; higher
-//             grades from all of them (difficulty scales the option count).
-//
-// Tour `text` reads like Rimau guiding the child stop-to-stop (a welcome, then
-// "next / now / over here", then a wrap-up on the final stop), so hearing the
-// lines in order feels like ONE tour, not loose captions. Each line keeps its
-// `key` word inside it — mission.js highlights that word in the caption.
-//
-// Kedah's tour visits Langkawi's landmarks (all six photos shipped). Add more
-// states by giving each a `tour` of the same shape.
-// ─────────────────────────────────────────────────────────────────────────────
+/* landmarkMissions.js — Mission 3 (Help the Tourist) landmark content */
+
+// A guided tour (photo cards, one per famous spot), then a story-framed "Guess My
+// State!": round 1 guesses the state, round 2 which spot the tourist wants (option
+// count scales with grade). Tour `text` reads stop-to-stop; each keeps its `key`
+// word, which mission.js highlights in the caption.
 
 const K = '../assets/content/Kedah/';
 const P = '../assets/content/Penang/';

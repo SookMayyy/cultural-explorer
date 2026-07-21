@@ -1,17 +1,8 @@
-// js/data/costumeMissions.js — Mission 2 (Help the Dancer) costume content.
-// ─────────────────────────────────────────────────────────────────────────────
-// The Dancer mission now teaches TRADITIONAL COSTUME the same "learn before you
-// play" way the Chef mission teaches food: a big real photo with glowing spots,
-// each naming one garment out loud, THEN the Word Scramble game — where the words
-// the child unscrambles are the very garment names they just discovered. That
-// tight Discover → Play loop is what makes the scramble genuinely educational
-// (they rebuild a word whose meaning they were just shown + told), rather than a
-// disconnected spelling puzzle.
-//
-// Only Kedah ships a costume photo today (kedah_cinta_sayang.jpg — the Cinta
-// Sayang dancers). States without one fall back to the tap-cards Discover +
-// their derived Word Scramble words, exactly as before.
-// ─────────────────────────────────────────────────────────────────────────────
+/* costumeMissions.js — Mission 2 (Help the Dancer) costume content */
+
+// Teaches traditional costume via a photo spotlight (each glow names a garment),
+// then the Word Scramble game unscrambles those same garment names (Discover → Play).
+// States without a costume photo fall back to tap-cards Discover + derived words.
 
 export const COSTUME_MISSIONS = {
   kedah: {

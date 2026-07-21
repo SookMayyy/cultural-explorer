@@ -1,17 +1,9 @@
-// Vanilla JavaScript (ES6 modules) — storage.js
-// js/utils/storage.js — localStorage wrapper with typed accessors
-//
-// PER-ACCOUNT NAMESPACING
-// ───────────────────────
-// The session (who is logged in) lives at a single global key (`ce_session`).
-// All *game data* (progress, points, stamps, best score, costumes, current
-// state) is namespaced per account via `_k()`. This means:
-//   • A different student logging in on the SAME shared classroom machine sees
-//     their own (empty/own) data — never the previous child's stamps/points.
-//   • Logging out then back in as the SAME account restores that account's data
-//     (it was kept, just hidden under that account's namespace).
-// This is the offline/prototype store. The Express + Supabase backend is the
-// server-side source of truth (cross-device restore is future work).
+/* storage.js — localStorage wrapper with typed accessors */
+
+// The session (who is logged in) lives at one global key. All game data is
+// namespaced per account via _k(), so different students on a shared machine
+// never see each other's progress. The Express + Supabase backend is the
+// server-side source of truth.
 
 const PREFIX = 'ce_';
 const KEY = {
@@ -21,31 +13,29 @@ const KEY = {
   STAMPS:    PREFIX + 'stamps',
   BEST:      PREFIX + 'best_score',
   STATE:     PREFIX + 'current_state',
-  USERS:     PREFIX + 'users',       // array of registered user objects (legacy)
-  COSTUMES:  PREFIX + 'costumes',    // array of unlocked costume ids
-  COSTUME:   PREFIX + 'costume',     // currently-equipped costume id
+  USERS:     PREFIX + 'users',       // registered user objects (legacy)
+  COSTUMES:  PREFIX + 'costumes',    // unlocked costume ids
+  COSTUME:   PREFIX + 'costume',     // equipped costume id
   MISSIONS:  PREFIX + 'missions',    // { stateId: [completed mission ids] }
-  AVATARS:   PREFIX + 'avatars',     // array of OWNED avatar indices (bought/starter)
-  AVATAR:    PREFIX + 'avatar',      // currently-equipped avatar index (per account)
-  PROFILE_COLOR: PREFIX + 'profile_color', // chosen profile background colour
-  DIFFICULTY: PREFIX + 'difficulty', // chosen game difficulty level id (see data/difficulty.js)
+  AVATARS:   PREFIX + 'avatars',     // owned avatar indices
+  AVATAR:    PREFIX + 'avatar',      // equipped avatar index (per account)
+  PROFILE_COLOR: PREFIX + 'profile_color',
+  DIFFICULTY: PREFIX + 'difficulty', // chosen level id (see data/difficulty.js)
 };
 
-// Game-data keys that get namespaced per account (everything except the global
-// session + the legacy users list).
+// Game-data keys namespaced per account (everything except session + legacy users).
 const NAMESPACED = [KEY.PROGRESS, KEY.POINTS, KEY.STAMPS, KEY.BEST, KEY.STATE, KEY.COSTUMES, KEY.COSTUME, KEY.MISSIONS, KEY.AVATARS, KEY.AVATAR, KEY.PROFILE_COLOR, KEY.DIFFICULTY];
 
-// Free costume every player owns from the start (see data/costumes.js).
-// Matches the backend's default avatar_costume_id = 1 (School Uniform).
+// Free costume every player owns (matches backend default avatar_costume_id = 1).
 const DEFAULT_COSTUME_ID = 'school-uniform';
 
-// Default profile background colour (purple) shown until the player picks one.
+// Default profile background colour shown until the player picks one.
 export const DEFAULT_PROFILE_COLOR = '#6a32c9';
 
 const Storage = {
-  // ── Account namespacing ─────────────────────────────────────────────
-  // Build a stable per-account suffix from the current session. Falls back
-  // to 'anon' before login (guest/first-run writes).
+  /* Account namespacing */
+
+  // Stable per-account suffix from the current session; 'anon' before login.
   _acctKey() {
     const s = this.getSession();
     if (!s) return 'anon';
@@ -58,7 +48,7 @@ const Storage = {
     return `${base}__${this._acctKey()}`;
   },
 
-  // ── Session ─────────────────────────────────────────────────────────
+  /* Session */
   getSession() {
     try { return JSON.parse(localStorage.getItem(KEY.SESSION)); } catch { return null; }
   },
@@ -66,16 +56,15 @@ const Storage = {
     localStorage.setItem(KEY.SESSION, JSON.stringify(data));
   },
   clearSession() {
-    // Only the session is cleared on logout — game data stays under the
-    // account's namespace so it restores when that account logs back in,
-    // and stays invisible to any other account on this machine.
+    // Only the session is cleared on logout — game data stays under the account's
+    // namespace so it restores on the next login and stays hidden from others.
     localStorage.removeItem(KEY.SESSION);
   },
   setGuest(displayName, avatarId) {
     this.setSession({ type: 'guest', displayName, avatarId, points: 0 });
   },
 
-  // ── Progress — per-state tab completion ────────────────────────────
+  /* Progress — per-state tab completion */
   getProgress() {
     try { return JSON.parse(localStorage.getItem(this._k(KEY.PROGRESS))) || {}; } catch { return {}; }
   },
@@ -100,12 +89,11 @@ const Storage = {
     return Object.values(p).filter(s => s.quiz === true).length;
   },
 
-  // ── Points ──────────────────────────────────────────────────────────
+  /* Points */
   getPoints() {
     return parseInt(localStorage.getItem(this._k(KEY.POINTS)) || '0', 10);
   },
-  // Broadcast the new total so any live UI (e.g. the topbar ⭐ badge) can
-  // update in real time. Guarded so it's a no-op in Node/test environments.
+  // Broadcast the new total so live UI (e.g. topbar badge) can update. No-op in Node.
   _emitPoints(total) {
     if (typeof window !== 'undefined' && typeof window.dispatchEvent === 'function') {
       window.dispatchEvent(new CustomEvent('ce:points', { detail: total }));
@@ -117,12 +105,11 @@ const Storage = {
     localStorage.setItem(this._k(KEY.POINTS), String(total));
     const session = this.getSession();
     if (session) { session.points = total; this.setSession(session); }
-    // Mirror the gain to the backend so points persist across devices.
-    this._pushPointsDelta(n, session);
+    this._pushPointsDelta(n, session);   // mirror to backend for cross-device
     this._emitPoints(total);
     return total;
   },
-  // Set the local points cache directly WITHOUT pushing to the backend.
+  // Set the local points cache directly, WITHOUT pushing to the backend.
   // Used by the login hydrate so restoring the server total doesn't re-add it.
   setPointsLocal(total) {
     localStorage.setItem(this._k(KEY.POINTS), String(total));
@@ -130,8 +117,7 @@ const Storage = {
     if (session) { session.points = total; this.setSession(session); }
     this._emitPoints(total);
   },
-  // Best-effort: tell the backend about earned points for a registered account.
-  // Guarded so it never breaks offline play, guests, or the test environment.
+  // Best-effort backend push for a registered account; never blocks offline play.
   _pushPointsDelta(delta, session) {
     if (!session || session.type !== 'registered' || delta <= 0) return;
     if (typeof fetch !== 'function') return;
@@ -151,7 +137,7 @@ const Storage = {
     return true;
   },
 
-  // ── Stamps ──────────────────────────────────────────────────────────
+  /* Stamps */
   getStamps() {
     try { return JSON.parse(localStorage.getItem(this._k(KEY.STAMPS))) || []; } catch { return []; }
   },
@@ -169,9 +155,8 @@ const Storage = {
     return this.getStamps().length;
   },
 
-  // ── Costumes (Avatar Shop) ───────────────────────────────────────────
-  // Unlocked costumes are stored as an array of ids; the default free
-  // costume is always considered owned and equipped if nothing is set.
+  /* Costumes (Avatar Shop) */
+  // The default free costume is always owned and equipped if nothing is set.
   getUnlockedCostumes() {
     let list;
     try { list = JSON.parse(localStorage.getItem(this._k(KEY.COSTUMES))) || []; } catch { list = []; }
@@ -195,9 +180,8 @@ const Storage = {
     localStorage.setItem(this._k(KEY.COSTUME), id);
   },
 
-  // ── Missions — per-state mission completion (Mission Hub) ────────────
-  // Stored as { stateId: [missionId, …] }. Missions unlock sequentially, so
-  // the hub reads this to know which are done and which is next.
+  /* Missions — per-state completion (Mission Hub) */
+  // Stored as { stateId: [missionId, …] }; missions unlock sequentially.
   _getAllMissions() {
     try { return JSON.parse(localStorage.getItem(this._k(KEY.MISSIONS))) || {}; } catch { return {}; }
   },
@@ -217,10 +201,8 @@ const Storage = {
     }
   },
 
-  // ── Difficulty — chosen game level ("explorer"/"adventurer") ─────────
-  // Null when the child hasn't picked one; data/difficulty.js then falls back
-  // to their grade's default. Namespaced per account, so each child on a shared
-  // machine keeps their own choice.
+  /* Difficulty — chosen game level */
+  // Null when unpicked; data/difficulty.js then falls back to the grade default.
   getDifficulty() {
     return localStorage.getItem(this._k(KEY.DIFFICULTY)) || null;
   },
@@ -229,17 +211,13 @@ const Storage = {
     else localStorage.removeItem(this._k(KEY.DIFFICULTY));
   },
 
-  // ── Avatars (owned characters) ──────────────────────────────────────
-  // The avatar picked at sign-up is free (recorded via setSessionAvatar); every
-  // other avatar must be BOUGHT with points in the shop. The currently-equipped
-  // avatar is always treated as owned so no one is ever locked out of their own.
+  /* Avatars (owned characters) */
+  // The sign-up pick is free; every other avatar is bought with points. The
+  // equipped avatar is always treated as owned so no one is locked out of theirs.
   getOwnedAvatars() {
     let list;
     try { list = JSON.parse(localStorage.getItem(this._k(KEY.AVATARS))) || []; } catch { list = []; }
     list = list.map(Number);
-    // The currently-shown avatar is always owned. avatarId falls back to 0 (the
-    // default shown by avatarImg) so guests / not-yet-picked users still own the
-    // avatar they see, while registered users only get their sign-up pick free.
     const cur = Number(this.getSession()?.avatarId ?? 0);
     if (!list.includes(cur)) list = [cur, ...list];
     return list;
@@ -247,10 +225,8 @@ const Storage = {
   ownsAvatar(i) {
     return this.getOwnedAvatars().includes(Number(i));
   },
-  // The avatar this account last equipped, saved PER ACCOUNT so it survives a
-  // logout (the global session — and its avatarId — is wiped on logout). Returns
-  // null when the account has never picked one. Used on login to restore the pick
-  // instead of falling back to avatar 0 (Lion).
+  // The avatar this account last equipped, saved per account so it survives logout
+  // (the global session is wiped then). Null when never picked.
   getCurrentAvatar() {
     const v = localStorage.getItem(this._k(KEY.AVATAR));
     return v == null ? null : Number(v);
@@ -265,7 +241,7 @@ const Storage = {
     }
   },
 
-  // ── Profile background colour ────────────────────────────────────────
+  /* Profile background colour */
   getProfileColor() {
     return localStorage.getItem(this._k(KEY.PROFILE_COLOR)) || DEFAULT_PROFILE_COLOR;
   },
@@ -273,7 +249,7 @@ const Storage = {
     localStorage.setItem(this._k(KEY.PROFILE_COLOR), hex);
   },
 
-  // ── Best quiz score ─────────────────────────────────────────────────
+  /* Best quiz score */
   getBestScore() {
     return parseInt(localStorage.getItem(this._k(KEY.BEST)) || '0', 10);
   },
@@ -283,7 +259,7 @@ const Storage = {
     }
   },
 
-  // ── Current state (MPA page-to-page handoff) ────────────────────────
+  /* Current state (MPA page-to-page handoff) */
   getCurrentState() {
     return localStorage.getItem(this._k(KEY.STATE)) || null;
   },
@@ -291,10 +267,8 @@ const Storage = {
     localStorage.setItem(this._k(KEY.STATE), id);
   },
 
-  // ── User Accounts (LEGACY) ───────────────────────────────────────────
-  // Superseded by the Express + Supabase backend auth (grade-based register/
-  // login/recover). Kept only for backward compatibility; not used by the
-  // current auth screens.
+  /* User accounts (legacy) */
+  // Superseded by the Supabase backend auth. Kept for backward compatibility only.
   getUsers() {
     try { return JSON.parse(localStorage.getItem(KEY.USERS)) || []; } catch { return []; }
   },
@@ -302,19 +276,15 @@ const Storage = {
     localStorage.setItem(KEY.USERS, JSON.stringify(users));
   },
 
-  // Update the avatar in both the session and (legacy) the user's saved record
+  // Update the avatar in the session and (legacy) the user's saved record.
   setSessionAvatar(avatarId) {
     const session = this.getSession();
     if (!session) return;
     session.avatarId = avatarId;
     this.setSession(session);
-    // Persist the equipped avatar PER ACCOUNT too — the global session is wiped
-    // on logout, so this is what restores the pick on the next login (otherwise
-    // it defaulted to avatar 0 / Lion).
+    // Persist per account too, so the pick restores on next login.
     localStorage.setItem(this._k(KEY.AVATAR), String(Number(avatarId)));
-    // Equipping an avatar also records it as owned (the starter pick becomes
-    // free-owned; bought avatars are added at purchase time).
-    this.addOwnedAvatar(avatarId);
+    this.addOwnedAvatar(avatarId);   // equipping records it as owned
     if (session.username) {
       const users = this.getUsers();
       const user = users.find(u => u.username === session.username);
@@ -322,9 +292,7 @@ const Storage = {
     }
   },
 
-  // ── Reset — clears only the CURRENT account's game data ───────────────
-  // (Settings → Reset Progress.) The session is left intact so the player
-  // stays logged in with a fresh, empty progress slate.
+  /* Reset — clears only the current account's game data (session left intact) */
   reset() {
     NAMESPACED.forEach(base => localStorage.removeItem(this._k(base)));
   },

@@ -1,23 +1,22 @@
-// js/ui.js — shared topbar, navbar, and toast helpers for all MPA pages
+/* ui.js — shared topbar, navbar, and toast helpers for all MPA pages */
 
 import Storage from './utils/storage.js';
 import { avatarStackHTML } from './utils/avatarDisplay.js';
 import { escapeHtml, restartAnimation } from './utils/dom.js';
 
-// ── Profile colour ────────────────────────────────────────────────────────────
-// Publish the player's chosen profile background colour as a CSS variable so any
-// surface can theme itself with var(--profile-color). Called by renderTopbar
-// (covers every page with a topbar) and directly by the avatar screen.
+/* Profile colour */
+
+// Publish the player's profile colour as --profile-color for any surface to theme with.
 export function applyProfileColor() {
   const c = Storage.getProfileColor();
   document.documentElement.style.setProperty('--profile-color', c);
   return c;
 }
 
-// ── Topbar ──────────────────────────────────────────────────────────────────
-// No bar container: the topbar is a transparent strip that shows only the back
-// button (when relevant, left) and the points + profile avatar (right). The
-// title / colour params are kept for backward-compatibility but no longer drawn.
+/* Topbar */
+
+// A transparent strip: back button (left) + points and profile avatar (right).
+// title/colour params are kept for back-compat but no longer drawn.
 export function renderTopbar({
   showBack   = false,
   backHref   = 'map.html',
@@ -50,10 +49,8 @@ export function renderTopbar({
   bindPointsSync();
 }
 
-// Keep the topbar ⭐ badge in sync with Storage in real time. A single window
-// listener updates whatever .topbar-points is on the page now, so it survives
-// re-renders and works on every screen that shows points. The number bumps
-// (and flashes red when it drops) so spends/earns read as a live change.
+// Keep the topbar ⭐ badge in sync with Storage via a single 'ce:points' listener.
+// The number bumps (and flashes red when it drops) so spends/earns read as live.
 let _pointsSyncBound = false;
 function bindPointsSync() {
   if (_pointsSyncBound || typeof window === 'undefined') return;
@@ -72,16 +69,14 @@ function bindPointsSync() {
   });
 }
 
-// ── Navbar ───────────────────────────────────────────────────────────────────
-// Uses image icons to stay visually consistent with the static bottom-nav
-// used on map.html, quiz.html, stampbook.html, and settings.html.
+/* Navbar */
+
+// Image icons, consistent with the static bottom-nav on the standalone screens.
 const NAV_ITEMS = [
   { id: 'home',      href: 'dashboard.html', img: '../assets/images/ui/home-icon.png',    label: 'Home'    },
   { id: 'map',       href: 'map.html',       img: '../assets/images/ui/my-map-icon.png',  label: 'Map'     },
   { id: 'stampbook',  href: 'stampbook.html',  img: '../assets/images/ui/stamp-icon.png',   label: 'Stamps' },
-  // Activities Hub — replaces the old single "Quiz" tab. Leads to the grid of
-  // replayable mini-games for the current state (quiz-icon.png reused as a
-  // placeholder until a dedicated activities icon is exported).
+  // Activities Hub — quiz-icon.png reused until a dedicated icon is exported.
   { id: 'activities', href: 'activities.html', img: '../assets/images/ui/quiz-icon.png',    label: 'Activities' },
   { id: 'settings',   href: 'settings.html',   img: '../assets/images/ui/setting-icon.png', label: 'Me'     },
 ];
@@ -90,9 +85,7 @@ export function renderNavbar(activeId = '') {
   const el = document.getElementById('navbar');
   if (!el) return;
 
-  // Apply the shared .bottom-nav class so the purple bar + yellow active pill
-  // styles from style.css apply automatically.
-  el.className = 'bottom-nav';
+  el.className = 'bottom-nav';   // shared bar + active-pill styles from style.css
 
   el.innerHTML = NAV_ITEMS.map(item => `
     <a class="map-nav-item ${item.id === activeId ? 'active' : ''}" href="${item.href}">
@@ -102,7 +95,7 @@ export function renderNavbar(activeId = '') {
   `).join('');
 }
 
-// ── Auth guard — redirect to home if not logged in ───────────────────────────
+/* Auth guard — redirect to home if not logged in */
 export function requireAuth() {
   const session = Storage.getSession();
   if (!session) {
@@ -112,7 +105,7 @@ export function requireAuth() {
   return session;
 }
 
-// ── Toast notification ────────────────────────────────────────────────────────
+/* Toast notification */
 export function showToast(msg, duration = 2500) {
   let el = document.querySelector('.toast');
   if (!el) {
@@ -125,13 +118,13 @@ export function showToast(msg, duration = 2500) {
   setTimeout(() => el.classList.remove('show'), duration);
 }
 
-// ── Points fly-up ("+10" floats up from an element) ──────────────────────────
-// Spawns a one-shot "+N" label centred over `anchorEl` that floats up and fades.
-// Pass a negative n (e.g. a hint cost) to show "−N" in coral. Purely decorative —
-// the actual points total is updated by the caller via Storage.
+/* Points fly-up ("+10" floats up from an element) */
+
+// One-shot "+N" (or "−N" in coral) over `anchorEl`. Decorative only — the caller
+// updates the real total via Storage.
 export function flyPoints(anchorEl, n) {
   if (!anchorEl || !n) return;
-  // The label is absolutely positioned, so the anchor needs a positioning context.
+  // Absolutely positioned, so the anchor needs a positioning context.
   const cs = getComputedStyle(anchorEl);
   if (cs.position === 'static') anchorEl.style.position = 'relative';
 
@@ -148,7 +141,7 @@ export function flyPoints(anchorEl, n) {
   setTimeout(() => tag.remove(), 900);
 }
 
-// ── Get state from URL param (?state=penang) ─────────────────────────────────
+/* Get state from URL param (?state=penang), falling back to stored current state */
 export function getStateParam() {
   return new URLSearchParams(window.location.search).get('state')
       || Storage.getCurrentState();

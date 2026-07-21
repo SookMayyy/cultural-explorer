@@ -1,16 +1,9 @@
-// js/data/missions.js — derives a state's 4 explore-the-state missions.
-//
-// Each state's Mission Hub shows the same four roles, but each launches one of
-// the existing mini-games for THAT state (so no per-state mission content is
-// hardcoded — it all flows from states.js). Missions unlock sequentially and
-// completion is tracked in Storage (see Storage.getMissions / completeMission).
-//
-//   Mission             Mini-game            Related card category
-//   ──────────────────  ───────────────────  ─────────────────────
-//   1. Cook It Up!          Drag & Match       Food
-//   2. Dress in Tradition!  Word Scramble      Costume / Tradition
-//   3. Go Exploring!        Guess the State    Landmark
-//   4. Join the Festival!   Quiz               (the state's quizQuestion)
+/* missions.js — derives a state's 4 explore-the-state missions */
+
+// The same four roles per state, each launching one mini-game for THAT state
+// (no per-state authoring — it flows from states.js). Missions unlock sequentially:
+//   1. Cook It Up! (Food) · 2. Dress in Tradition! (Costume) ·
+//   3. Go Exploring! (Landmark) · 4. Join the Festival! (Quiz)
 
 import { getState } from './states.js';
 import { foodMissionFor, crossStateIngredientPool } from './foodMissions.js';
@@ -18,8 +11,7 @@ import { costumeMissionFor } from './costumeMissions.js';
 import { landmarkTourFor } from './landmarkMissions.js';
 import { festivalMissionFor } from './festivalMissions.js';
 
-// 📸 IMAGE NEEDED: assets/images/missions/{id}.png — circular mission portraits
-// (Rimau as chef / a dancer / a tour guide / a festival throne). Emoji for now.
+// 📸 IMAGE NEEDED: assets/images/missions/{id}.png — mission portraits (emoji for now).
 const TEMPLATES = [
   { id: 'chef',     num: 1, title: 'Cook It Up!',      subtitle: 'Explore the famous food',      icon: '👨‍🍳', page: 'activity.html', category: 'Food'     },
   { id: 'dancer',   num: 2, title: 'Dress in Tradition!', subtitle: 'Explore the traditional costume', icon: '👗', page: 'scramble.html', category: 'Costume'  },
@@ -27,9 +19,7 @@ const TEMPLATES = [
   { id: 'festival', num: 4, title: 'Join the Festival!', subtitle: 'Celebrate all you explored',  icon: '🎉',   page: 'quiz.html',     category: null       },
 ];
 
-// Returns the 4 missions for a state (accepts a state id or a state object).
-// The hub row now opens the MISSION FLOW page (Discover → Learn → game →
-// Reward → Complete) rather than jumping straight into the mini-game.
+// The 4 missions for a state (id or object). Each row opens the mission flow page.
 export function missionsFor(stateRef) {
   const state = typeof stateRef === 'string' ? getState(stateRef) : stateRef;
   if (!state) return [];
@@ -41,13 +31,7 @@ export function missionsFor(stateRef) {
 
 export const MISSION_COUNT = TEMPLATES.length;
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  MISSION FLOW CONTENT
-//  Derives the Discover / Learn / Reward copy for one mission from the state's
-//  existing card data — so every one of the 6 states works with no per-state
-//  authoring. The Laksa-Kedah screenshot is the template; we swap in each
-//  state's real dish / landmark / festival.
-// ─────────────────────────────────────────────────────────────────────────────
+/* Mission flow content — Discover/Learn/Reward copy derived from card data */
 
 // Which card category themes each mission's Discover hero + its play-button label.
 const FLOW_THEME = {
@@ -57,20 +41,16 @@ const FLOW_THEME = {
   festival: { category: 'Festival', play: 'Take the Challenge!'  },
 };
 
-// Mission 2-4 reward lines are keyed by mission id (NOT derived from `hero`,
-// which can land on the wrong-category card — e.g. the costume mission falling
-// back to a Food card and saying "You're now a Char Kway Teow expert!"). Each
-// mission gets its own topic-appropriate, kid-friendly congratulation line.
+// Reward lines keyed by mission id (not derived from `hero`, which can land on
+// the wrong-category card and give a mismatched line).
 const REWARD_LINES = {
   dancer:   'You learned all about the traditional costume!',
   tourist:  "You're a great tour guide now!",
   festival: "You're a festival superstar!",
 };
 
-// Points awarded once per mission on the Reward screen. Four missions per state
-// ⇒ a fully-explored state is worth exactly 100 points (4 × 25). This mission
-// bonus is the ONLY point source in the mission flow — the mini-games suppress
-// their own scoring when launched from a mission (see from=mission guards).
+// Points per mission (4 × 25 = 100 per state). The only point source in the flow —
+// the mini-games suppress their own scoring when launched from a mission.
 const MISSION_BONUS = 25;
 export { MISSION_BONUS };
 
@@ -84,11 +64,8 @@ export function missionFlow(stateRef, missionId) {
   const theme = FLOW_THEME[missionId] || {};
   const cards = state.cards || [];
 
-  // Every state has (at most) ONE piece of music — its festival/traditional
-  // track. It loops softly as the backing track for ALL FOUR of the state's
-  // missions, so Cook/Dress/Explore/Festival all feel like they're happening in
-  // the same place. mission.js starts it (low volume, looping, mute-aware) and
-  // voice.js ducks it under narration — see utils/music.js `duck()`/`unduck()`.
+  // The state's single festival/traditional track, looped softly under all four
+  // missions. mission.js starts it; voice.js ducks it under narration.
   const stateAudio = festivalMissionFor(state.id)?.audio || null;
 
   const base = {
@@ -98,9 +75,7 @@ export function missionFlow(stateRef, missionId) {
     completeLine: 'Terima kasih! You\'re the best helper!',
   };
 
-  // ── Mission 1 · HELP THE CHEF — food / cuisine flow ──────────────────────────
-  // Discover the dish → Learn its ingredients → cook it (inline drag-into-pot
-  // game) → congrats. Driven by the per-state food data.
+  /* Mission 1 · Help the Chef — food flow (discover → learn → cook → congrats) */
   if (missionId === 'chef') {
     const food = foodMissionFor(state.id);
     if (food) {
@@ -119,10 +94,8 @@ export function missionFlow(stateRef, missionId) {
         // Looping background music for the whole mission (state's festival track).
         audio: stateAudio,
 
-        // Interactive-spotlight Discover (present only when the food data ships
-        // hotspots — Kedah today). When set, mission.js runs the spotlight as the
-        // opening step instead of the tap-cards Discover, then goes straight to
-        // the game (Discover → Play). heroImage is reused as the spotlight image.
+        // Interactive-spotlight Discover, present only when the food data ships
+        // hotspots. When set, mission.js runs it instead of the tap-cards Discover.
         spotlight: food.spotlight && food.image
           ? { image: food.image, ...food.spotlight }
           : null,
@@ -138,9 +111,7 @@ export function missionFlow(stateRef, missionId) {
           dishEmoji:   food.dishEmoji,
           prompt:      `Drag the correct ingredients into the ${food.dish}!`,
           correct:     food.ingredients.map(i => ({ name: i.name, emoji: i.emoji, image: i.image || null })),
-          // Full cross-state candidate pool (real ingredient photos from every
-          // OTHER state's dish); mission.js shuffles + trims it to the
-          // difficulty's distractor count each time the mission is played.
+          // Cross-state candidate pool; mission.js shuffles + trims it per difficulty.
           distractors: crossStateIngredientPool(state.id),
         },
 
@@ -154,18 +125,13 @@ export function missionFlow(stateRef, missionId) {
     }
   }
 
-  // ── Missions 2-4 · generic flow (still launch the existing mini-game pages) ──
+  /* Missions 2-4 · generic flow (launch the existing mini-game pages) */
   const hero = cards.find(c => c.category === theme.category) || cards[0] || null;
   const catLabel = theme.category ? ` (${theme.category.toUpperCase()})` : '';
 
-  // Interactive-spotlight Discover for the non-food missions. When the state
-  // ships a real photo, we run the spotlight (big photo, tap each feature to
-  // hear its name) then hand off to that mission's mini-game; otherwise the
-  // tap-cards Discover is used. Each source gates on its own `image`, so a
-  // mission stays on the fallback until its photo is added.
-  //   Dancer   → costume photo   → Word Scramble (words = the taught garments)
-  //   Tourist  → guided photo tour → Guess My State (state, then which spot)
-  //   Festival → festival photo   → Quiz
+  // Interactive-spotlight Discover when the state ships a photo, else tap-cards.
+  //   Dancer → costume photo → Word Scramble · Tourist → photo tour → Guess ·
+  //   Festival → festival photo → Quiz. Each gates on its own `image`.
   let spotlight   = null;
   let heroImage   = null;
   let customItems = null;
@@ -174,14 +140,12 @@ export function missionFlow(stateRef, missionId) {
   if (missionId === 'dancer') {
     costumeData = costumeMissionFor(state.id);
     if (costumeData?.image) {
-      // introKey highlights the dance/subject name (e.g. "Cinta Sayang") in the
-      // spotlight's intro caption — the costume itself is named in the title.
+      // introKey highlights the dance/subject name in the intro caption.
       spotlight = { image: costumeData.image, introKey: costumeData.danceName, ...costumeData.spotlight };
       heroImage = costumeData.image;
     }
   } else if (missionId === 'tourist') {
-    // Tourist is a guided TOUR of the state's famous spots — a run of photo
-    // cards (mission.js plays it as the opening step), then the guess game.
+    // Tourist is a guided tour of the state's famous spots, then the guess game.
     const t = landmarkTourFor(state.id);
     if (t.length) {
       tour      = t;
@@ -190,8 +154,7 @@ export function missionFlow(stateRef, missionId) {
   } else if (missionId === 'festival') {
     const festival = festivalMissionFor(state.id);
     if (festival?.spotlight?.cards?.length) {
-      // Festival taught as a SEQUENCE of image cards shown in the spotlight card
-      // stage (e.g. Penang Thaipusam, Kelantan Wayang Kulit), then the quiz.
+      // Festival taught as a sequence of image cards, then the quiz.
       spotlight = { ...festival.spotlight, image: festival.spotlight.cards[0].image };
       heroImage = festival.spotlight.cards[0].image;
     } else if (festival?.image) {
@@ -212,9 +175,7 @@ export function missionFlow(stateRef, missionId) {
     discoverSub:   missionId === 'tourist'
       ? 'Tap each place to learn about it — a tourist will need your help next!'
       : 'Tap the cards to learn more.',
-    // Fallback shown only when the hero photo is missing/fails: use the mission's
-    // own hub icon (not a random content emoji) so it stays a clean, consistent
-    // "icon", never a decorative food/landmark/nature emoji stand-in.
+    // Fallback icon when the hero photo is missing: the mission's own hub icon.
     heroEmoji:     tpl.icon,
     heroImage,
     heroDesc:      hero ? hero.desc : (state.story || ''),
@@ -222,15 +183,8 @@ export function missionFlow(stateRef, missionId) {
     // Tourist supplies its own landmark cards; other missions list the state cards.
     items: customItems || cards.map(c => ({ emoji: c.icon, label: c.title, blurb: c.funFact || c.desc || '' })),
 
-    // Present only when the state ships a costume photo; mission.js then opens
-    // the spotlight as the first step and Continue launches the game below.
-    spotlight,
-
-    // Present for the Tourist mission — a run of photo cards played first.
-    tour,
-
-    // Looping background music for the whole mission (state's festival track,
-    // shared across all four missions — see stateAudio above).
+    spotlight,   // present only when the state ships a photo
+    tour,        // present for the Tourist mission (photo cards first)
     audio: stateAudio,
 
     playLabel: theme.play || 'Start the Game!',

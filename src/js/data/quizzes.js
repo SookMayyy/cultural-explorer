@@ -1,28 +1,14 @@
-// js/data/quizzes.js — Standalone MCQ bank (used by full Quiz screen)
-// ─────────────────────────────────────────────────────────────────────────────
-// Every question is grounded in something the app already taught for that
-// state: a narrative card's `desc`/`funFact` (states.js) or a mission Discover
-// spotlight's `text`/`key` (foodMissions/costumeMissions/landmarkMissions/
-// festivalMissions.js) — so a child who explored the state can answer from
-// what they just saw, read, or heard.
-//
-// Each question: exactly 4 options, exactly 1 correct (`ans` 0–3), a short
-// kid-friendly `explain`, a `difficulty` (easy/medium/hard — lets the
-// "harder after 2 correct" adaptive rule step up), and a `category`
-// ('food' | 'costume' | 'landmark' | 'festival' | 'general') so the quiz can
-// guarantee the right KIND of question — e.g. the Festival mission always
-// serves a `category:'festival'` question (see quiz.js). Every state ships at
-// least one 'festival' question. Some also carry an OPTIONAL `image` pointing
-// at a real photo already shown in that state's mission (quiz.js displays it
-// above the question when present) — used here for ingredient / costume /
-// festival recognition questions that quiz.js doesn't already auto-generate
-// (it auto-builds a dish photo Q and a landmark photo Q from foodMissions/
-// landmarkMissions, so this file adds DIFFERENT pictures).
-// ─────────────────────────────────────────────────────────────────────────────
+/* quizzes.js — standalone MCQ bank (used by the full Quiz screen) */
+
+// Every question is grounded in content the app already taught for that state.
+// Each has 4 options, one correct (`ans` 0–3), an `explain`, a `difficulty`
+// (easy/medium/hard, for the adaptive rule), and a `category` (food/costume/
+// landmark/festival/general). Every state ships at least one 'festival' question.
+// Optional `image` shows a real photo above the question.
 
 export const QUIZ_QUESTIONS = [
 
-  // ── Penang ──────────────────────────────────────────────────────────────────
+  /* Penang */
   {
     id: 'penang-q1', stateId: 'penang', difficulty: 'easy', category: 'food',
     q: 'What noodle dish is Penang most famous for?',
@@ -97,7 +83,7 @@ export const QUIZ_QUESTIONS = [
     explain: 'A vel is a small, sharp metal spear — a special symbol you see during Thaipusam!',
   },
 
-  // ── Selangor ────────────────────────────────────────────────────────────────
+  /* Selangor */
   {
     id: 'selangor-q1', stateId: 'selangor', difficulty: 'easy', category: 'landmark',
     q: 'How many steps lead up to the Batu Caves temple?',
@@ -171,7 +157,7 @@ export const QUIZ_QUESTIONS = [
     explain: 'At Kuala Selangor, fireflies light up the mangrove trees at night like tiny fairy lights!',
   },
 
-  // ── Kelantan ────────────────────────────────────────────────────────────────
+  /* Kelantan */
   {
     id: 'kelantan-q2', stateId: 'kelantan', difficulty: 'medium', category: 'festival',
     q: 'What is "Wayang Kulit"?',
@@ -245,7 +231,7 @@ export const QUIZ_QUESTIONS = [
     explain: 'A single Wayang Kulit performance can last from dusk until dawn — the whole night!',
   },
 
-  // ── Kedah ───────────────────────────────────────────────────────────────────
+  /* Kedah */
   {
     id: 'kedah-q1', stateId: 'kedah', difficulty: 'easy', category: 'general',
     q: 'What is the name of Kedah\'s traditional opening dance?',
@@ -334,7 +320,7 @@ export const QUIZ_QUESTIONS = [
     explain: 'The Kedah Paddy Festival is a lively celebration with music, dancing and delicious food!',
   },
 
-  // ── Sabah ───────────────────────────────────────────────────────────────────
+  /* Sabah */
   {
     id: 'sabah-q1', stateId: 'sabah', difficulty: 'easy', category: 'landmark',
     q: 'What is the height of Mount Kinabalu?',
@@ -408,7 +394,7 @@ export const QUIZ_QUESTIONS = [
     explain: 'Mari Mari Cultural Village shows Sabah\'s traditional tribal houses and old ways of life!',
   },
 
-  // ── Sarawak ─────────────────────────────────────────────────────────────────
+  /* Sarawak */
   {
     id: 'sarawak-q1', stateId: 'sarawak', difficulty: 'easy', category: 'general',
     q: 'Why is Sarawak called the "Land of the Hornbills"?',

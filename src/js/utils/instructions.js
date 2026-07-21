@@ -1,19 +1,10 @@
-// js/utils/instructions.js — shared formatting for kid instruction lines.
-//
-// Instruction lists (the "How to Play" popups, the settings Game Guide / Safety
-// popups) are written as short lines that each begin with an emoji, e.g.
-// "🤔 Read the question.". We swap that leading emoji for the app's point-form
-// bullet image so every instruction reads with the same pointer marker instead
-// of a grab-bag of differently-styled OS emoji.
-//
-// Path note: the <img> is inserted into a page under src/views/, so the asset
-// path is relative to there ("../assets/..."), matching assetImg.js et al.
+/* instructions.js — shared formatting for kid instruction lines */
 
-// The double-chevron pointer used as the instruction bullet. A <span> with the
-// pointer as a background (not an <img>) so it stays INLINE and the instruction
-// text continues right after it — the global `img { display:block }` reset would
-// otherwise force the bullet onto its own line. Inline styles keep it
-// self-contained so it works in any popup without a shared CSS class.
+// Swaps each line's leading emoji for the app's point-form bullet so every
+// instruction reads with the same pointer marker. Path is relative to src/views/.
+
+// A <span> with the pointer as a background (not <img>) so it stays inline —
+// the global `img { display:block }` reset would push a real <img> onto its own line.
 const POINT_BULLET =
   '<span aria-hidden="true" style="' +
   'display:inline-block;width:1.05em;height:1.05em;margin-right:8px;vertical-align:-0.15em;' +

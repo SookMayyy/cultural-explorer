@@ -1,20 +1,8 @@
-// js/utils/confetti.js — the shared "you won!" confetti burst.
-// ─────────────────────────────────────────────────────────────────────────────
-// Drops a shower of paper flakes from the top of the viewport. This lived inline
-// in reward.js until a second screen (Cultural Tic-Tac-Toe) needed the same
-// celebration — same colours, same count, same timing, one implementation.
-//
-//   import { burstConfetti } from './utils/confetti.js';
-//   burstConfetti();                    // 50 pieces, the flag palette
-//   burstConfetti({ count: 30 });       // a smaller flurry
-//
-// The pieces are plain divs using the GLOBAL `.confetti-piece` class and
-// `@keyframes confetti-fall` from css/style.css — no stylesheet needed here.
-//
-// A child who has asked their device to reduce motion still gets the win, just
-// without the busy falling decoration, so the check lives inside: callers can
-// fire this unconditionally.
+/* confetti.js — the shared "you won!" confetti burst */
 
+// Plain divs using the global .confetti-piece class + @keyframes confetti-fall
+// (css/style.css). The reduced-motion check lives inside, so callers can fire
+// this unconditionally.
 const COLORS = ['#C0392B', '#FCD116', '#1A3A5C', '#27AE60', '#E67E22', '#8E44AD'];
 
 export function burstConfetti({ count = 50, colors = COLORS, lifetime = 4200 } = {}) {

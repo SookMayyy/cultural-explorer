@@ -1,45 +1,26 @@
-// js/data/difficulty.js — grade-based difficulty tiers for the missions & games.
-// ─────────────────────────────────────────────────────────────────────────────
-// Supervisor feedback (see docs/MINIGAMES_CLAUDE_CODE_GUIDE.md §4): the grades
-// must play at different difficulty. We keep the SAME screens and engines and
-// only vary parameters per level, so there is one game — not two.
-//
-//   Level        Feel            Who plays it
-//   ──────────   ─────────────   ────────────────────────────────────────────
-//   explorer 🌱  gentle / guided  Grade 1–3 (locked here) + default for guests
-//   adventurer 🔥 a real challenge Default for the older cohort (Grade 4–6)
-//   master ⚡    hardest          Reserved — defined but not selectable yet
-//
-// * Grade→group note: the account stores a grade GROUP ('1-3','4-6'). The
-//   younger group '1-3' is locked to Explorer (gentle tier); the older group
-//   '4-6' is the "can choose" cohort — they DEFAULT to Adventurer but can drop
-//   to Explorer. Master stays hidden (available:false) for a future release.
-//
-//   import { currentLevel, setLevel, paramsFor } from './data/difficulty.js';
-//   const dp = paramsFor('cook');      // params for the active level
+/* difficulty.js — grade-based difficulty tiers for the missions & games */
+
+// Same screens and engines, only parameters vary per level. Grade group '1-3' is
+// locked to Explorer (gentle); '4-6' defaults to Adventurer but may drop to Explorer.
+// Master is defined but not selectable yet (available:false).
 
 import Storage from '../utils/storage.js';
 
-// ── Level catalogue ─────────────────────────────────────────────────────────
-// `available:false` levels are defined (so games already have their params) but
-// are not offered in the picker yet.
+/* Level catalogue (available:false = defined but not offered in the picker) */
 export const LEVELS = {
   explorer:   { id: 'explorer',   name: 'Explorer',   emoji: '🌱', tagline: 'Gentle and guided',  available: true  },
   adventurer: { id: 'adventurer', name: 'Adventurer', emoji: '🔥', tagline: 'A real challenge',    available: true  },
   master:     { id: 'master',     name: 'Master',     emoji: '⚡', tagline: 'Coming soon!',        available: false },
 };
 
-// ── Per-level, per-game parameters ──────────────────────────────────────────
-// Each mini-game reads exactly the block it needs. Higher level = harder:
-// fewer helping options, tighter timing, longer play, more distractors.
+/* Per-level, per-game parameters (higher level = harder) */
 const PARAMS = {
   explorer: {
-    cook:     { distractors: 1 },                                              // Help the Chef: fewer wrong ingredients
-    scramble: { count: 4 },                                                    // Activities Hub: 4 random words
-    guess:    { options: 3,  maxClues: 4 },                                    // fewer choices, all clues available
-    quiz:     { count: 4,    options: 3 },                                     // 4 random questions, 3 options each
-    // Unreachable today (the game is Adventurer-only), but tuned so opening it
-    // up to Explorer is a one-line change in activities.js.
+    cook:     { distractors: 1 },                                              // fewer wrong ingredients
+    scramble: { count: 4 },                                                    // 4 random words
+    guess:    { options: 3,  maxClues: 4 },                                    // fewer choices, all clues
+    quiz:     { count: 4,    options: 3 },                                     // 4 questions, 3 options
+    // Unreachable today (Adventurer-only), but tuned for a one-line opt-in.
     tictactoe: { botAccuracy: 0.55 },
   },
   adventurer: {
@@ -59,7 +40,7 @@ const PARAMS = {
   },
 };
 
-// ── Grade → level rules ──────────────────────────────────────────────────────
+/* Grade → level rules */
 // Default level for a grade group when the child hasn't chosen one.
 export function gradeDefault(group) {
   if (group === '4-6') return 'adventurer';
@@ -77,7 +58,7 @@ export function allowedLevels(group) {
   return canChoose(group) ? selectable : ['explorer'];
 }
 
-// ── Active level (session-aware) ─────────────────────────────────────────────
+/* Active level (session-aware) */
 function sessionGroup() {
   return (Storage.getSession && Storage.getSession()?.grade_group) || '';
 }
@@ -106,10 +87,8 @@ export function paramsFor(game, level = currentLevel()) {
   return (PARAMS[level] || PARAMS.explorer)[game];
 }
 
-// Item count for the MISSION flow (Mission 2 Word Scramble, Mission 4 Quiz). The
-// mission is a short, focused taste — Explorer 2, Adventurer 4 — whereas the
-// Activities Hub uses the larger `paramsFor('quiz'/'scramble').count` (4 / 8) so
-// children can explore many more questions/words there.
+// Item count for the mission flow (short taste: Explorer 2, Adventurer 4) —
+// the Activities Hub uses the larger paramsFor().count instead.
 const MISSION_COUNTS = { explorer: 2, adventurer: 4, master: 4 };
 export function missionCount(level = currentLevel()) {
   return MISSION_COUNTS[level] || 2;

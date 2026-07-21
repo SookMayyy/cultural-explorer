@@ -1,11 +1,7 @@
-// js/utils/assetImg.js — drop-in art slot with emoji fallback.
-//
-// Returns markup for an <img> that sits over an emoji placeholder. The emoji
-// shows by default; once the named image file exists and loads, the <img>
-// takes over (CSS .is-loaded). No broken-image flash while assets are missing.
-// Pair with the .img-slot styles in css/style.css. See assets/ASSETS.md for
-// the full list of expected filenames.
+/* assetImg.js — art slot with emoji fallback */
 
+// <img> over an emoji placeholder; the image takes over on load (.is-loaded),
+// so a missing asset never flashes a broken image. Pair with .img-slot in style.css.
 // Returns an HTML string (use with innerHTML).
 export function assetImg(src, emoji, { alt = '', cls = '' } = {}) {
   return (

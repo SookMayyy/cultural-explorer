@@ -1,42 +1,11 @@
-// js/components/dragMatch.js — Tap-to-select chip card → tap drop zone to match
-//
-// API:
-//   new DragMatch(container, pairs, onComplete, options?)
-//   game.render()
-//
-// options (all optional — defaults match the Figma frame):
-//   title      {string}  — big heading inside the play card
-//   colHeading {string}  — "TREASURES" side-column label
-//
-// Pairs schema (two forms, freely mixable in the same array):
-//   Legacy (emoji chip):  { food: '🍜 Char Kway Teow', state: 'Smoky fried noodles' }
-//     "food" is split into an emoji tile + label; "state" is the drop-zone label.
-//   Photo chip (Task 9):  { image: '../assets/content/Penang/char_kway_teow.jpg',
-//                            icon: '🍜', label: 'Char Kway Teow',
-//                            match: 'The traditional food' }
-//     "image" renders as a real photo tile (icon is only the <img onerror>
-//     text fallback); "match" is the drop-zone label. When `image` is absent,
-//     the legacy food/state fields are used instead — nothing else changes.
-//
-// Layout produced by render():
-//   .dragmatch-wrapper  (flex row)
-//     .dm-col.dm-col--left   (even-indexed chips)
-//     .dm-play-card          (centre arena)
-//       .dm-play-deco--tl / --br  (decorative cloud/wave)
-//       .dm-play-title             (heading from options.title)
-//       .drag-zones                (CSS grid — 2 cols)
-//         .drag-zone[data-zone][data-pos]
-//           .dm-zone-badge         (numbered circle badge, top-left)
-//           .drag-zone-label       (zone category label)
-//           .dm-zone-drop          (dashed "+", filled with emoji after match)
-//       .dragmatch-score           (secondary "X / N" counter)
-//     .dm-col.dm-col--right  (odd-indexed chips)
-//
-// Visual reskin only — all game logic (_selectChip, _dropOnZone, _updateScore,
-// _shuffledOrder, _bindEvents) is identical to the original.
+/* dragMatch.js — tap-to-select chip → tap drop zone to match */
 
-// Pastel tile tints — cycle through these by chip index so every chip card
-// gets a distinct background colour without hardcoding data.
+// Constructor: new DragMatch(container, pairs, onComplete, options?), then render().
+// Pairs take two mixable forms:
+//   Legacy emoji chip: { food: '🍜 Char Kway Teow', state: 'Smoky fried noodles' }
+//   Photo chip:        { image, icon, label, match }  (icon is the <img onerror> fallback)
+
+// Pastel tile tints, cycled by chip index so every chip gets a distinct colour.
 const TILE_COLORS = [
   'dm-tile--peach',
   'dm-tile--yellow',
@@ -49,14 +18,7 @@ const TILE_COLORS = [
 ];
 
 export default class DragMatch {
-  /**
-   * @param {HTMLElement} container  — the element to render into
-   * @param {Array}       pairs      — [{food, state}, …]
-   * @param {Function}    onComplete — called when all pairs are matched
-   * @param {Object}      [options]  — optional visual overrides
-   * @param {string}      [options.title='MATCH THE TREASURE!']
-   * @param {string}      [options.colHeading='TREASURES']
-   */
+  // (container, pairs, onComplete, options?) — options override the visible text.
   constructor(container, pairs, onComplete, options = {}) {
     this._el         = container;
     this._pairs      = pairs;
@@ -64,13 +26,12 @@ export default class DragMatch {
     this._selected   = null;   // currently selected chip element
     this._correct    = 0;
 
-    // Parameterise the visible text so this component can be re-themed
-    // for different mission types (food match, costume match, ingredient match…).
+    // Parameterised so the component re-themes for different mission types.
     this._title      = options.title      || 'MATCH THE TREASURE!';
     this._colHeading = options.colHeading || 'TREASURES';
   }
 
-  // ─── Public ───────────────────────────────────────────────────────────────
+  /* Public */
 
   render() {
     // Separate chip indices into left column (even) and right column (odd).
@@ -132,19 +93,14 @@ export default class DragMatch {
     this._bindEvents();
   }
 
-  // ─── Private helpers ──────────────────────────────────────────────────────
+  /* Private helpers */
 
-  // The drop-zone label for a pair: the new `match` field when present,
-  // otherwise the legacy `state` field (back-compat with emoji-chip pairs).
+  // Drop-zone label: the `match` field when present, else legacy `state`.
   _zoneLabel(pair) {
     return pair.match || pair.state;
   }
 
-  // Build a chip card element (tile + label).
-  //   - Photo pairs (`image` present) show a real photo tile, with the plain
-  //     `icon` emoji (or 🖼️) as the <img onerror> text fallback.
-  //   - Legacy pairs split "🍜 Char Kway Teow" → tile emoji "🍜" + label
-  //     "Char Kway Teow", same as before.
+  // Build a chip card (photo tile for `image` pairs, else emoji-split legacy chip).
   _chipCard(pair, index) {
     const tileColor = TILE_COLORS[index % TILE_COLORS.length];
 
@@ -188,12 +144,12 @@ export default class DragMatch {
   }
 
   _bindEvents() {
-    // ── Chip events (tap-to-select + HTML5 drag) ──────────────────────────
+    /* Chip events (tap-to-select + HTML5 drag) */
     this._el.querySelectorAll('.drag-chip').forEach(chip => {
-      // Tap / click to select a chip (primary interaction for young children)
+      // Tap/click selects a chip (primary interaction for young children).
       chip.addEventListener('click', () => this._selectChip(chip));
 
-      // HTML5 drag (mouse / trackpad — touch uses tap path above)
+      // HTML5 drag (mouse/trackpad — touch uses the tap path above).
       chip.addEventListener('dragstart', e => {
         if (chip.classList.contains('placed')) { e.preventDefault(); return; }
         this._selectChip(chip);
@@ -208,12 +164,12 @@ export default class DragMatch {
       });
     });
 
-    // ── Zone events (tap-to-drop + HTML5 drop) ───────────────────────────
+    /* Zone events (tap-to-drop + HTML5 drop) */
     this._el.querySelectorAll('.drag-zone').forEach(zone => {
-      // Tap / click on the zone to drop the selected chip
+      // Tap/click on the zone drops the selected chip.
       zone.addEventListener('click', () => this._dropOnZone(zone));
 
-      // HTML5 dragover: must preventDefault to allow a drop
+      // dragover must preventDefault to allow a drop.
       zone.addEventListener('dragover', e => {
         if (zone.classList.contains('filled')) return;
         e.preventDefault();
@@ -221,8 +177,8 @@ export default class DragMatch {
         zone.classList.add('drag-over');
       });
 
-      // dragleave fix: only remove the highlight when the pointer genuinely
-      // leaves the zone (not just moves onto a child element inside the zone).
+      // Only drop the highlight when the pointer really leaves the zone,
+      // not when it moves onto a child element.
       zone.addEventListener('dragleave', e => {
         if (!zone.contains(e.relatedTarget)) {
           zone.classList.remove('drag-over');
@@ -256,14 +212,14 @@ export default class DragMatch {
 
     if (correct) {
       const pair = this._pairs[chipIdx];
-      // Photo pairs show the same photo in the filled drop zone (with an emoji
-      // fallback); legacy pairs extract just the icon token from "food".
+      // Photo pairs fill the zone with the same photo (emoji fallback);
+      // legacy pairs use just the icon token from "food".
       const filledContent = pair.image
         ? `<img class="drag-chip__img drag-chip__img--zone" src="${pair.image}" alt="" ` +
           `onerror="this.replaceWith(document.createTextNode('${pair.icon || '✓'}'))">`
         : pair.food.split(' ')[0];
 
-      // Update zone to show the matched state: ✓ badge + filled drop area
+      // Show the matched state: ✓ badge + filled drop area.
       zone.classList.add('correct-zone', 'filled', 'burst');
       zone.innerHTML = `
         <span class="dm-zone-badge dm-zone-badge--check">✓</span>

@@ -1,4 +1,4 @@
-// js/quiz.js — Quiz mini-game screen
+/* quiz.js — Quiz mini-game screen */
 
 import Storage from './utils/storage.js';
 import { renderTopbar, renderNavbar, requireAuth, getStateParam, flyPoints } from './ui.js';
@@ -16,7 +16,6 @@ import { shuffle } from './utils/shuffle.js';
 import { launchContext } from './utils/launchContext.js';
 import Sound from './utils/sound.js';
 
-// ── Auth guard ────────────────────────────────────────────────────────────────
 requireAuth();
 
 const stateId = getStateParam();
@@ -32,19 +31,16 @@ if (!state) {
   throw new Error('State not found: ' + stateId);
 }
 
-// ── Launch context ─────────────────────────────────────────────────────────────
-// In the linear journey the back button goes to narrative and the CTA on to reward.
+/* Launch context (journey: back → narrative, CTA → reward) */
 const { fromActivities, fromMission, missionId, missionsHref, missionsDoneHref } =
   launchContext(stateId);
 const activitiesHref = `activities.html?state=${stateId}`;
 
-// ── Render shared chrome ───────────────────────────────────────────────────────
-// Pass color: null so quiz.css .quiz-topbar override (purple) wins via !important.
+/* Shared chrome (color:null keeps quiz.css's purple override) */
 renderTopbar({
   title:    state.name + ' Quiz',
   showBack: true,
-  // From the hub the player picked a game and THEN a state, so back undoes one
-  // step to the state picker rather than jumping out to the hub.
+  // From the hub, back undoes one step to the state picker.
   backHref: fromMission ? missionsHref
           : fromActivities ? 'activity-states.html?game=quiz'
           : `narrative.html?state=${stateId}`,
@@ -54,35 +50,24 @@ renderTopbar({
 
 renderNavbar('activities');
 
-// ── Apply state accent color to quiz main (progress bar + card header) ────────
-// quiz.css defaults everything to purple; setting --state-color here lets
-// the fill bar and card header tint with the state's own colour for a bit of
-// per-state personalisation (same technique as narrative.css uses for tab
-// underlines and hero backgrounds).
+/* Apply the state accent to the quiz (progress bar + card header) */
 const quizMain = document.getElementById('quiz-main');
 if (quizMain && state.color) {
   quizMain.style.setProperty('--state-color', state.color);
-  // The light tint colours the whole question card so each state's card is its own.
   if (state.colorLight) quizMain.style.setProperty('--state-color-light', state.colorLight);
 }
 
-// Drop the state flag into the question-card header so each state's quiz is
-// visually distinct. state.emoji is an <img> of the state flag.
+// Drop the state flag into the question-card header (state.emoji is an <img>).
 const stateFlagEl = document.getElementById('quiz-state-flag');
 if (stateFlagEl) stateFlagEl.innerHTML = state.emoji;
 
-// ── Build question pool ───────────────────────────────────────────────────────
-// PER-STATE ONLY: the inline state.quizQuestion first, then this state's own
-// questions from QUIZ_QUESTIONS. No padding with other states' questions —
-// every state has at least 4 of its own (see data/quizzes.js).
+/* Build question pool — per-state only (inline question + this state's bank) */
 const POINTS_PER_Q = 10;
 
-// Shuffled so a replay surfaces different questions from the bank each time —
-// with more than 4 authored per state, this is what makes the extra content
-// (medium/hard, picture questions) actually turn up across play sessions.
+// Shuffled so a replay surfaces different questions from the bank each time.
 const stateQs = shuffle(QUIZ_QUESTIONS.filter(q => q.stateId === stateId));
 
-// Always include the per-state inline question first
+// Always include the per-state inline question first.
 const mainQ = {
   id:      stateId + '-main',
   q:       state.quizQuestion.q,
@@ -92,15 +77,11 @@ const mainQ = {
   image:   state.quizQuestion.image || null,
 };
 
-// Difficulty tunes the quiz: Explorer gets 3 questions with 3 options each;
-// Adventurer gets 4 questions with the full 4 options.
+// Difficulty tunes the quiz: Explorer 3 questions × 3 options, Adventurer 4 × 4.
 const qp = paramsFor('quiz');
 
-// The Festival Challenge mission is a short, focused set — Explorer 2, Adventurer 4
-// (see missionCount) — and still guarantees one festival question (below). The
-// Activities Hub uses the larger qp.count (4 / 8) for free exploration. Difficulty
-// also tunes how many OPTIONS each question shows. The mission plays the state's
-// festival music softly on loop.
+// The Festival mission is a short focused set (Explorer 2, Adventurer 4) that
+// guarantees one festival question and loops the state's festival music.
 const isFestivalMission = fromMission && missionId === 'festival';
 const qCount = isFestivalMission ? missionCount() : qp.count;
 if (isFestivalMission) {
@@ -108,15 +89,11 @@ if (isFestivalMission) {
   if (track) playMusic(track, { volume: 0.22 });
 }
 
-// Small word banks used to PAD a question up to `n` real options when it ships
-// fewer than that (e.g. a landmark-tour "where is this?" question built from a
-// state with only 2 famous spots). Never render a placeholder "—" button when
-// we can fill it with a plausible wrong answer instead.
+// Word banks to pad a question up to `n` real options (never a placeholder "—").
 const FOODS = ['Nasi Lemak', 'Char Kway Teow', 'Satay', 'Roti Canai', 'Nasi Kandar', 'Cendol', 'Rendang'];
 const PLACE_NAMES = ['Kuala Lumpur', 'Ipoh', 'Melaka', 'Genting Highlands', 'Cameron Highlands', 'Langkawi', 'Kuching', 'Kota Kinabalu'];
 
-// Mascot reactions. The row is hidden on this screen (see quiz.css
-// .quiz-mascot-row), but the writes stay guarded in case it's re-enabled.
+// Mascot reactions (the row is hidden on this screen, but writes stay guarded).
 const PRAISE = [
   'Excellent! Well done!',
   'Correct! You are amazing!',
@@ -131,9 +108,7 @@ const ENCOURAGEMENT = [
 
 const randomOf = (list) => list[Math.floor(Math.random() * list.length)];
 
-// Pick `count` extra distractors that aren't already used in `existing`. Food
-// questions borrow from FOODS first; everything else borrows place names first
-// (falling back to the other pool if we somehow run out).
+// Pick `count` distractors not already in `existing` (food Qs prefer FOODS).
 function extraDistractors(q, existing, count) {
   const used = new Set(existing.map(o => String(o).toLowerCase()));
   const isFoodQ = /food|dish|eat|taste|laksa|noodle/i.test(q.q || '');
@@ -142,11 +117,8 @@ function extraDistractors(q, existing, count) {
   return pool.slice(0, count);
 }
 
-// Resize a question to EXACTLY `n` options, always keeping the correct one:
-//   - more than n options → trim down (keeping the correct + a random subset)
-//   - fewer than n options → pad with plausible distractors (never "—")
-// Always reshuffle and recompute `ans`, even when the count already matches —
-// otherwise the correct answer sits in its authored spot on every play.
+// Resize a question to exactly `n` options (trim or pad), keeping the correct one.
+// Always reshuffle and recompute `ans` so it doesn't sit in its authored spot.
 function trimOptions(q, n) {
   const correct = q.opts[q.ans];
   let opts = q.opts.length > n
@@ -161,11 +133,7 @@ function trimOptions(q, n) {
   return { ...q, opts, ans: opts.indexOf(correct) };
 }
 
-// ── Picture questions ("what is this?") ─────────────────────────────────────
-// Where the state ships real photos (Kedah today), open with image-recognition
-// questions — "What food is this?" (dish photo) and "Where is this?" (landmark
-// photo). States without photos simply get the text questions below. Distractors
-// come from a small dish list and the state's own other landmarks.
+/* Picture questions ("what is this?") — only where the state ships real photos */
 function imageQuestions(st) {
   const out = [];
   const food = foodMissionFor(st.id);
@@ -192,13 +160,8 @@ function imageQuestions(st) {
   return out;
 }
 
-// Build the ordered candidate list, then take the first `qCount`.
-//  • Festival mission — guarantee at least one category:'festival' question by
-//    prepending it (every state ships one; see data/quizzes.js).
-//  • Everywhere else (Activities Hub / free play) — shuffle the WHOLE mixed pool
-//    so each play draws a different random set across all culture categories
-//    (food / costume / landmark / festival). With 10+ questions per state, the
-//    Hub's Explorer (4) and Adventurer (8) sets stay varied across replays.
+// Ordered candidates, then the first `qCount`. The festival mission prepends one
+// festival question; free play shuffles the whole mixed pool for varied replays.
 let ordered;
 if (isFestivalMission) {
   const festQ = stateQs.find(q => q.category === 'festival');
@@ -210,13 +173,13 @@ if (isFestivalMission) {
 }
 const pool = ordered.slice(0, qCount).map(q => trimOptions(q, qp.options));
 
-// ── State variables ───────────────────────────────────────────────────────────
+/* State variables */
 let qIdx     = 0;   // current question index
-let score    = 0;   // number of correct answers
-let earned   = 0;   // total points earned this session
+let score    = 0;   // correct answers
+let earned   = 0;   // points earned this session
 let answered = false; // prevents double-tapping before auto-advance
 
-// ── DOM references ────────────────────────────────────────────────────────────
+/* DOM references */
 const counterEl     = document.getElementById('quiz-counter');
 const progFill      = document.getElementById('quiz-prog-fill');
 const questionEl    = document.getElementById('quiz-question-text');
@@ -228,13 +191,11 @@ const feedbackIcon  = document.getElementById('feedback-icon');
 const mascotEl      = document.getElementById('quiz-mascot-text');
 const scoreEl       = document.getElementById('quiz-score-display');
 
-// Mascot figure — Rimau guides every state (starts in the idle pose)
+// Rimau guides every state (starts idle).
 const mascotFig = document.getElementById('quiz-mascot-figure');
 renderMascot(mascotFig, 'idle');
 
-// Add a ✓ / ✗ shape badge to an option button so right/wrong is legible without
-// relying on the green/red colour alone (colour-blind-friendly). Cleared each
-// question in loadQuestion().
+// Add a ✓/✗ shape badge so right/wrong reads without relying on colour alone.
 function addOptMark(btn, glyph) {
   if (!btn || btn.querySelector('.opt-mark')) return;
   const mark = document.createElement('span');
@@ -252,7 +213,7 @@ function react(el, cls) {
   el.classList.add(cls);
 }
 
-// ── Load a question ───────────────────────────────────────────────────────────
+/* Load a question */
 function loadQuestion(idx) {
   answered = false;
 
@@ -281,8 +242,7 @@ function loadQuestion(idx) {
   // Explorer questions carry fewer options, so surplus buttons are hidden.
   optionBtns.forEach((btn, i) => {
     const has = i < q.opts.length;
-    // `hidden` alone is overridden by `.quiz-option { display:flex }`, which left
-    // a stray "—" button — so force display off for the extras too.
+    // `hidden` alone is overridden by .quiz-option { display:flex }, so force display off too.
     btn.hidden = !has;
     btn.style.display = has ? '' : 'none';
     btn.classList.remove('correct', 'wrong', 'burst', 'shake');
@@ -303,7 +263,7 @@ function loadQuestion(idx) {
 
 loadQuestion(0);
 
-// ── Evaluate an answer ────────────────────────────────────────────────────────
+/* Evaluate an answer */
 function evaluate(chosen) {
   if (answered) return;
   answered = true;
@@ -338,8 +298,8 @@ function evaluate(chosen) {
 
     score++;
     earned += POINTS_PER_Q;
-    // In the mission flow the flat +25 mission bonus is the only reward, so the
-    // per-question points are NOT persisted (keeps a state worth exactly 100).
+    // In the mission flow the flat +25 bonus is the only reward, so per-question
+    // points aren't persisted (keeps a state worth exactly 100).
     if (!fromMission) Storage.addPoints(POINTS_PER_Q);
     if (scoreEl) {
       scoreEl.textContent = earned;
@@ -376,27 +336,23 @@ optionBtns.forEach(btn => {
   btn.addEventListener('click', () => evaluate(parseInt(btn.dataset.idx, 10)));
 });
 
-// ── Finish (completion screen) ────────────────────────────────────────────────
-// Revealed in-page before the redirect, giving the player a reward beat
-// (mascot + score tally + stamp banner).
+/* Finish (in-page completion screen: mascot + score tally + stamp banner) */
 function finish() {
   const pass = score >= Math.ceil(pool.length * 0.5);
 
   Storage.markCompleted(stateId, 'quiz');
   Storage.saveBestScore(earned);
-  // NOTE: stamps are earned ONLY by completing all four of a state's missions
-  // (handled in mission.js). A standalone/journey quiz pass no longer awards one.
+  // Stamps are earned only by completing all four missions (mission.js), not here.
 
-  // Update the progress strip to 100% on completion
   progFill.style.width = '100%';
 
-  // ── Reveal the completion screen ──
+  // Reveal the completion screen.
   const questionView = document.getElementById('quiz-question-view');
   const completeView = document.getElementById('quiz-complete-view');
   if (questionView) questionView.classList.add('hidden');
   if (completeView) completeView.classList.remove('hidden');
 
-  // Fill in completion screen details
+  // Fill in completion screen details.
   const completeStateName  = document.getElementById('complete-state-name');
   const completeBadge      = document.getElementById('complete-badge');
   const completeScoreNum   = document.getElementById('complete-score-num');
@@ -407,10 +363,8 @@ function finish() {
   const completeStampSub   = document.getElementById('complete-stamp-sub');
   const completeMascotFig  = document.getElementById('complete-mascot-figure');
 
-  // Cheering pose for a pass, idle (gentle) otherwise.
+  // Cheer for a pass, idle otherwise.
   renderMascot(completeMascotFig, pass ? 'cheer' : 'idle');
-
-  // Juice: celebrate a pass (mascot cheer + unlock fanfare), gentle otherwise.
   if (pass) { react(completeMascotFig, 'react-cheer'); Sound.unlock(); }
   else      { Sound.wrong(); }
   const completeStateFlag = document.getElementById('complete-state-flag');
@@ -421,7 +375,7 @@ function finish() {
   if (completeScoreTotal) completeScoreTotal.textContent = pool.length;
   if (completePtsEarned) completePtsEarned.textContent = earned;
 
-  // Mascot message depends on score
+  // Mascot message depends on score.
   if (completeMascotMsg) {
     if (score === pool.length) {
       completeMascotMsg.textContent = `Perfect score! You are a ${state.name} expert! Amazing work!`;
@@ -432,7 +386,7 @@ function finish() {
     }
   }
 
-  // Show the stamp banner only if the player earned a stamp
+  // Show the stamp banner only on a pass.
   if (completeStampBanner && completeStampSub) {
     if (pass) {
       completeStampBanner.classList.remove('hidden');
@@ -442,8 +396,7 @@ function finish() {
     }
   }
 
-  // ── CTA button ──
-  // Replay from the hub → back to Activities. Linear journey → reward.html.
+  // CTA: replay from the hub → Activities; linear journey → reward.html.
   const ctaBtn = document.getElementById('complete-cta-btn');
   if (ctaBtn) {
     const params = new URLSearchParams({
@@ -463,7 +416,7 @@ function finish() {
   }
 }
 
-// ── Kid-friendly "How to Play" (first visit + a "?" button to re-open) ────────
+/* Kid-friendly "How to Play" (first visit + a "?" button to re-open) */
 initHowToPlay('quiz', {
   title: 'Quiz Time!', emoji: '🧠',
   lines: ['🤔 Read the question.', '👆 Tap the best answer.', '⭐ Get it right to win points!'],

@@ -1,36 +1,12 @@
-// js/utils/pointerDrag.js — drag-and-drop that works with a finger.
-// ─────────────────────────────────────────────────────────────────────────────
-// The HTML5 drag-and-drop API (what dragMatch.js uses) does not fire on touch at
-// all, so tablets get no dragging from it. This is a Pointer Events
-// implementation instead: one code path covering mouse, pen and touch.
-//
-//   const drag = initPointerDrag({
-//     sourceRoot:     pillsEl,          // delegate from here, survives re-renders
-//     sourceSelector: '.ttt-pill',
-//     targetSelector: '.ttt-cell',
-//     createGhost:    el => el.cloneNode(true),
-//     onTap:   el          => selectPill(el),
-//     onDrop:  (el, target) => target && drop(el, target),
-//     isEnabled: () => !busy,
-//   });
-//   drag.destroy();
-//
-// Design notes worth keeping:
-//
-// • A press that never moves more than `threshold` px resolves as onTap, not a
-//   drag. That is what lets ONE element serve both the drag and the
-//   tap-to-select-then-tap-target fallback — important for small fingers.
-//   For the same reason we bind no `click` handler: it would double-fire after
-//   pointerup.
-//
-// • setPointerCapture keeps pointermove flowing even once the finger has left
-//   the pill, and guarantees a terminal event, so a drag can never get stuck.
-//
-// • The ghost MUST be pointer-events:none, or elementFromPoint returns the ghost
-//   itself on every single move and no drop target is ever found.
-//
-// • Draggable elements need `touch-action:none` in CSS, or the browser claims
-//   the gesture as a scroll and fires pointercancel on the first move.
+/* pointerDrag.js — drag-and-drop that works with a finger */
+
+// Pointer Events implementation (mouse, pen and touch in one path) — HTML5 DnD
+// never fires on touch. Load-bearing rules:
+//   • A press under `threshold` px resolves as onTap, so one element serves both
+//     drag and tap-to-select. (No click handler — it would double-fire.)
+//   • setPointerCapture keeps pointermove flowing and guarantees a terminal event.
+//   • The ghost MUST be pointer-events:none, or elementFromPoint only ever returns it.
+//   • Draggables need `touch-action:none` in CSS, or the browser scrolls instead.
 
 export function initPointerDrag({
   sourceRoot,
@@ -93,13 +69,10 @@ export function initPointerDrag({
     ghost.style.zIndex        = '10000';
     ghost.style.pointerEvents = 'none';           // critical for elementFromPoint
     ghost.style.willChange    = 'transform';
-    // The clone inherits the source's transition (pills animate their transform
-    // on hover/press). Left in place, EVERY drag frame would be eased over
-    // ~120ms and the ghost would visibly lag the finger — kill it outright.
+    // Kill the inherited transition, or every drag frame eases and the ghost lags the finger.
     ghost.style.transition    = 'none';
     ghost.style.animation     = 'none';
-    // Position it before it is ever painted, or it flashes at the viewport
-    // corner for one frame.
+    // Position before first paint, or it flashes at the viewport corner for one frame.
     ghost.style.transform     = `translate3d(${x - grabDX}px, ${y - grabDY}px, 0)`;
     document.body.appendChild(ghost);
     onDragStart?.(source, ghost);

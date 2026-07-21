@@ -1,8 +1,7 @@
-// js/recover.js — standalone Forgot Password page (Figma 273:86).
-//
-// Mirrors the icon-based recovery flow that also lives in the home login
-// modal: identify by name + grade, tap the 2 secret icons in order, then
-// (Grade 4+) set a new password. Posts to the same /api/auth/recover route.
+/* recover.js — standalone Forgot Password page */
+
+// Identify by name + grade, tap the 2 secret icons in order, then (Grade 4+) set
+// a new password. Posts to POST /api/auth/recover.
 
 import { showError as popup, showPopup } from './components/popup.js';
 import { SECRET_ICONS as ICONS } from './data/secretIcons.js';
@@ -20,14 +19,14 @@ const errorEl    = document.getElementById('recover-error');
 const successEl  = document.getElementById('recover-success');
 const form       = document.getElementById('form-recover');
 
-// ── Small helpers ─────────────────────────────────────────────────────────────
+/* Helpers */
 function showError(msg) {
   successEl.classList.add('hidden');
-  popup(msg);                 // friendly popup instead of inline red text
+  popup(msg);
 }
 function clearError() { errorEl.classList.add('hidden'); }
 
-// ── Grade selector ──────────────────────────────────────────────────────────────
+/* Grade selector */
 gradeWrap.querySelectorAll('.grade-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     gradeWrap.querySelectorAll('.grade-btn').forEach(b => b.classList.remove('selected'));
@@ -41,7 +40,7 @@ gradeWrap.querySelectorAll('.grade-btn').forEach(btn => {
   });
 });
 
-// ── Icon picker — record up to 2 taps in order ──────────────────────────────────
+/* Icon picker — record up to 2 taps in order */
 iconGrid.innerHTML = ICONS.map((ic, i) =>
   `<button type="button" class="icon-pick" data-icon="${i + 1}" aria-label="Secret icon ${i + 1}">${ic}</button>`
 ).join('');
@@ -62,7 +61,7 @@ iconGrid.querySelectorAll('.icon-pick').forEach(btn => {
   });
 });
 
-// ── Submit ──────────────────────────────────────────────────────────────────────
+/* Submit */
 form.addEventListener('submit', async e => {
   e.preventDefault();
   clearError();
@@ -97,8 +96,7 @@ form.addEventListener('submit', async e => {
       return showError('❌ ' + (data.error || 'Recovery failed. Check your details.'));
     }
 
-    // Success — require an explicit acknowledgement so the revealed password
-    // (Grade 1–3) isn't missed, then go to login only after they tap the button.
+    // Require an explicit acknowledgement so the revealed password isn't missed.
     document.getElementById('recover-submit').disabled = true;
 
     if (data.revealed_password) {

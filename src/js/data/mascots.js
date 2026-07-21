@@ -1,12 +1,7 @@
-// js/data/mascots.js — the single mascot, with art slots + emoji fallback.
-//
-// Rimau (tiger cub) is the one guide across the whole app (West and East).
-// Three uploaded poses live in assets/characters/:
-//   idle  — calm standing pose (default / neutral)
-//   happy — arms up, big smile (correct answers, greetings)
-//   cheer — fist-pump celebration (passing a quiz, finishing a state)
-// `emoji` is the fallback shown until the art file loads. Paths are relative to
-// the views/ pages.
+/* mascots.js — the single mascot, with art slots + emoji fallback */
+
+// Rimau (tiger cub) guides the whole app. Poses: idle / happy / cheer / wave;
+// `emoji` is the fallback until the art loads.
 
 import { assetImg } from '../utils/assetImg.js';
 
@@ -34,16 +29,14 @@ export function mascotPose(pose = 'idle', id = 'rimau') {
   return (m.poses && m.poses[pose]) || m.img;
 }
 
-// Render a mascot figure into `el` as an art slot (emoji fallback until the
-// PNG loads). Use this the first time you populate a figure container.
+// Render a mascot figure into `el` as an art slot (first time you populate it).
 export function renderMascot(el, pose = 'idle', id = 'rimau') {
   if (!el) return;
   const m = getMascot(id);
   el.innerHTML = assetImg(mascotPose(pose, id), m.emoji, { alt: m.name });
 }
 
-// Swap an already-rendered figure to a different pose without a reload flash —
-// just changes the <img> src. Falls back to a full render if not yet built.
+// Swap an already-rendered figure to a different pose (just changes the <img> src).
 export function setMascotPose(el, pose = 'idle', id = 'rimau') {
   if (!el) return;
   const img = el.querySelector('.img-slot__img');

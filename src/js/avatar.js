@@ -1,9 +1,7 @@
-// js/avatar.js — Avatar shop (character picker + background colour).
-//
-// The player picks ONE avatar free at sign-up (recorded as owned). Every other
-// avatar must be BOUGHT with points here; owned ones can be equipped freely.
-// The shop also lets the player choose a profile background colour, which themes
-// their profile everywhere via the --profile-color CSS variable (default purple).
+/* avatar.js — Avatar shop (character picker + background colour) */
+
+// One avatar is free at sign-up; others are bought with points and equipped freely.
+// The profile colour themes the profile everywhere via --profile-color.
 
 import Storage from './utils/storage.js';
 import { AVATARS, avatarImg } from './data/avatars.js';
@@ -32,7 +30,7 @@ const PROFILE_COLORS = [
   '#3b3b98', // indigo
 ];
 
-// ── DOM ─────────────────────────────────────────────────────────────────────
+/* DOM */
 const pointsEl = document.getElementById('av-points');
 const baseEl   = document.getElementById('av-hero-base');
 const nameEl   = document.getElementById('av-name');
@@ -42,13 +40,13 @@ const colorsEl = document.getElementById('av-colors');
 
 nameEl.textContent = session.displayName || 'Explorer';
 
-// ── Showcase ─────────────────────────────────────────────────────────────────
+/* Showcase */
 function renderShowcase() {
   pointsEl.textContent = `⭐ ${Storage.getPoints()}`;
   baseEl.innerHTML     = avatarImg(session.avatarId ?? 0);
 }
 
-// ── Character grid (owned = equip, locked = buy) ──────────────────────────────
+/* Character grid (owned = equip, locked = buy) */
 function animalCard(a, i) {
   const isSel   = (session.avatarId ?? 0) === i;
   const owned   = Storage.ownsAvatar(i);
@@ -81,7 +79,7 @@ function renderGrid() {
   gridEl.innerHTML = AVATARS.map(animalCard).join('');
 }
 
-// ── Colour swatches ───────────────────────────────────────────────────────────
+/* Colour swatches */
 function renderColors() {
   const current = Storage.getProfileColor();
   colorsEl.innerHTML = PROFILE_COLORS.map(c => {
@@ -92,7 +90,7 @@ function renderColors() {
   }).join('');
 }
 
-// ── Actions ──────────────────────────────────────────────────────────────────
+/* Actions */
 function equipAnimal(i) {
   Sound.tap();
   Storage.setSessionAvatar(i);
@@ -109,16 +107,13 @@ async function buyAnimal(i) {
     return;
   }
 
-  // Confirm before spending — points are hard-earned, so make the purchase a
-  // deliberate choice rather than an accidental tap.
+  // Confirm before spending — points are hard-earned.
   Sound.tap?.();
   const confirmed = await confirmPopup(
     `Spend ⭐ ${AVATAR_COST} points to unlock <b>${AVATARS[i].name}</b>?`,
     {
       title:       'Buy this avatar?',
-      // Show the actual animal they're about to buy so they can confirm it's the
-      // right one; the avatar's own emoji is the fallback if the art fails to load.
-      image:       AVATARS[i].img,
+      image:       AVATARS[i].img,   // show the animal, emoji as fallback
       emoji:       AVATARS[i].emoji,
       confirmText: `Buy for ⭐ ${AVATAR_COST}`,
       cancelText:  'Not now',
@@ -166,7 +161,7 @@ document.getElementById('av-name-edit')?.addEventListener('click', () => {
   showToast('Your name is set when you sign up 😊');
 });
 
-// ── Hydrate points from backend, then render ──────────────────────────────────
+/* Hydrate points from backend, then render */
 async function init() {
   applyProfileColor();
   if (online) {

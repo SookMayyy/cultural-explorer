@@ -1,16 +1,7 @@
-// js/signup.js — standalone Create Account screen (grade-based).
-//
-// Flow:
-//   1. Pick grade  → Grade 1–3 gets an auto-generated password (no field).
-//   2. Enter name  (letters only, max 20 — matches backend validation).
-//   3. Grade 4+    type a password (min 6); Grade 1–3 skip this.
-//   4. Pick 2 secret icons IN ORDER → recovery key (icon_key_1 / icon_key_2).
-//   5. POST /api/auth/register → on success, Grade 1–3 see their auto password,
-//      then everyone picks an avatar and enters the game.
-//
-// Posts to the same backend route the home modal uses. A successful register
-// sets an httpOnly session cookie; we mirror a lightweight session into
-// localStorage so the rest of the MPA keeps working.
+/* signup.js — standalone Create Account screen (grade-based) */
+
+// Flow: pick grade (1–3 auto-password) → name → password (Grade 4+) → 2 secret
+// icons in order → POST /api/auth/register → reveal auto-password → pick avatar.
 
 import Storage from './utils/storage.js';
 import { AVATARS, avatarImg } from './data/avatars.js';
@@ -21,7 +12,7 @@ let signupGrade   = null;   // selected grade group
 const chosenIcons = [];     // up to 2 chosen icon ids (1–12), in tap order
 let chosenAvatar  = null;   // numeric index into AVATARS
 
-// ── DOM ────────────────────────────────────────────────────────────────────
+/* DOM */
 const viewForm   = document.getElementById('view-form');
 const viewDone   = document.getElementById('view-done');
 
@@ -40,12 +31,12 @@ const autopwValue = document.getElementById('autopw-value');
 const avatarGrid  = document.getElementById('signup-avatars');
 const startBtn    = document.getElementById('btn-start');
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
-// Errors surface as a friendly popup (inline element kept hidden as a fallback).
+/* Helpers */
+// Errors surface as a popup; the inline element stays hidden as a fallback.
 function showError(msg) { popup(msg); }
 function clearError()   { errorEl?.classList.add('hidden'); }
 
-// ── Grade selector ───────────────────────────────────────────────────────────
+/* Grade selector */
 gradeWrap.querySelectorAll('.grade-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     gradeWrap.querySelectorAll('.grade-btn').forEach(b => b.classList.remove('selected'));
@@ -61,7 +52,7 @@ gradeWrap.querySelectorAll('.grade-btn').forEach(btn => {
   });
 });
 
-// ── Icon picker — record up to 2 taps in order, with order badges ────────────
+/* Icon picker — record up to 2 taps in order, with order badges */
 iconGrid.innerHTML = ICONS.map((ic, i) =>
   `<button type="button" class="icon-pick" data-icon="${i + 1}" aria-label="Secret icon ${i + 1}">${ic}</button>`
 ).join('');
@@ -96,7 +87,7 @@ iconGrid.querySelectorAll('.icon-pick').forEach(btn => {
   });
 });
 
-// ── Submit registration ──────────────────────────────────────────────────────
+/* Submit registration */
 form.addEventListener('submit', async e => {
   e.preventDefault();
   clearError();
@@ -139,9 +130,7 @@ form.addEventListener('submit', async e => {
     // Session for the rest of the MPA (avatar chosen on the next step).
     Storage.setSession({ type: 'registered', displayName: name, grade_group: signupGrade, avatarId: null, points: 0 });
 
-    // A brand-new account must start fresh: wipe any stale local progress left
-    // under this (name+grade) namespace from a previous/deleted account so the
-    // child doesn't inherit old points/stamps/progress.
+    // Start fresh: wipe any stale progress under this (name+grade) namespace.
     Storage.reset();
 
     // Grade 1–3: reveal the auto-generated password on the success step.
@@ -165,7 +154,7 @@ form.addEventListener('submit', async e => {
   }
 });
 
-// ── Success step: avatar picker ──────────────────────────────────────────────
+/* Success step: avatar picker */
 avatarGrid.innerHTML = AVATARS.map((a, i) =>
   `<button type="button" class="avatar-item" role="option" aria-selected="false"
            data-id="${i}" aria-label="${a.name}">${avatarImg(i)}</button>`
@@ -187,7 +176,5 @@ avatarGrid.querySelectorAll('.avatar-item').forEach(btn => {
 startBtn.addEventListener('click', () => {
   if (chosenAvatar == null) return;
   Storage.setSessionAvatar(chosenAvatar);
-  // Land on the authenticated Home (dashboard), same as login/guest — so a
-  // brand-new account's first entry isn't the map while returning logins go Home.
-  window.location.href = 'dashboard.html';
+  window.location.href = 'dashboard.html';   // enter at the dashboard, like login/guest
 });

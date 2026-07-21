@@ -1,4 +1,4 @@
-// js/reward.js — reward/celebration page (Figma "Stamp Earned" 273:382)
+/* reward.js — reward/celebration page ("Stamp Earned") */
 
 import Storage from './utils/storage.js';
 import { requireAuth } from './ui.js';
@@ -9,38 +9,29 @@ import { burstConfetti } from './utils/confetti.js';
 
 requireAuth();
 
-// Read results from URL params (set by quiz.js)
+// Read results from URL params (set by quiz.js).
 const params      = new URLSearchParams(window.location.search);
 const stateId     = params.get('state') || Storage.getCurrentState();
 const score       = parseInt(params.get('score')  || '0', 10);
 const total       = parseInt(params.get('total')  || '4', 10);
 const earned      = parseInt(params.get('earned') || '0', 10);
-// Stamps are earned ONLY by completing all four of a state's missions, so the
-// stamp celebration here fires solely when we arrive from that mission flow
-// (from=mission). A standalone quiz/guess reaching this page shows no stamp.
+// A stamp is earned only by finishing all four missions, so celebrate solely on from=mission.
 const stampEarned = params.get('stamp') === '1' && params.get('from') === 'mission';
 
 const state = getState(stateId);
 const pass  = score >= Math.ceil(total / 2);
 
-// ── Accent bar colour ─────────────────────────────────────────────────────────
+/* Accent bar colour */
 document.getElementById('reward-accent').style.background = state?.color || '#C0392B';
 
-// ── Stamp / no-stamp branching ──────────────────────────────────────────────────
+/* Stamp / no-stamp branching */
 const headline = document.getElementById('reward-result-label');
 const subline  = document.getElementById('reward-subline');
 
 if (stampEarned && state) {
-  // Make sure this state counts toward the "x/6" tally (idempotent).
-  Storage.earnStamp(stateId);
-
-  // Persist completion to the backend so the stamp survives across
-  // devices/sessions (completion pays no points bonus — the four missions
-  // already awarded 100). Best-effort (no-op for guests or when offline).
-  pushStateComplete(stateId, score);
-
-  // Juice: stamp "thunk" + sparkle on earning the stamp.
-  Sound.stamp();
+  Storage.earnStamp(stateId);      // count toward the tally (idempotent)
+  pushStateComplete(stateId, score);   // persist to backend (best-effort)
+  Sound.stamp();                   // stamp "thunk" + sparkle
 
   headline.textContent = 'Amazing! 🎉';
   document.getElementById('stamp-state-name').textContent = state.name;
@@ -76,21 +67,19 @@ if (stampEarned && state) {
     `You got ${score}/${total} — keep practising!`;
 }
 
-// ── Dual-stat card: points earned + stamps collected ────────────────────────────
+/* Dual-stat card: points earned + stamps collected */
 const totalStates = STATES_DATA.length;
 document.getElementById('reward-pts-earned').textContent   = `+${earned}`;
 document.getElementById('reward-stamp-count').textContent  = `${Storage.stampCount()}/${totalStates}`;
 document.getElementById('reward-stamp-count-label').textContent =
   Storage.stampCount() === 1 ? 'Stamp collected' : 'Stamps collected';
 
-// ── Action buttons ──────────────────────────────────────────────────────────────
+/* Action buttons */
 const continueBtn  = document.getElementById('reward-continue');
 const secondaryBtn = document.querySelector('.reward-btn-secondary');
 
 if (params.get('from') === 'mission') {
-  // Arrived from finishing all 4 missions of a state. This IS the stamp-earned
-  // moment, so the CTAs head back to the Map or into the state's Activity Hub
-  // (replay games) rather than continuing the linear quiz journey.
+  // Stamp-earned moment: CTAs go to the Map or the state's Activity Hub.
   if (continueBtn) {
     continueBtn.textContent = '🗺️ Back to Map';
     continueBtn.href = 'map.html';
@@ -112,7 +101,7 @@ if (params.get('from') === 'mission') {
   }
 }
 
-// ── Stars / confetti dots ───────────────────────────────────────────────────────
+/* Stars / confetti dots */
 const starsEl = document.getElementById('reward-stars');
 if (starsEl) {
   for (let i = 0; i < 20; i++) {
@@ -129,17 +118,12 @@ if (starsEl) {
   }
 }
 
-// A child who has asked their device to reduce motion still gets the win —
-// just without the busy falling/bursting decoration.
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// ── Falling confetti on a pass ──────────────────────────────────────────────────
-// burstConfetti() does its own reduced-motion check, so this only gates on `pass`.
+/* Falling confetti on a pass (burstConfetti does its own reduced-motion check) */
 if (pass) burstConfetti();
 
-// ── Sparkle burst radiating from the stamp on reveal ─────────────────────────────
-// A quick ring of ✨ that pops outward right as the stamp lands — extra "juice"
-// for the win moment now that the corner mascot no longer fills that space.
+/* Sparkle burst radiating from the stamp on reveal */
 if (pass && !reduceMotion) {
   const stampContainer = document.getElementById('reward-stamp-container');
   if (stampContainer) {

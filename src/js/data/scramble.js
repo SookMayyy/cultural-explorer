@@ -1,35 +1,22 @@
-// js/data/scramble.js — build a MIXED cultural Word-Scramble bank for a state.
-// ─────────────────────────────────────────────────────────────────────────────
-// The Activities-Hub Word Scramble should let a child explore many cultural words
-// per state, spread across the four culture categories the app teaches:
-//   🍜 FOOD (dish ingredients)  ·  👗 COSTUME (garments)  ·
-//   📍 LANDMARK (famous places) ·  🎉 FESTIVAL (celebrations)  (+ 💬 dialect)
-//
-// Rather than maintain a separate hand-written list, the bank is DERIVED from the
-// content each state already ships — foodMissions (ingredients), costumeMissions
-// (garment names), landmarkMissions/cards (place names) and festivalMissions
-// (festival names) — so it always stays in sync and every word is something the
-// child can actually meet elsewhere in the app. Each entry carries its category,
-// a kid-friendly hint, a richer `desc` (shown on the paid Hint button) and an
-// emoji. scramble.js shuffles this bank and draws the difficulty's count.
-//
-// Every state yields **10+ words** mixed across the categories.
+/* scramble.js — build a mixed cultural Word-Scramble bank for a state */
+
+// Derived from each state's existing content (food/costume/landmark/festival +
+// dialect), so it always stays in sync. Each entry has a category, hint, richer
+// `desc` (paid Hint button) and emoji. Every state yields 10+ mixed words.
 
 import { foodMissionFor } from './foodMissions.js';
 import { costumeWordsFor } from './costumeMissions.js';
 import { landmarkTourFor } from './landmarkMissions.js';
 import { festivalMissionFor } from './festivalMissions.js';
 
-// Longest single alphabetic token in a string — guarantees a one-word, A–Z answer
-// (no spaces/hyphens) so the letter-tile game stays clean. e.g. "Mount Kinabalu"
-// → "KINABALU", "Pesta Kaamatan" → "KAAMATAN".
+// Longest alphabetic token — a one-word A–Z answer so the tile game stays clean
+// (e.g. "Mount Kinabalu" → "KINABALU").
 function longestToken(str) {
   return (String(str).match(/[A-Za-z]+/g) || [])
     .sort((a, b) => b.length - a.length)[0] || '';
 }
 
-// Generic / awkward tokens to skip so the puzzle stays recognisably "cultural"
-// (e.g. we don't want the child unscrambling "LARD" or "HERITAGE").
+// Generic/awkward tokens to skip so the puzzle stays recognisably "cultural".
 const STOP = new Set([
   'LARD', 'MEAT', 'RICE', 'BLUE', 'FRIED', 'FRESH', 'WITH', 'THE', 'AND',
   'FESTIVAL', 'HERITAGE', 'TRADITIONAL', 'DRESS', 'FOOD', 'PLACE', 'CITY',

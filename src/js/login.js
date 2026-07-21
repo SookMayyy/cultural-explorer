@@ -1,34 +1,29 @@
-// js/login.js — standalone grade-based student Log In screen.
-//
-// Posts to the same backend route the home modal uses:
-//   POST /api/auth/login   (student: display_name + grade_group + password)
-// A successful login sets an httpOnly session cookie server-side; we mirror a
-// lightweight session into localStorage so the rest of the MPA (which gates on
-// Storage.getSession()) keeps working, then lands on the dashboard (home) page.
-// Sign Up lives on signup.html; password recovery on recover.html.
+/* login.js — standalone grade-based student Log In screen */
+
+// Posts to POST /api/auth/login. On success, mirrors a lightweight session into
+// localStorage (the MPA gates on Storage.getSession()) and lands on the dashboard.
 
 import Storage from './utils/storage.js';
 import { showError as popup } from './components/popup.js';
 import { hydrateFromBackend } from './utils/sync.js';
 
-let loginGrade = null;   // selected grade group on the student login form
+let loginGrade = null;   // selected grade group
 
-// ── DOM ────────────────────────────────────────────────────────────────────
+/* DOM */
 const nameInput   = document.getElementById('login-name');
 const gradeWrap   = document.getElementById('login-grade');
 const pwInput     = document.getElementById('login-password');
 const loginError  = document.getElementById('login-error');
 const formLogin   = document.getElementById('form-login');
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
-// Errors are shown as a friendly popup (the inline element is kept hidden for
-// backward compatibility / screen readers).
+/* Helpers */
+// Errors show as a popup; the inline element stays hidden (screen readers).
 function showError(_el, msg) { popup(msg); }
 function clearError(el)      { el?.classList.add('hidden'); }
 
 function enterGame() { window.location.href = 'dashboard.html'; }
 
-// ── Grade selector ───────────────────────────────────────────────────────────
+/* Grade selector */
 gradeWrap.querySelectorAll('.grade-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     gradeWrap.querySelectorAll('.grade-btn').forEach(b => b.classList.remove('selected'));
@@ -38,7 +33,7 @@ gradeWrap.querySelectorAll('.grade-btn').forEach(btn => {
   });
 });
 
-// ── Student login ────────────────────────────────────────────────────────────
+/* Student login */
 formLogin.addEventListener('submit', async e => {
   e.preventDefault();
   clearError(loginError);
@@ -63,8 +58,7 @@ formLogin.addEventListener('submit', async e => {
       return showError(loginError, '❌ ' + (data.error || 'Login failed. Try again.'));
     }
 
-    // Establish the session first so per-account storage resolves to this
-    // account's namespace (display name + grade).
+    // Establish the session first so per-account storage resolves to this namespace.
     const prev = Storage.getSession();
     Storage.setSession({
       type:        'registered',
@@ -74,13 +68,10 @@ formLogin.addEventListener('submit', async e => {
       points:      prev?.points ?? 0,
     });
 
-    // Pull this account's saved progress (stamps/completed states/points) from
-    // the backend so it restores even on a new device. Best-effort.
+    // Pull saved progress from the backend so it restores on a new device.
     await hydrateFromBackend();
 
-    // Restore the avatar this account last equipped. It is saved per-account, so
-    // it survives logout (which wipes the global session) — without this the
-    // avatar would reset to Lion (index 0) on every login.
+    // Restore the per-account equipped avatar (else it would reset to Lion on login).
     const savedAvatar = Storage.getCurrentAvatar();
     if (savedAvatar != null) {
       const s = Storage.getSession();
@@ -93,7 +84,7 @@ formLogin.addEventListener('submit', async e => {
   }
 });
 
-// ── Show/hide password (image icon toggle) ───────────────────────────────────
+/* Show/hide password (image icon toggle) */
 const PW_ICON_SHOW = '../assets/images/ui/show_password.png';
 const PW_ICON_HIDE = '../assets/images/ui/hide_password.png';
 function wirePwToggle(btnId, inputId) {
@@ -112,12 +103,12 @@ function wirePwToggle(btnId, inputId) {
 }
 wirePwToggle('toggle-login-pw', 'login-password');
 
-// ── Forgot password → standalone recover screen ──────────────────────────────
+/* Forgot password → recover screen */
 document.getElementById('link-forgot')?.addEventListener('click', () => {
   window.location.href = 'recover.html';
 });
 
-// ── Guest mode ───────────────────────────────────────────────────────────────
+/* Guest mode */
 document.getElementById('btn-guest')?.addEventListener('click', () => {
   const guestName = 'Explorer' + Math.floor(Math.random() * 9000 + 1000);
   Storage.setGuest(guestName, 0);

@@ -1,28 +1,15 @@
-// js/tictactoe.js — Cultural Tic-Tac-Toe (Adventurer-only mini-game)
-// ─────────────────────────────────────────────────────────────────────────────
-// Noughts and crosses where you can't just tap a square — you have to earn it.
-// Nine cultural photos fill the board and nine name pills sit beside them; drag
-// a name onto the right photo and that square becomes yours (X for Player 1, O
-// for Player 2 / the computer). Get it wrong and the turn passes as a penalty.
-// Three in a line wins.
+/* tictactoe.js — Cultural Tic-Tac-Toe (Adventurer-only mini-game) */
+
+// Noughts and crosses where you earn a square by dragging the right name pill onto
+// its photo (X = Player 1, O = Player 2 / computer). A wrong match passes the turn.
+// The nine elements mix states across food/costume/landmark/festival.
 //
-// The nine elements come from a MIX of states across food / costume / landmark /
-// festival, so this is the one game that tests recall ACROSS everything a child
-// has explored rather than one state at a time.
+// Invariant: each square holds one photo and exactly one pill matches it; a pill is
+// consumed only on a correct match, which claims the square. So `items[i]` is the
+// answer for square `i`, and an unused pill ⟷ an empty square (a bijection). A
+// "pill used but square empty" state means claim() has a bug.
 //
-// ── The invariant that makes the rest simple ────────────────────────────────
-// Each square holds one photo, and exactly one pill matches it. A pill is
-// consumed ONLY on a correct match, which is also what claims the square. So:
-//
-//     available pill  ⟷  empty square        (always a bijection)
-//
-// That means `items[i]` is the answer for square `i`, an unused pill and an
-// empty square are the same index, and the bot's "which square?" and "which
-// word?" collapse into one decision. If a "pill used but square empty" state
-// ever appears, claim() has a bug — don't paper over it.
-//
-// Note this page is NOT gated on difficulty: the Activity Hub card is the gate.
-// Deep-linking here works at any level, which also keeps the UI tests simple.
+// This page is not gated on difficulty — the Activity Hub card is the gate.
 
 import Storage from './utils/storage.js';
 import { renderTopbar, renderNavbar, requireAuth, flyPoints } from './ui.js';
@@ -41,25 +28,18 @@ import Sound from './utils/sound.js';
 
 requireAuth();
 
-// ── Tuning ────────────────────────────────────────────────────────────────────
-/**
- * How often the computer answers correctly (0–1). THIS IS THE DIFFICULTY DIAL.
- * A bot that never misses makes the game unwinnable for a child, so keep it well
- * under 1. The per-level values live in data/difficulty.js; this constant is the
- * fallback and the thing to edit for a quick tweak.
- */
+/* Tuning */
+// How often the computer answers correctly (0–1) — the difficulty dial. Keep it
+// well under 1 or the game is unwinnable. Per-level values live in difficulty.js.
 const BOT_ACCURACY  = paramsFor('tictactoe')?.botAccuracy ?? 0.72;
-/** Beat before the bot moves, so children can follow what just happened. */
+// Beat before the bot moves, so children can follow what happened.
 const BOT_DELAY_MIN = 700;
 const BOT_DELAY_MAX = 1200;
-/** Awarded for beating the computer only — two-player games score nothing. */
-const WIN_POINTS    = 15;
+const WIN_POINTS    = 15;   // beating the computer only — hotseat scores nothing
 const GRID_SIZE     = 9;
 
-// Losing to the computer is the moment a child is most likely to quit, so Rimau
-// turns up to soften it. Several lines so a run of losses doesn't feel canned.
-// The `wave` pose is deliberate: `happy`/`cheer` are arms-up celebrations and
-// would read as gloating right after the child has lost.
+// Rimau softens a loss (the moment a child is most likely to quit). Several lines
+// so a run of losses doesn't feel canned; `wave`, not `happy`/`cheer` (no gloating).
 const RIMAU_LINES = [
   "So close! Want to try again?",
   "Good try! You'll get it next time.",
@@ -76,11 +56,11 @@ const MODE_ICONS = {
   hotseat: '../assets/images/ui/player_mode.png',
 };
 
-// ── Chrome ────────────────────────────────────────────────────────────────────
+/* Chrome */
 renderTopbar({ title: 'Tic-Tac-Toe', showBack: true, backHref: BACK_HREF });
 renderNavbar('activities');
 
-// ── Elements ──────────────────────────────────────────────────────────────────
+/* Elements */
 const boardEl    = document.getElementById('ttt-board');
 const pillsEl    = document.getElementById('ttt-pills');
 const turnEl     = document.getElementById('ttt-turn');
@@ -88,7 +68,7 @@ const turnMarkEl = document.getElementById('ttt-turn-mark');
 const turnTextEl = document.getElementById('ttt-turn-text');
 const feedbackEl = document.getElementById('ttt-feedback');
 
-// ── State ─────────────────────────────────────────────────────────────────────
+/* State */
 let items      = [];                    // 9 items; index === square index
 let pillOrder  = [];                    // square indices, in pill display order
 let board      = Array(GRID_SIZE).fill(null);   // null | 'X' | 'O'
@@ -104,9 +84,7 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
 const isBotTurn   = () => mode === 'bot' && turn === 'O';
 const isHumanTurn = () => !isBotTurn();
 
-// Against the computer the child IS player one, so address them directly. In a
-// two-player game "You" would be ambiguous — there are two children at the
-// tablet — so that mode keeps the numbered names.
+// vs the computer the child is player one ("You"); hotseat keeps numbered names.
 function playerName(mark) {
   if (mode === 'bot') return mark === 'X' ? 'You' : 'The computer';
   return mark === 'X' ? 'Player 1' : 'Player 2';
@@ -127,7 +105,7 @@ function winLabel(mark) {
   return `${playerName(mark)} ${verb(mark, 'wins', 'win')}!`;
 }
 
-// ── Rendering ─────────────────────────────────────────────────────────────────
+/* Rendering */
 function renderBoard() {
   boardEl.innerHTML = items.map((item, i) => `
     <button class="ttt-cell" type="button" role="gridcell" data-square="${i}"
@@ -164,7 +142,7 @@ function say(message, tone = '') {
 const cellEl = sq => boardEl.querySelector(`.ttt-cell[data-square="${sq}"]`);
 const pillEl = sq => pillsEl.querySelector(`.ttt-pill[data-square="${sq}"]`);
 
-// ── Selection (tap fallback) ──────────────────────────────────────────────────
+/* Selection (tap fallback) */
 function selectPill(sq) {
   if (board[sq] !== null) return;                 // its square is already claimed
   selectedSq = selectedSq === sq ? null : sq;     // tapping again deselects
@@ -179,12 +157,9 @@ function clearSelection() {
   pillsEl.querySelectorAll('.ttt-pill.is-selected').forEach(p => p.classList.remove('is-selected'));
 }
 
-// ── Core turn logic ───────────────────────────────────────────────────────────
-/**
- * One attempt: drop the pill for `pillSq` onto square `targetSq`. They match
- * when the indices are equal (see the invariant at the top of the file).
- * Either way the turn passes — a wrong answer costs you your go.
- */
+/* Core turn logic */
+// Drop the pill for `pillSq` onto `targetSq` — a match iff the indices are equal.
+// Either way the turn passes (a wrong answer costs your go).
 function attempt(pillSq, targetSq) {
   if (busy || over) return;
   if (board[targetSq] !== null) return;           // already claimed: silent no-op
@@ -244,7 +219,7 @@ function passTurn() {
   renderTurn();
 }
 
-// ── End of game ───────────────────────────────────────────────────────────────
+/* End of game */
 async function endGame(result) {
   over = true;
   clearSelection();
@@ -261,11 +236,10 @@ async function endGame(result) {
     Sound.unlock();
   }
 
-  // Confetti only when a person wins — celebrating a child's loss reads badly.
+  // Confetti only when a person wins.
   if (humanWon) burstConfetti();
 
-  // Points are for beating the computer. Two kids on one tablet could trade
-  // wins all afternoon, so hotseat scores nothing.
+  // Points are for beating the computer; hotseat scores nothing.
   let earned = 0;
   if (!draw && result === 'X' && mode === 'bot') {
     earned = WIN_POINTS;
@@ -273,9 +247,7 @@ async function endGame(result) {
     flyPoints(turnEl, earned);
   }
 
-  // Beaten by the computer: Rimau shows up with a word of encouragement rather
-  // than a bare "you lost". Only in bot mode — in a two-player game the loser
-  // is another child at the same tablet, and singling them out would sting.
+  // Beaten by the computer: Rimau encourages instead of a bare "you lost" (bot mode only).
   const lostToBot = !draw && result === 'O' && mode === 'bot';
 
   let message = '';
@@ -309,7 +281,7 @@ async function endGame(result) {
   else window.location.href = BACK_HREF;
 }
 
-// ── The computer opponent ─────────────────────────────────────────────────────
+/* The computer opponent */
 function scheduleBot() {
   busy = true;
   renderTurn();                                   // shows "Rimau is thinking…"
@@ -323,19 +295,15 @@ function botMove() {
   const empties = emptySquares(board);
   if (!empties.length) { busy = false; return; }
 
-  // Which square it WANTS — standard strategy: win, else block, else centre,
-  // else a corner, else anything.
+  // The square it wants (strategy: win → block → centre → corner → any).
   const target = chooseSquare(board, 'O', 'X');
 
-  // Then the accuracy roll decides whether it actually gets the answer right.
-  // On a miss it still drags onto the square it was going for, just with the
-  // wrong word — so its thinking stays legible to the child, and it forfeits
-  // the turn exactly like a human wrong answer.
+  // The accuracy roll decides if it answers right. On a miss it still drags onto
+  // the target square with the wrong word, forfeiting the turn like a human miss.
   let pill = target;
   if (Math.random() >= BOT_ACCURACY) {
     const wrongOptions = empties.filter(i => i !== target);
-    // With one square left a miss is inexpressible (no other pill to drag), so
-    // the bot is forced correct. Harmless — the game ends on that move anyway.
+    // With one square left there's no wrong pill to drag, so the bot is forced correct.
     if (wrongOptions.length) pill = wrongOptions[Math.floor(Math.random() * wrongOptions.length)];
   }
 
@@ -343,10 +311,7 @@ function botMove() {
   animateBotDrag(pill, target, () => attempt(pill, target));
 }
 
-/**
- * Slide a ghost pill from the pill column onto the target square, so the bot's
- * move is something a child can SEE rather than a square silently flipping.
- */
+// Slide a ghost pill onto the target square, so the bot's move is visible.
 function animateBotDrag(pillSq, targetSq, done) {
   const from = pillEl(pillSq);
   const to   = cellEl(targetSq);
@@ -375,8 +340,7 @@ function animateBotDrag(pillSq, targetSq, done) {
   setTimeout(() => { ghost.remove(); done(); }, 480);
 }
 
-// ── Input wiring ──────────────────────────────────────────────────────────────
-// Delegated, so it survives every re-render and only needs setting up once.
+/* Input wiring (delegated, so it survives re-renders and is set up once) */
 initPointerDrag({
   sourceRoot:     pillsEl,
   sourceSelector: '.ttt-pill',
@@ -415,8 +379,7 @@ boardEl.addEventListener('click', e => {
   attempt(selectedSq, Number(cell.dataset.square));
 });
 
-// Pills are <button>s, so Enter/Space already fire `click` — but pointerdown has
-// no click of its own, so route the key explicitly and skip click entirely.
+// Route Enter/Space explicitly (pointerdown has no click of its own).
 pillsEl.addEventListener('keydown', e => {
   if (e.key !== 'Enter' && e.key !== ' ') return;
   const pill = e.target.closest('.ttt-pill');
@@ -425,7 +388,7 @@ pillsEl.addEventListener('keydown', e => {
   selectPill(Number(pill.dataset.square));
 });
 
-// ── Round lifecycle ───────────────────────────────────────────────────────────
+/* Round lifecycle */
 function dealRound() {
   items     = pickItems(GRID_SIZE);
   pillOrder = shuffle(items.map((_, i) => i));   // pill order is independent of grid order
@@ -465,8 +428,7 @@ async function resetGame() {
   await chooseMode();
 }
 
-// ── Boot ──────────────────────────────────────────────────────────────────────
-// Deal first so the instruction demo can show a real photo from this round.
+/* Boot — deal first so the instruction demo can show a real photo from this round */
 dealRound();
 
 const demoItem = items[0];
@@ -486,8 +448,7 @@ const HOW_TO_PLAY = {
   emoji: '',
   image: TTT_ICON,
   cls: 'ttt-howto',
-  // Above the words: children look at the demo first and often need nothing else.
-  topHtml: DEMO_HTML,
+  topHtml: DEMO_HTML,   // children look at the demo first and often need nothing else
   lines: [
     '👆 Drag a name onto the picture it belongs to.',
     '✅ Get it right and the square is yours.',
@@ -497,7 +458,5 @@ const HOW_TO_PLAY = {
   buttonLabel: 'Play',
 };
 
-// First visit shows the rules, then the mode picker — never both at once, which
-// is why this is awaited. Afterwards the "?" button re-opens them on demand.
-// Same first-visit-only convention as the other four mini-games.
+// First visit shows the rules, then the mode picker (awaited so they never stack).
 initHowToPlay('tictactoe', HOW_TO_PLAY).then(chooseMode);

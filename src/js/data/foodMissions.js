@@ -1,12 +1,7 @@
-// js/data/foodMissions.js — Mission 1 (Help the Chef) food content per state.
-// ─────────────────────────────────────────────────────────────────────────────
-// Each state's famous dish, the real ingredients that go into it (taught in the
-// Learn carousel AND the correct answers in the "cook the dish" mini-game), plus
-// a few obviously-wrong distractor ingredients the player must NOT add.
-//
-// Dishes are drawn from each state's Food card in states.js (Sabah's is Hinava,
-// the Kadazandusun fresh-fish salad).
-// ─────────────────────────────────────────────────────────────────────────────
+/* foodMissions.js — Mission 1 (Help the Chef) food content per state */
+
+// Each state's famous dish, its real ingredients (Learn carousel + correct answers
+// in the cook game), and a spotlight. Wrong ingredients come from crossStateIngredientPool().
 
 export const FOOD_MISSIONS = {
   penang: {
@@ -196,20 +191,9 @@ export function foodMissionFor(stateId) {
   return FOOD_MISSIONS[stateId] || null;
 }
 
-// Cross-state wrong-ingredient pool for the "cook the dish" mini-game. Instead
-// of a couple of hand-authored joke items (Cheese, Apple…), the wrong options
-// are REAL ingredient photos borrowed from every OTHER state's dish — e.g.
-// Kelantan's Butterfly Pea can show up as a wrong ingredient in Sabah's Hinava.
-// mission.js shuffles this pool and slices it down to paramsFor('cook').distractors
-// each time the mission is played, so the wrong options differ from run to run.
-//
-// Any ingredient whose name exactly matches (case-insensitive) one of the
-// CURRENT state's own correct ingredients is excluded, so a "wrong" option can
-// never accidentally also be a correct one for that dish (e.g. Kedah and
-// Selangor both have a "Cucumber" — Kedah's pool skips Selangor's Cucumber
-// and vice versa). Also de-duplicated by name (Kedah's and Selangor's
-// "Cucumber" would otherwise both land in a third state's pool), so the tray
-// never shows two differently-pictured options with the same label.
+// Wrong-ingredient pool for the cook game: real ingredient photos from every
+// OTHER state's dish. Excludes any name matching this state's own ingredients
+// (so a "wrong" option is never also correct) and de-dupes by name.
 export function crossStateIngredientPool(stateId) {
   const ownNames = new Set(
     (FOOD_MISSIONS[stateId]?.ingredients || []).map(i => i.name.toLowerCase())

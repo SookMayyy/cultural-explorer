@@ -1,20 +1,16 @@
-// js/map.js — Interactive Malaysia map screen.
-//
-// The backdrop is an inline SVG (#map) of Malaysia — one <path data-state="..."> per
-// explorable state, in the malaysia.travel style (geometry from simplemaps.com, free
-// for commercial use). Tapping an unlocked state path opens a bottom-sheet popup with
-// an "Explore Now" CTA. States unlock West-first, then East after all 5 West states
-// are completed.
+/* map.js — Interactive Malaysia map screen */
+
+// The backdrop is an inline SVG (#map) with one <path data-state="..."> per state.
+// Tapping an unlocked state opens a bottom-sheet popup with an "Explore Now" CTA.
 
 import Storage from './utils/storage.js';
 import { renderTopbar, renderNavbar, requireAuth } from './ui.js';
 import { STATES_DATA, unlockedStates, nextRecommended } from './data/states.js';
 import { renderMascot } from './data/mascots.js';
 
-// ── Auth guard ────────────────────────────────────────────────────────────────
 requireAuth();
 
-// ── Shared chrome ───────────────────────────────────────────────────────────────
+/* Shared chrome */
 renderTopbar({
   title: 'My Map',
   showBack: true,
@@ -25,7 +21,7 @@ renderTopbar({
 });
 renderNavbar('map');
 
-// ── Progress data ───────────────────────────────────────────────────────────────
+/* Progress data */
 const progress  = Storage.getProgress();
 const stamps    = Storage.getStamps();
 const completed = Storage.completedCount();
@@ -40,7 +36,7 @@ requestAnimationFrame(() => {
   if (fill) fill.style.width = `${Math.round((completed / TOTAL) * 100)}%`;
 });
 
-// ── Mascot greeting ─────────────────────────────────────────────────────────────
+/* Mascot greeting */
 const allWestDone = STATES_DATA
   .filter(s => s.region === 'west')
   .every(s => stamps.includes(s.id));
@@ -63,21 +59,16 @@ function nodeState(stateId) {
   return 'locked';
 }
 
-// ── Style the SVG state paths ─────────────────────────────────────────────────────
-// The inline <svg id="map"> has one <path data-state="..."> per explorable state
-// (malaysia.travel-style click targets). We colour each by status and drop a small
-// status pin (✓ done / 🔒 locked / ⭐ recommended) at the path's centre.
+/* Style the SVG state paths */
+// Colour each path by status and drop a status pin (✓ done / 🔒 locked / ⭐ next).
 const SVGNS  = 'http://www.w3.org/2000/svg';
 const svgEl  = document.getElementById('map');
 const pinsEl = document.createElementNS(SVGNS, 'g');   // pins layer (drawn on top)
 pinsEl.setAttribute('class', 'map-pins');
 pinsEl.setAttribute('pointer-events', 'none');
 
-// Per-state pin nudge (in SVG viewBox units — the map is viewBox "0 0 1000 332").
-// Most pins sit at the path's bounding-box centre, which works for compact states.
-// Sabah/Sarawak are large, L-shaped Borneo states whose bbox centre falls off the
-// visible land, so nudge their pins onto the landmass here. dx = right(+)/left(−),
-// dy = down(+)/up(−). Tweak these numbers until the ✓ / 🔒 sits where you want.
+// Per-state pin nudge (SVG viewBox units). Sabah/Sarawak's bbox centre falls off
+// the visible land, so nudge their pins onto the landmass. dx: right+/left−, dy: down+/up−.
 const PIN_OFFSET = {
   kedah:   { dx: 15, dy: 0},
   sabah:   { dx: -15, dy: 12 },   // Sabah is the NE tip — nudge up toward the land
@@ -85,9 +76,7 @@ const PIN_OFFSET = {
 };
 
 STATES_DATA.forEach(state => {
-  // A state may be drawn as MORE THAN ONE path (e.g. Penang = mainland + island),
-  // so style every path that carries this state's id — they all share the colour,
-  // classes and click behaviour.
+  // A state may be drawn as more than one path (e.g. Penang = mainland + island).
   const paths = svgEl.querySelectorAll(`path[data-state="${state.id}"]`);
   if (!paths.length) return;
 
@@ -99,7 +88,7 @@ STATES_DATA.forEach(state => {
   paths.forEach(path => {
     path.classList.add(`map-state--${ns}`);
     if (isNext) path.classList.add('map-state--next');
-    // Unlocked/done states wear the state's own brand colour; locked stay grey (CSS).
+    // Unlocked/done wear the state's brand colour; locked stay grey (CSS).
     if (state.color && !locked) path.style.fill = state.color;
 
     path.setAttribute('role', 'button');
@@ -140,9 +129,7 @@ svgEl.addEventListener('keydown', e => {
   }
 });
 
-// A short, kid-friendly blurb: the story's first sentence, trimmed if long.
-// Shared by the desktop hover-card and the tap popup (so touch/minimum-size,
-// which has no hover, still gets the same summary on tap).
+// The story's first sentence, trimmed if long. Shared by the hover-card and popup.
 function shortSummary(state) {
   const s = (state.story || '').trim();
   if (!s) return state.tagline || '';
@@ -150,10 +137,8 @@ function shortSummary(state) {
   return first.length > 120 ? first.slice(0, 117).trimEnd() + '…' : first;
 }
 
-// ── Hover info-card (desktop pointer preview) ─────────────────────────────────
-// On a device with a fine pointer (mouse), hovering a state shows a floating card
-// with its flag, name, tagline and a one-line summary — so you can preview every
-// state without tapping each one. Skipped entirely on touch (no hover).
+/* Hover info-card (desktop pointer preview) */
+// Fine-pointer only: hovering a state previews its flag/name/tagline/summary.
 (() => {
   const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   const hoverEl  = document.getElementById('map-hover');
@@ -209,10 +194,8 @@ function shortSummary(state) {
   svgEl.addEventListener('mouseleave', hideHover);
 })();
 
-// ── Popup (bottom sheet) ─────────────────────────────────────────────────────────
-// The four Discover→Play mission categories a child explores per state (see
-// js/data/missions.js TEMPLATES) — this replaces the older story/culture/
-// activity/quiz tab badges, which no longer match the mission flow.
+/* Popup (bottom sheet) */
+// The four Discover→Play mission categories per state (see data/missions.js TEMPLATES).
 const POPUP_CATEGORIES = [
   { id: 'chef',     label: 'Food',     icon: '🍳' },
   { id: 'dancer',   label: 'Costume',  icon: '👗' },
@@ -224,8 +207,7 @@ function openPopup(stateId) {
   const state = STATES_DATA.find(s => s.id === stateId);
   if (!state) return;
 
-  // Completed missions for this state — a badge ticks once its mission id is
-  // in here. Finishing all four (the whole state) naturally ticks all four.
+  // Completed missions — a badge ticks once its mission id is here.
   const done     = Storage.getMissions(stateId);
   const isLocked = !unlocked.includes(stateId);
 
@@ -271,8 +253,7 @@ document.getElementById('map-popup')?.addEventListener('click', e => {
   if (e.target === document.getElementById('map-popup')) closePopup();
 });
 
-// ── Calibration mode (map.html?calibrate=1) ──────────────────────────────────────
-// Tap anywhere on the map to read the left%/top% — paste into COORDS above.
+/* Calibration mode (map.html?calibrate=1) — tap to read left%/top% */
 if (new URLSearchParams(location.search).get('calibrate') === '1') {
   const wrap = document.getElementById('map-image-wrap');
   const cal  = document.getElementById('map-cal');

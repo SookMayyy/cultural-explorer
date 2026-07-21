@@ -1,4 +1,4 @@
-// js/data/states.js — Cultural data for all 6 states in CP2 scope
+/* states.js — cultural data for all 6 states in CP2 scope */
 
 export const STATES_DATA = [
   {
@@ -598,7 +598,7 @@ export const STATES_DATA = [
   },
 ];
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+/* Helpers */
 
 // Per-state stamp illustrations (uploaded under assets/content/<State>/). Paths
 // keep the exact folder/file casing so they also resolve on case-sensitive hosts.

@@ -1,28 +1,15 @@
-// Vanilla JavaScript (ES6 modules) — home.js
-// ═══════════════════════════════════════════════════════════════════
-// js/home.js — Landing screen controller.
-//
-// The landing page is a single scaled "stage" with the LokaLearn wordmark,
-// Rimau, and two buttons (START GAME / HOW TO PLAY). The actual auth flow lives
-// on its own screens (login.html → signup.html / recover.html) — the old in-page
-// login/register/recover/avatar modals were removed so there is ONE auth surface
-// to maintain. This file now only:
-//   - animates the optional landing mascot bubble (Feature 1)
-//   - fills the state count into the description from STATE_COUNT
-//   - routes START GAME (returning player → dashboard, otherwise → login.html)
-//   - shows the HOW TO PLAY popup
-// ═══════════════════════════════════════════════════════════════════
+/* home.js — landing screen controller */
+
+// Animates the optional mascot bubble, fills the state count, routes START GAME
+// (returning player → dashboard, else → login.html), and shows HOW TO PLAY.
+// The real auth flow lives on login/signup/recover.html.
 
 import Storage    from './utils/storage.js';
 import Typewriter from './components/typewriter.js';
 import { showPopup } from './components/popup.js';
 import { STATE_COUNT } from './data/states.js';
 
-// ─────────────────────────────────────────────────────────────────
-// SECTION 1 — DIALOGUE DATA
-//
-// Storing text as data keeps content separate from logic.
-// ─────────────────────────────────────────────────────────────────
+/* Dialogue data */
 
 const DIALOGUES = {
   // Rimau speaks with a Malay–English mix (authentic Malaysian feel).
@@ -36,20 +23,15 @@ const DIALOGUES = {
   ],
 };
 
-// Pick one random item from an array
+// Pick one random item from an array.
 function pickRandom(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
 
-// ─────────────────────────────────────────────────────────────────
-// SECTION 2 — MASCOT SYSTEM (Feature 1)
-//
-// Wires the OPTIONAL landing-screen mascot bubble (if the page provides
-// #bubble-text-rimau / #emoji-rimau). It no-ops safely on the current
-// LokaLearn home, which shows Rimau as a static illustration.
-// ─────────────────────────────────────────────────────────────────
+/* Mascot system */
 
+// Wires the optional mascot bubble; no-ops safely when the page lacks its elements.
 function typeMascotText(bubbleTextEl, text, delay = 0, twRef) {
   setTimeout(() => {
     if (twRef?.current) twRef.current.stop();
@@ -78,9 +60,7 @@ function initMascots(nickname = null) {
 }
 
 
-// ─────────────────────────────────────────────────────────────────
-// SECTION 3 — INITIALISATION
-// ─────────────────────────────────────────────────────────────────
+/* Initialisation */
 
 function init() {
   const session = Storage.getSession();
@@ -96,9 +76,7 @@ function init() {
       `foods and festivals &mdash; earn stamps as you go!`;
   }
 
-  // ── Button: "START GAME" ──
-  //   Registered/guest user → the authenticated Home (dashboard).
-  //   No session           → the login screen (which links to Sign Up + Guest).
+  // START GAME: existing session → dashboard, otherwise → login screen.
   const startBtn = document.getElementById('btn-start');
   if (startBtn) {
     if (session && (session.type === 'registered' || session.type === 'guest')) {
@@ -109,7 +87,7 @@ function init() {
     }
   }
 
-  // ── Button: "HOW TO PLAY" ──
+  // HOW TO PLAY popup.
   document.getElementById('btn-how-to-play')
     ?.addEventListener('click', () => {
       showPopup({

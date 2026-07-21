@@ -1,12 +1,7 @@
-// js/components/difficultyChip.js — the difficulty selector shown on the hubs.
-// ─────────────────────────────────────────────────────────────────────────────
-// Grade 1–3 see a friendly, non-interactive "🌱 Explorer Mode" badge (they are
-// locked to the gentle tier). The older cohort sees a segmented control they can
-// tap to switch between Explorer and Adventurer; the choice is saved per account
-// and every mini-game reads it on its next play.
-//
-//   import { renderDifficultyChip } from './components/difficultyChip.js';
-//   renderDifficultyChip(document.getElementById('mi-difficulty'));
+/* difficultyChip.js — the difficulty selector shown on the hubs */
+
+// Grade 1–3 see a locked "Explorer Mode" badge; older cohorts get a segmented
+// Explorer/Adventurer control, saved per account and read by every mini-game.
 
 import Storage from '../utils/storage.js';
 import { LEVELS, allowedLevels, currentLevel, setLevel, canChoose } from '../data/difficulty.js';

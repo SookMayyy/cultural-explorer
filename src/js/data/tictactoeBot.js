@@ -1,20 +1,8 @@
-// js/data/tictactoeBot.js — noughts-and-crosses strategy for the computer player.
-// ─────────────────────────────────────────────────────────────────────────────
-// Pure board maths: no DOM, no timers, no randomness beyond picking among
-// equally-good squares. That keeps it unit testable (tests/tictactoeBot.test.js)
-// and keeps tictactoe.js free to worry only about presentation.
-//
-// A board is a 9-slot array indexed left-to-right, top-to-bottom:
-//
-//     0 | 1 | 2
-//     3 | 4 | 5
-//     6 | 7 | 8
-//
-// Each slot is null (unclaimed), 'X' (Player 1) or 'O' (Player 2 / the bot).
-//
-// Note this is deliberately NOT a perfect minimax player. Perfect play makes the
-// game unwinnable for a child; the "should I answer correctly at all?" accuracy
-// roll lives in tictactoe.js and is what actually keeps the bot beatable.
+/* tictactoeBot.js — noughts-and-crosses strategy for the computer player */
+
+// Pure board maths (no DOM), so it's unit-testable. A board is a 9-slot array
+// (0–8, left-to-right, top-to-bottom); each slot is null | 'X' | 'O'.
+// Deliberately NOT minimax — the beatability comes from the accuracy roll in tictactoe.js.
 
 export const LINES = [
   [0, 1, 2], [3, 4, 5], [6, 7, 8],   // rows
@@ -29,21 +17,17 @@ function randomFrom(list) {
   return list.length ? list[Math.floor(Math.random() * list.length)] : null;
 }
 
-/** Empty square indices, in board order. */
+// Empty square indices, in board order.
 export function emptySquares(board) {
   return board.reduce((acc, v, i) => (v === null ? acc.concat(i) : acc), []);
 }
 
-/** The three squares `mark` has won on, or null if it hasn't won. */
+// The three squares `mark` has won on, or null.
 export function winningLine(board, mark) {
   return LINES.find(line => line.every(i => board[i] === mark)) || null;
 }
 
-/**
- * The square that completes a line for `mark` right now — i.e. `mark` already
- * holds two of the three and the third is empty. Null if there isn't one.
- * Used both to take a win and (passing the opponent's mark) to block theirs.
- */
+// The square that completes a line for `mark` now (take a win, or block theirs). Null if none.
 export function findWinningSquare(board, mark) {
   for (const line of LINES) {
     const held  = line.filter(i => board[i] === mark).length;
@@ -53,11 +37,7 @@ export function findWinningSquare(board, mark) {
   return null;
 }
 
-/**
- * Pick a square using standard tic-tac-toe priority:
- *   1. win now   2. block the opponent's win   3. centre   4. a corner   5. anything
- * Returns null only when the board is full.
- */
+// Pick a square by priority: win → block → centre → corner → anything. Null if full.
 export function chooseSquare(board, me, opponent) {
   const empties = emptySquares(board);
   if (!empties.length) return null;

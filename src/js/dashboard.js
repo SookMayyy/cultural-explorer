@@ -1,5 +1,4 @@
-// js/dashboard.js — authenticated Home: greeting, journey progress bar, and four
-// quick-access cards (Map, Stamp Book, Activities, Avatar Shop).
+/* dashboard.js — authenticated Home: greeting, progress bar, quick-access cards */
 
 import Storage from './utils/storage.js';
 import { renderTopbar, renderNavbar, requireAuth } from './ui.js';
@@ -7,7 +6,6 @@ import { STATES_DATA, STATE_COUNT, nextRecommended } from './data/states.js';
 
 const session = requireAuth();
 
-// Home shows no top-bar title (per design) — just points + profile.
 renderTopbar({ showAvatar: true, showPoints: true, color: '#6b50ce' });
 renderNavbar('home');
 
@@ -27,7 +25,7 @@ function levelLabel(n) {
   return '👑 Master Explorer — All States!';
 }
 
-// ── Hero ──────────────────────────────────────────────────────────────────────
+/* Hero */
 document.getElementById('dash-name').textContent = playerName;
 document.getElementById('dash-level').textContent = levelLabel(completed);
 
@@ -41,23 +39,19 @@ if (greetEl) {
   greetEl.textContent = lines[Math.floor(Math.random() * lines.length)];
 }
 
-// ── Journey progress bar ────────────────────────────────────────────────────────
+/* Journey progress bar */
 document.getElementById('home-progress-label').textContent = `${completed} / ${total} states`;
 requestAnimationFrame(() => {
   document.getElementById('home-progress-fill').style.width =
     `${Math.round((completed / total) * 100)}%`;
 });
 
-// ── Card subtitles + quiz target ─────────────────────────────────────────────────
+/* Card subtitles + quiz target */
 document.getElementById('home-stamp-sub').textContent = `${stampsN} / ${total} collected`;
-// Drive the "Discover N states" label from the constant so it can't drift.
 const mapSub = document.getElementById('home-map-sub');
 if (mapSub) mapSub.textContent = `Discover ${STATE_COUNT} states`;
-// Avatar Shop is live — nudge with the points they have to spend on new avatars.
 document.getElementById('home-shop-sub').textContent  = `⭐ ${points} pts to spend`;
 
-// The Activities card always opens the Activity Hub (the global games menu), where
-// the player picks a game and a state — rather than dropping them straight into a
-// quiz for one state.
+// The Activities card opens the hub (pick a game and a state) rather than a single quiz.
 const quizCard = document.getElementById('home-card-quiz');
 if (quizCard) quizCard.href = 'activities.html';

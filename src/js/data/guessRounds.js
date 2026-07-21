@@ -1,19 +1,8 @@
-// js/data/guessRounds.js — "Guess My State" game clue sets
-//
-// Each round has 4 ordered clues (geography → food/culture → landmark → specific
-// fact) and 5 answer options (the correct state + 4 decoys, shuffled at render).
-// Every clue is grounded in what the app already taught: a state's `story` /
-// narrative cards (states.js) and its mission Discover spotlights (foodMissions,
-// costumeMissions, landmarkMissions, festivalMissions) — so a child who explored
-// that state can answer from what they just saw, not outside trivia.
-//
-// Clue 1 shows first (worth 20). A WRONG guess greys out that option AND reveals
-// the next clue, so the child keeps trying with more help: worth steps down
-// 20 → 15 → 10 → 5. Earlier correct guess = more points.
-//
-// `image` is OPTIONAL — a real photo the child already saw in that state's
-// mission, shown once every clue has been revealed (a last "does this match?"
-// visual check). Rounds without an `image` behave exactly as before.
+/* guessRounds.js — "Guess My State" game clue sets */
+
+// Each round: 4 ordered clues (geography → culture → landmark → fact) + 5 options
+// (correct state + 4 decoys). Worth steps down 20 → 15 → 10 → 5 as wrong guesses
+// reveal more clues. `image` (optional) is a photo shown once every clue is out.
 
 export const GUESS_ROUNDS = [
   {

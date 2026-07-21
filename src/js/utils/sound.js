@@ -1,15 +1,7 @@
-// js/utils/sound.js — tiny Web Audio sound-effects helper.
-//
-// Sounds are SYNTHESISED in code (no audio files needed), so they work even
-// while art/audio assets are missing. The AudioContext is created lazily on the
-// first play (which happens on a user gesture, satisfying autoplay policies).
-//
-// A single device-level mute preference is stored in localStorage ('ce_sfx').
-// Default: ON (short, game-y blips). Toggle it from Settings.
-//
-//   import Sound from './utils/sound.js';
-//   Sound.correct();  Sound.wrong();  Sound.tap();  Sound.stamp();  Sound.unlock();
+/* sound.js — Web Audio sound-effects helper */
 
+// SFX are synthesised in code (no audio files). AudioContext is created lazily
+// on first play. Device-level mute lives in localStorage 'ce_sfx' (default ON).
 const KEY = 'ce_sfx';
 let ctx = null;
 

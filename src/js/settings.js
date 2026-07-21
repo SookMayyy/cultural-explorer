@@ -1,4 +1,4 @@
-// js/settings.js — My Profile page
+/* settings.js — My Profile page */
 
 import Storage from './utils/storage.js';
 import { requireAuth, applyProfileColor } from './ui.js';
@@ -16,7 +16,7 @@ if (!session) throw new Error('Not logged in');
 
 applyProfileColor();   // theme topbar + profile avatar with the chosen colour
 
-// ── Real profile data (was hardcoded in the mockup) ──────────────────────────
+/* Profile data */
 const completed = Storage.completedCount();
 const total     = STATES_DATA.length;
 
@@ -38,7 +38,7 @@ document.getElementById('set-stamps').textContent        = Storage.stampCount();
 document.getElementById('set-quizzes').textContent       = completed;
 document.getElementById('set-complete').textContent      = `${Math.round((completed / total) * 100)}%`;
 
-// ── Sound on/off toggle ───────────────────────────────────────────────────────
+/* Sound on/off toggle */
 const soundBtn = document.getElementById('btn-sound');
 function renderSound() {
   const muted = Sound.isMuted();
@@ -48,8 +48,7 @@ function renderSound() {
 renderSound();
 soundBtn?.addEventListener('click', () => {
   const nowMuted = !Sound.isMuted();
-  Sound.setMuted(nowMuted);       // ce_sfx is the master switch: SFX, music, and
-                                  // (via voice.isMuted) narration all follow it.
+  Sound.setMuted(nowMuted);       // ce_sfx is the master switch: SFX, music, narration
   if (nowMuted) {
     Voice.stop();                 // cut any narration mid-sentence
     stopMusic();                  // and silence any looping state music now
@@ -58,9 +57,7 @@ soundBtn?.addEventListener('click', () => {
   if (!nowMuted) Sound.tap();   // little confirmation blip when turning on
 });
 
-// ── Game Guide — a friendly "how to play" popup ───────────────────────────────
-// No separate page needed: a single showPopup keeps it consistent with the app's
-// other dialogs. Short lines + emoji, Grade 3–6 reading level.
+/* Game Guide popup */
 document.getElementById('btn-guide')?.addEventListener('click', () => {
   Sound.tap?.();
   showPopup({
@@ -77,9 +74,7 @@ document.getElementById('btn-guide')?.addEventListener('click', () => {
   });
 });
 
-// ── Student Safety — a short wellbeing / privacy reminder ──────────────────────
-// Age-appropriate: screen-time, keeping login secret, asking an adult, kindness.
-// No external links (per the project's content-safety rules).
+/* Student Safety — a short wellbeing / privacy reminder */
 document.getElementById('btn-safety')?.addEventListener('click', () => {
   Sound.tap?.();
   showPopup({
@@ -95,21 +90,17 @@ document.getElementById('btn-safety')?.addEventListener('click', () => {
   });
 });
 
-// ── Log out ──────────────────────────────────────────────────────────────────
-// Ends the server session (express-session) and clears the local session, then
-// returns to the landing page. We clear + redirect even if the API call fails
-// (e.g. guest play or server down). Per-account progress is kept under its
-// namespace, so logging back in restores it.
+/* Log out */
+// Ends the server + local session, then returns to the landing page. Clears and
+// redirects even if the API call fails; per-account progress stays under its namespace.
 const logoutBtn = document.getElementById('btn-logout');
 logoutBtn?.addEventListener('click', async () => {
-  // Guests have no account, so their stamps/points are local-only and are lost
-  // on logout — warn them honestly instead of promising the progress is saved.
+  // Guests are local-only, so their progress is lost on logout — warn honestly.
   const isGuest = session.type === 'guest';
   const message = isGuest
     ? 'Log out now? You are playing as a guest, so your stamps and points will NOT be saved.'
     : 'Log out now? Your stamps and points are saved.';
   const yes = await confirmPopup(message, {
-    // Red power symbol (⏻) instead of the door emoji, matching the button.
     title: 'Log out?', emoji: '<span style="color:#e74c3c;">⏻︎</span>',
     confirmText: 'Log Out', cancelText: 'Stay',
   });
@@ -125,9 +116,8 @@ logoutBtn?.addEventListener('click', async () => {
   window.location.href = 'home.html';
 });
 
-// ── Reset progress (double-confirmed) ─────────────────────────────────────────
-// Wipes this account's stamps, points and costumes — on the server (registered)
-// and in the local cache — then returns to Home with a fresh slate.
+/* Reset progress (double-confirmed) */
+// Wipes this account's stamps, points and costumes (server + local cache).
 const resetBtn = document.getElementById('btn-reset');
 resetBtn?.addEventListener('click', async () => {
   const yes = await confirmPopup(

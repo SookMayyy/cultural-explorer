@@ -1,20 +1,9 @@
-// js/utils/sync.js — best-effort sync between the backend and local storage.
-//
-// The frontend plays on localStorage (namespaced per account in storage.js).
-// The Express + Supabase backend is the cross-device source of truth for
-// COMPLETED STATES + STAMPS (state completion pays no points bonus — points come
-// from the four missions, 25 each = 100 per state). This module:
-//
-//   hydrateFromBackend()  — after login: pull the account's completed states,
-//                           stamps and points into local storage so progress
-//                           shows up even on a brand-new device/browser.
-//   pushStateComplete()   — when a state is completed (quiz passed): tell the
-//                           backend so it persists for next time / other devices.
-//
-// Everything is best-effort: any failure (offline, guest, server down) is
-// swallowed so offline play is never blocked. The backend keys states by a
-// NUMERIC id; the frontend uses string ids ('penang'). We map the two by name
-// via GET /api/states (cached for the page).
+/* sync.js — best-effort sync between the backend and local storage */
+
+// hydrateFromBackend() pulls completed states/stamps/points after login;
+// pushStateComplete() persists a completed state. All failures are swallowed so
+// offline play is never blocked. The backend keys states by numeric id, the
+// frontend by string id ('penang') — mapped by name via GET /api/states.
 
 import Storage from './storage.js';
 import { STATES_DATA } from '../data/states.js';
@@ -29,8 +18,7 @@ async function loadStateMaps() {
   numToStr = {};
   strToNum = {};
   for (const s of (res.data || [])) {
-    // Match the backend row to a local state by exact name (seed uses the
-    // same names as STATES_DATA), falling back to sort order.
+    // Match the backend row to a local state by name, falling back to sort order.
     const local = STATES_DATA.find(d => d.name === s.name)
                || STATES_DATA[(s.sort_order || 0) - 1];
     if (local) {
@@ -49,9 +37,8 @@ export async function hydrateFromBackend() {
   try {
     await loadStateMaps();
 
-    // Points: keep whichever is higher so nothing already earned locally is lost.
-    // Use the local-only setter — addPoints() would push the restored total
-    // straight back to the server and double-count it.
+    // Keep the higher points total. Use the local-only setter — addPoints() would
+    // push the restored total back to the server and double-count it.
     const me = await apiGet('/api/auth/me').catch(() => null);
     if (me?.user && typeof me.user.points === 'number') {
       Storage.setPointsLocal(Math.max(me.user.points, Storage.getPoints()));

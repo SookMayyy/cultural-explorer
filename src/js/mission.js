@@ -1,11 +1,8 @@
-// js/mission.js — Mission Flow (Discover → Learn → Mini-game → Reward → Complete)
-// ─────────────────────────────────────────────────────────────────────────────
-// Launched from the Mission Hub (missions.html). Runs the pre-game stages
-// (Discover + Learn), hands off to the existing mini-game tagged from=mission,
-// and the game returns here with ?stage=reward for the post-game stages
-// (Reward + Complete). Finishing returns to the hub with ?done=<id> so the row
-// animates and the progress bar grows.
-// ─────────────────────────────────────────────────────────────────────────────
+/* mission.js — Mission Flow (Discover → Learn → Mini-game → Reward → Complete) */
+
+// Launched from the Mission Hub. Runs the pre-game stages, hands off to the
+// mini-game (from=mission), which returns with ?stage=reward for the post-game
+// stages. Finishing returns to the hub with ?done=<id> to animate the row.
 
 import Storage from './utils/storage.js';
 import { renderTopbar, requireAuth, getStateParam, flyPoints } from './ui.js';
@@ -23,7 +20,7 @@ import Voice from './utils/voice.js';
 
 requireAuth();
 
-// ── Load state + mission ───────────────────────────────────────────────────────
+/* Load state + mission */
 const params    = new URLSearchParams(location.search);
 const stateId   = getStateParam();
 const missionId = params.get('mission');
@@ -43,17 +40,13 @@ if (!flow) {
 
 Storage.setCurrentState(stateId);
 
-// Tag the page with the state id so per-state visual experiments can be scoped
-// in CSS (e.g. the full-bleed blurred-fill spotlight currently trialled on Kedah).
+// Tag the page with the state id so per-state CSS experiments can be scoped.
 document.documentElement.dataset.mnState = stateId;
 
-// Voiceover key category per mission, so recorded VO clips are per-state+topic
-// (e.g. `selangor_food_intro`) and match the hotspot keys (`selangor_food_1`).
-// See docs/VOICEOVER_SCRIPT.md for the full clip list + registration in voice.js.
+// Voiceover key category per mission, so clips are per-state+topic (e.g. selangor_food_1).
 const voCat = { chef: 'food', dancer: 'costume', tourist: 'tour', festival: 'festival' }[missionId] || missionId;
 
-// Background music for this mission (e.g. Cinta Sayang under the Kedah Festival).
-// Loops softly, starts on the first tap if autoplay is blocked, respects mute.
+// Background music for this mission (loops softly, starts on first tap, respects mute).
 if (flow.audio) playMusic(flow.audio, { volume: 0.25 });
 
 const hubHref     = `missions.html?state=${stateId}`;
@@ -70,18 +63,14 @@ if (state.color) {
 // (e.g. Kedah's paddy field). Painted on the app-container so it also covers the
 // transparent top bar; a soft white scrim keeps the mission content readable.
 if (state.entryBg) {
-  // Paint the scene as the FULL-SCREEN background (via --screen-bg on :root, so it
-  // fills the body letterbox margins AND the frame — no cream strip anywhere).
-  // NOTE: no `fixed` — background-attachment:fixed is sized to the whole document
-  // on mobile Safari/Chrome, so `cover` mis-scales and the scene looks stretched /
-  // cropped wrong. Default (scroll) sizes the image to each element, so it stays
-  // responsive on every screen; the frame and body letterbox each cover cleanly.
+  // Full-screen scene via --screen-bg on :root. No `fixed` — background-attachment:fixed
+  // mis-scales `cover` on mobile Safari/Chrome; default (scroll) stays responsive.
   const bg = `linear-gradient(rgba(255,255,255,0.42), rgba(255,255,255,0.42)), url(${state.entryBg}) center / cover no-repeat`;
   document.documentElement.style.setProperty('--screen-bg', bg);
   mainEl.style.background = 'transparent';
 }
 
-// ── Chrome ──────────────────────────────────────────────────────────────────
+/* Chrome */
 renderTopbar({
   title:      flow.title,
   showBack:   true,
@@ -92,7 +81,7 @@ renderTopbar({
 
 document.getElementById('mn-badge').textContent = flow.badge;
 
-// ── Stage machine ─────────────────────────────────────────────────────────────
+/* Stage machine */
 const STAGES = {
   spotlight: document.getElementById('stage-spotlight'),
   tour:      document.getElementById('stage-tour'),
@@ -102,10 +91,8 @@ const STAGES = {
   reward:    document.getElementById('stage-reward'),
 };
 
-// Set in enterReward: true only when THIS run finished the 4th mission and the
-// state's stamp was not already collected. Drives whether the (single, merged)
-// Reward stage's button sends the player to the Stamp Earned screen (first
-// time) or straight back to the hub (replays — no need to show it again).
+// True only when this run finished the 4th mission and the stamp wasn't already
+// collected — drives whether Reward's button opens the Stamp Earned screen or the hub.
 let stampJustEarned = false;
 
 function showStage(name) {
@@ -117,16 +104,15 @@ function showStage(name) {
   mainEl.scrollTop = 0;
 }
 
-// Start this mission's PLAY step — the inline cook game (food) or the tagged
-// mini-game page (other missions). Shared by the spotlight and the Learn carousel.
+// Start the PLAY step — the inline cook game (food) or the tagged mini-game page.
 function launchGame() {
   if (flow.game?.type === 'cook') { Sound.tap?.(); startCook(); }
   else                            { window.location.href = flow.gameHref; }
 }
 
-// ══ STAGE 0 · DISCOVER SPOTLIGHT ══════════════════════════════════════════════
-// Big image dimmed except one glowing hotspot. Tap all 3 (the 3-tap rule) — each
-// speaks one short line + shows its caption — then Continue leads into the game.
+/* Stage 0 · Discover spotlight */
+// Big image dimmed except one glowing hotspot; tap each (short line + caption),
+// then Continue leads into the game.
 function initSpotlight() {
   const sp = flow.spotlight;
   const stageEl   = document.getElementById('mn-spot-stage');
@@ -147,17 +133,13 @@ function initSpotlight() {
     captionEl.innerHTML = highlightKeyword(text, key, 'mn-spot-key');
   }
 
-  // ── Festival "learn cards" mode ──────────────────────────────────────────────
-  // Some festivals ship SEVERAL photos (e.g. Penang Thaipusam, Kelantan Wayang
-  // Kulit) instead of one scene. Show them one at a time INSIDE the card stage
-  // (no hotspots, no dimming) with a line + Next, then the game.
+  // Festival "learn cards" mode: some festivals ship several photos instead of one
+  // scene — show them one at a time (no hotspots/dimming) with a line + Next.
   if (sp.cards && sp.cards.length) { initSpotlightCards(); return; }
 
   imgEl.src = sp.image;
   imgEl.alt = flow.discoverTitle || flow.title;
-  // Same photo, blurred + cover, painted behind the sharp (contain) image to fill
-  // the letterbox gaps — "covers the whole background" without cropping the photo
-  // or shifting the hotspots. Shown only where CSS opts in (Kedah, for review).
+  // Same photo, blurred + cover, behind the sharp (contain) image to fill letterbox gaps.
   if (bgEl) bgEl.src = sp.image;
 
   const total = sp.hotspots.length;
@@ -167,8 +149,7 @@ function initSpotlight() {
   progEl.innerHTML = sp.hotspots.map(() => '<span class="mn-spot-pip"></span>').join('');
   const pips = [...progEl.children];
 
-  // Render a sequence of festival photo cards in the stage (declared here so it
-  // shares setCaption / the element refs above; hoisted, so the early call works).
+  // Render a sequence of festival photo cards (hoisted, so the early call works).
   function initSpotlightCards() {
     const cards = sp.cards;
     if (dimEl)   dimEl.style.display = 'none';   // no dark dimming — show full photo
@@ -199,12 +180,9 @@ function initSpotlight() {
     render();
   }
 
-  // The image is object-fit:contain, so on screens whose aspect ratio differs
-  // from the photo it letterboxes — leaving bars around the picture. The hotspot
-  // %s are meant to be relative to the PHOTO, not the stage box, so we measure the
-  // photo's actual on-screen rectangle and size the hotspot overlay to match it.
-  // Recomputed on load + resize so the dots stay glued to the picture on every
-  // device. `fit` also lets the spotlight "hole" land on the right pixel.
+  // The image is object-fit:contain, so it letterboxes. Hotspot %s are relative to
+  // the PHOTO, so measure its on-screen rect and size the overlay to match (recomputed
+  // on load + resize). `fit` also lets the spotlight hole land on the right pixel.
   let fit = null;
   function layoutStage() {
     const cw = stageEl.clientWidth,  ch = stageEl.clientHeight;
@@ -214,8 +192,7 @@ function initSpotlight() {
     const dw = iw * scale, dh = ih * scale;
     const left = (cw - dw) / 2, top = (ch - dh) / 2;
     fit = { left, top, dw, dh };
-    // Overlay now exactly covers the visible photo, so a dot at hs.x%/hs.y% sits
-    // on the same part of the picture no matter the screen size.
+    // Overlay now exactly covers the visible photo, so a dot at hs.x%/hs.y% is stable.
     spotsEl.style.left   = `${left}px`;
     spotsEl.style.top    = `${top}px`;
     spotsEl.style.width  = `${dw}px`;
@@ -225,9 +202,8 @@ function initSpotlight() {
     spotlightAt(index >= 0 ? sp.hotspots[index] : null);
   }
 
-  // Cut a soft "hole" in the dim layer over the active hotspot so the child's
-  // eye goes there. The hole is placed in PIXELS (mapped through `fit`) so it
-  // tracks the photo through letterboxing, not the raw stage %.
+  // Cut a soft "hole" in the dim layer over the active hotspot, placed in pixels
+  // (mapped through `fit`) so it tracks the photo through letterboxing.
   function spotlightAt(hs) {
     if (!hs || !fit) { dimEl.style.background = 'rgba(0,0,0,0.28)'; return; }
     const px = fit.left + (hs.x / 100) * fit.dw;
@@ -251,14 +227,12 @@ function initSpotlight() {
     });
   }
 
-  // The line currently holding the next number back: which hotspot it belongs to,
-  // and the callback that releases the hold once the line has been heard.
+  // The line currently holding the next number back, and its release callback.
   let heldBy  = -1;
   let release = null;
 
-  // Speak hotspot `i`'s line and run `after` once it has actually finished. The
-  // timer is a safety net for browsers whose TTS never fires its 'end' event;
-  // `after` is written to be idempotent, so whichever gets there first wins.
+  // Speak hotspot `i`'s line, then run `after` (idempotent). The timer is a safety
+  // net for browsers whose TTS never fires its 'end' event.
   function narrate(i, hs, after) {
     heldBy  = i;
     release = after;
@@ -266,8 +240,7 @@ function initSpotlight() {
     setTimeout(after, 8000);
   }
 
-  // Let the child into the game. Called only once the transition line has been
-  // heard (see tapSpot below). Idempotent — several paths can reach it.
+  // Let the child into the game, once the transition line has been heard (idempotent).
   function unlockContinue() {
     if (!continueBtn.disabled) return;
     continueBtn.disabled = false;
@@ -276,14 +249,12 @@ function initSpotlight() {
 
   function tapSpot(i) {
     const hs = sp.hotspots[i];
-    // Re-tap an already-discovered spot → just replay its line (kids repeat a lot).
+    // Re-tap an already-discovered spot → replay its line (kids repeat a lot).
     if (done[i]) {
       Sound.tap?.();
       setCaption(hs.text, hs.key);
-      // Replaying stops the current line, which would drop the callback waiting on
-      // it. When the line being replayed is the one holding the next number back,
-      // hand that hold to the replay — otherwise the child waits out the safety
-      // timer for a number that belongs to the line they're hearing right now.
+      // Replaying stops the current line and its callback — so if this line was
+      // holding the next number back, hand that hold to the replay.
       if (heldBy === i && release) narrate(i, hs, release);
       else                         Voice.play(hs.vo, hs.text);
       return;
@@ -295,13 +266,9 @@ function initSpotlight() {
     Sound.tap?.();
     setCaption(hs.text, hs.key);
 
-    // Hold the NEXT number until THIS spot's voice-over has finished, so the
-    // glowing number and the line being spoken always refer to the same thing.
-    // While the line plays there is no active spot (index = -1): the current one
-    // shows as "found" and the next one stays hidden until the audio ends. The
-    // spotlight hole stays on the current spot so the child keeps looking at what
-    // they're hearing about. (When muted, Voice.play fires its onEnd immediately,
-    // so the next number unlocks straight away — nothing to wait for.)
+    // Hold the NEXT number until THIS spot's voice-over finishes, so the glowing
+    // number and the spoken line always match. While it plays there's no active spot
+    // (index = -1). When muted, onEnd fires immediately, so the number unlocks at once.
     const next = done.findIndex(d => !d);
     index = -1;
     spotlightAt(hs);            // keep the light on the spot being narrated
@@ -309,10 +276,8 @@ function initSpotlight() {
 
     if (next === -1) {
       titleEl.textContent = 'Great exploring!';
-      // Show + speak the transition only AFTER the LAST hotspot line has been
-      // heard — chained on the line's real end (onEnd) instead of a fixed delay,
-      // so it never cuts the last line short. A safety timer covers the rare
-      // case where the browser TTS never fires its 'end' event.
+      // Show + speak the transition only after the last hotspot line is heard
+      // (chained on onEnd, not a fixed delay). A safety timer covers a missing 'end'.
       let shown = false;
       const showTransition = () => {
         if (shown || index !== -1) return;    // already shown, or a re-tap took over
@@ -320,18 +285,14 @@ function initSpotlight() {
         heldBy = -1; release = null;
         spotlightAt(null);
         setCaption(sp.transition || "Now let's play!");
-        // Continue stays locked until the "Now you know…" line has actually been
-        // heard — the same rule the hotspot numbers follow, so the child never
-        // skips into the game before the takeaway. Idempotent, and the safety
-        // timer guarantees the button can never stay stuck (when muted, or with
-        // no transition line, Voice.play fires onEnd immediately).
+        // Continue stays locked until the transition line is heard, so the child
+        // never skips the takeaway. The safety timer guarantees it can't stay stuck.
         Voice.play(`${stateId}_${voCat}_transition`, sp.transition || '', unlockContinue);
         setTimeout(unlockContinue, 8000);
       };
       narrate(i, hs, showTransition);
     } else {
-      // Unlock the next number only once the current line ends. Guarded so it
-      // runs once, whether it's the voice-over or the safety timer that gets here.
+      // Unlock the next number once the current line ends (guarded to run once).
       let advanced = false;
       const advance = () => {
         if (advanced || index !== -1) return;  // already advanced, or a re-tap took over
@@ -345,13 +306,11 @@ function initSpotlight() {
     }
   }
 
-  // Intro line, spoken once when the spotlight opens. `introKey` (the costume
-  // dance name, when set) is highlighted in the caption.
+  // Intro line, spoken once when the spotlight opens (introKey highlighted).
   setCaption(sp.intro || 'Tap the glowing spot to discover!', sp.introKey);
   renderSpots();
-  // Size the hotspot overlay to the photo once it (and the stage) have a size,
-  // then keep it aligned as the device rotates / the window resizes. `layoutStage`
-  // also re-points the spotlight hole, so this is what first lights spot 0.
+  // Size the overlay to the photo once both have a size, and keep it aligned on
+  // resize. layoutStage also re-points the hole, so this first lights spot 0.
   imgEl.addEventListener('load', layoutStage);
   if (imgEl.complete && imgEl.naturalWidth) layoutStage();
   window.addEventListener('resize', layoutStage);
@@ -364,10 +323,8 @@ function initSpotlight() {
   continueBtn.addEventListener('click', () => { if (!continueBtn.disabled) launchGame(); });
 }
 
-// ══ STAGE 0B · SPOTLIGHT TOUR ═════════════════════════════════════════════════
-// A run of photo cards (Tourist mission). Each shows one spot's photo, speaks its
-// lines, and offers a small "fun activity"; Next advances, and the last card's
-// "Continue Mission" leads into the game (Discover → Play).
+/* Stage 0B · Spotlight tour (Tourist mission) */
+// A run of photo cards; Next advances, the last card leads into the game.
 function initTour() {
   const tour      = flow.tour;
   const imgEl     = document.getElementById('mn-tour-img');
@@ -383,14 +340,8 @@ function initTour() {
 
   let idx = 0;
 
-  // The mission page paints the state's entry background full-screen (see the
-  // entryBg block near the top). During the tour we replace it with the current
-  // landmark photo — full-cover, no dimming — so the landmark image is the whole
-  // screen's background (body + frame) and the state background never shows through.
-
-  // Two stacked photo layers for a seamless crossfade: the incoming photo loads
-  // hidden, then fades in over the outgoing one (no blank flash on swap). `imgEl`
-  // is the first layer; we clone a second one behind it.
+  // During the tour the current landmark photo becomes the full-screen background.
+  // Two stacked layers give a seamless crossfade (incoming loads hidden, then fades in).
   const layerB = imgEl.cloneNode(false);
   layerB.removeAttribute('id');
   imgEl.after(layerB);
@@ -402,8 +353,7 @@ function initTour() {
     const incoming = layers[front ^ 1];
     const outgoing = layers[front];
     const reveal = () => {
-      // Restart the Ken-Burns zoom: snap to zoomed-in with no transition, then let
-      // the CSS transition ease it back out while the layer fades in.
+      // Restart the Ken-Burns zoom, then fade the layer in.
       restartAnimation(incoming, 'is-shown');
       outgoing.classList.remove('is-shown');
       front ^= 1;
@@ -427,8 +377,7 @@ function initTour() {
     pips.forEach((p, i) => p.classList.toggle('is-on', i <= idx));
     nextBtn.textContent = idx === tour.length - 1 ? 'Continue Mission →' : 'Next →';
 
-    // VO key is category-aware so the festival tour (voCat 'festival') doesn't
-    // reuse the landmark tour's clip names. Tourist keeps `<state>_tour_<n>`.
+    // VO key is category-aware so festival and landmark tours don't share clip names.
     Voice.play(`${stateId}_${voCat}_${idx + 1}`, card.text);
   }
 
@@ -442,7 +391,7 @@ function initTour() {
   render();
 }
 
-// ══ STAGE 1 · DISCOVER ════════════════════════════════════════════════════════
+/* Stage 1 · Discover */
 document.getElementById('mn-discover-title').textContent = flow.discoverTitle;
 document.getElementById('mn-discover-sub').textContent   = flow.discoverSub;
 const heroEmojiEl = document.getElementById('mn-hero-emoji');
@@ -483,7 +432,7 @@ document.getElementById('mn-discover-next').addEventListener('click', () => {
   openLearn(0);
 });
 
-// ══ STAGE 1A · LEARN (carousel) ═══════════════════════════════════════════════
+/* Stage 1A · Learn (carousel) */
 let learnIdx = 0;
 
 const learnTitle = document.getElementById('mn-learn-title');
@@ -517,8 +466,8 @@ function renderLearn() {
 
 function openLearn(idx) {
   learnIdx = Math.max(0, Math.min(idx, flow.items.length - 1));
-  // Show the stage FIRST (showStage stops any voice), then render so the
-  // carousel's own voiceover isn't immediately cancelled.
+  // Show the stage first (showStage stops voice), then render, so the carousel's
+  // voiceover isn't immediately cancelled.
   showStage('learn');
   renderLearn();
 }
@@ -538,11 +487,9 @@ document.getElementById('mn-learn-back').addEventListener('click', () => {
   showStage('discover');
 });
 
-// Play → either the inline "cook the dish" game (food missions) or hand off to
-// the existing mini-game page (other missions, tagged from=mission).
 document.getElementById('mn-learn-play').addEventListener('click', launchGame);
 
-// ══ STAGE 2 · COOK THE DISH (inline drag-into-pot game) ═══════════════════════
+/* Stage 2 · Cook the dish (inline drag-into-pot game) */
 function flashPot() {
   restartAnimation(document.getElementById('mn-cook-pot'), 'mn-pot-bump');
 }
@@ -567,11 +514,8 @@ function startCook() {
   feedbackEl.innerHTML = '&nbsp;';
   feedbackEl.className = 'mn-cook-feedback';
 
-  // Pick a few wrong ingredients AT RANDOM from the cross-state pool (real
-  // photos borrowed from every OTHER state's dish — see crossStateIngredientPool()
-  // in data/foodMissions.js), then shuffle them in together with the correct
-  // ones. How many wrong options appear is set by the difficulty level
-  // (Explorer sees fewer; Adventurer/Master see more), capped at pool size.
+  // Random wrong ingredients from the cross-state pool, shuffled in with the
+  // correct ones. How many appear is set by the difficulty level, capped at pool size.
   const distractorCap = paramsFor('cook').distractors;
   const distractors   = shuffle(g.distractors).slice(0, distractorCap);
   const cards = [
@@ -580,7 +524,7 @@ function startCook() {
   ].sort(() => Math.random() - 0.5);
 
   trayEl.innerHTML = cards.map((c, i) => {
-    // Real ingredient photo when available (Kedah); emoji fallback otherwise.
+    // Real ingredient photo when available; emoji fallback otherwise.
     const icon = c.image
       ? `<img class="mn-ingredient-img" src="${c.image}" alt="" ` +
         `onerror="this.replaceWith(document.createTextNode('${c.emoji}'))">`
@@ -625,8 +569,7 @@ function startCook() {
 
   showStage('cook');
 
-  // Kid-friendly "How to Play" for the cook game — shown the first time a child
-  // reaches a cook stage, with a "?" button to re-open it.
+  /* Kid-friendly "How to Play" for the cook game (first reach + a "?" button) */
   initHowToPlay('cook', {
     title: "Let's Cook!", emoji: '🍢',
     lines: ['🍢 Tap the food that goes in the dish.', '✅ Right food stays in the pot.', '❌ Wrong food bounces back!'],
@@ -634,20 +577,15 @@ function startCook() {
   });
 }
 
-// ══ STAGE 3 · REWARD + MISSION COMPLETE (merged, one celebration) ═════════════
-// One screen shows everything at once — what you earned, the mission's takeaway
-// line, how many of the state's missions are done, and Rimau's thank-you — with
-// ONE button back to the hub (or, the first time all four missions are done, on
-// to the Stamp Earned screen).
+/* Stage 3 · Reward + mission complete (merged) */
+// One screen: points earned, the takeaway line, missions-done count, and Rimau,
+// with one button back to the hub (or, the first full state, to Stamp Earned).
 function enterReward() {
-  // "What you learned" — the mission's takeaway line + a picture of what they
-  // just made / explored + the points earned. (e.g. "You cooked Laksa Kedah!")
   document.getElementById('mn-reward-title').textContent   = `Mission ${flow.num} Complete!`;
   document.getElementById('mn-reward-line').textContent     = flow.reward.line;
   document.getElementById('mn-reward-congrats').textContent = flow.reward.congrats;
 
-  // Show the real dish/landmark photo (e.g. Laksa Kedah) when the state ships
-  // one. No emoji fallback — the badge simply stays hidden without a photo.
+  // Show the real dish/landmark photo when the state ships one (else stays hidden).
   const photoEl = document.getElementById('mn-reward-photo');
   if (photoEl) {
     if (flow.heroImage) {
@@ -662,9 +600,8 @@ function enterReward() {
 
   const ptsEl = document.getElementById('mn-reward-pts');
 
-  // Award the mission bonus exactly once. We mark the mission done HERE (it is
-  // idempotent on the hub too), so a refresh of the reward screen never
-  // re-awards the points.
+  // Award the bonus exactly once; marking done here (idempotent) stops a refresh
+  // from re-awarding it.
   const firstTime = !Storage.isMissionDone(stateId, missionId);
   if (firstTime) {
     Storage.addPoints(flow.reward.bonus);
@@ -673,9 +610,8 @@ function enterReward() {
   }
   ptsEl.textContent = `+${flow.reward.bonus} ⭐`;
 
-  // Completing all four missions of a state earns its stamp. Capture whether it
-  // was JUST earned this run (vs already collected on an earlier playthrough) so
-  // the button below only opens the Stamp Earned screen the first time.
+  // All four missions earn the stamp. Capture whether it was just earned this run
+  // so the button only opens the Stamp Earned screen the first time.
   const doneCount = Storage.getMissions(stateId).length;
   const allDone   = doneCount >= MISSION_COUNT;
   stampJustEarned = allDone && !Storage.hasStamp(stateId);
@@ -689,10 +625,8 @@ function enterReward() {
       : `${doneCount} of ${MISSION_COUNT} missions done`;
   }
 
-  // ONE button back to the hub — except the FIRST time all four are finished
-  // (stamp freshly earned), which sends the player to the Stamp Earned page
-  // instead (it then offers Back to Map / Activity Hub). Replays of an
-  // already-stamped state just return to the hub.
+  // One button back to the hub — except the first time all four finish (stamp
+  // freshly earned), which opens the Stamp Earned page instead.
   const btn = document.getElementById('mn-complete-hub');
   if (stampJustEarned) {
     const params = new URLSearchParams({
@@ -714,26 +648,20 @@ function enterReward() {
   Sound.unlock?.();
 
   if (firstTime) {
-    // Float the points up from the prize badge.
-    requestAnimationFrame(() => flyPoints(ptsEl, flow.reward.bonus));
+    requestAnimationFrame(() => flyPoints(ptsEl, flow.reward.bonus));   // float points up
   }
 }
 
-// ── Entry point ───────────────────────────────────────────────────────────────
-// Post-game returns straight to Reward. A first run opens the interactive
-// spotlight when the mission ships one (Discover → Play), else the tap-cards
-// Discover.
+/* Entry point */
+// Post-game returns to Reward. A first run opens the spotlight (or tour) when the
+// mission ships one, else the tap-cards Discover. Show the stage before init/render
+// so the auto-play voiceover isn't immediately cancelled by showStage's Voice.stop.
 if (stageParam === 'reward') {
   enterReward();
 } else if (flow.spotlight) {
-  // Show the stage FIRST (showStage calls Voice.stop), then init — otherwise the
-  // intro / first-card voice-over starts and is immediately cancelled, so it never
-  // auto-plays on entry. (Same ordering the tour uses below.)
   showStage('spotlight');
   initSpotlight();
 } else if (flow.tour && flow.tour.length) {
-  // Show the stage first (showStage stops any voice), then render so the tour's
-  // own voiceover isn't immediately cancelled.
   showStage('tour');
   initTour();
 } else {

@@ -1,5 +1,4 @@
-// Vanilla JavaScript (ES6 modules) — typewriter.js
-// js/components/typewriter.js — Character-by-character text reveal
+/* typewriter.js — character-by-character text reveal */
 
 export default class Typewriter {
   constructor(el, text, { speed = 35, onDone } = {}) {
