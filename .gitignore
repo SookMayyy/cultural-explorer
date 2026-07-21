@@ -42,3 +42,6 @@ src/assets/audio/vo_master/
 # Retired files kept locally for reference only — they are already in git
 # history (see archive/README.md), so the repo doesn't need a second copy.
 archive/
+
+# FYP documents kept local only — not published to GitHub (avoid information leak)
+docs/
