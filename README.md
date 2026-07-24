@@ -68,3 +68,12 @@ Each screen is a standalone HTML file in `src/views/`, paired with an ES module 
 same name in `src/js/`. Navigation is plain `<a href="…">` links, with a `?state=` query
 param carrying context.
 
+## Desktop up-scale
+
+The UI is mobile-first inside a ~1227px frame. On desktop-class monitors
+(`screen.width >= 1500`, checked once in `src/js/ui.js`) an `html.big-ui` class is added
+and the `--app-zoom` token in `src/css/style.css` zooms the whole frame 30% so fonts,
+images, and the bottom nav grow together; laptops and smaller screens keep the base size.
+`screen.width` is used rather than a viewport media query so window resizing and browser
+page-zoom never trigger it.
+

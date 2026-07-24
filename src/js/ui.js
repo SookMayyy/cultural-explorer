@@ -4,6 +4,9 @@ import Storage from './utils/storage.js';
 import { avatarStackHTML } from './utils/avatarDisplay.js';
 import { escapeHtml, restartAnimation } from './utils/dom.js';
 
+// Scale the UI up on desktop-class monitors only: screen.width ignores window size and page zoom.
+if (screen.width >= 1500) document.documentElement.classList.add('big-ui');
+
 /* Profile colour */
 
 // Publish the player's profile colour as --profile-color for any surface to theme with.
@@ -33,9 +36,8 @@ export function renderTopbar({
 
   const safeTitle = escapeHtml(title);
 
-  // Force transparent so no page's colour paints a bar behind points/profile.
-  el.style.setProperty('background', 'transparent', 'important');
-  el.style.setProperty('box-shadow', 'none', 'important');
+  // The bar is transparent by design (see base .topbar in style.css) — the back
+  // button + points + profile float over the screen, no bar behind them.
   el.innerHTML = `
     <div class="topbar-left">
       ${showBack ? `<a class="topbar-back" href="${backHref}" aria-label="Back"><img src="../assets/images/ui/back-button.png" alt=""></a>` : ''}
@@ -64,7 +66,15 @@ function bindPointsSync() {
 
     const badge = valEl.closest('.topbar-points');
     if (!badge) return;
-    badge.classList.toggle('is-spend', total < prev);
+    // Flash coral for ~1s on a spend, then revert — don't stay red until the
+    // next earn (which may never come, e.g. a mission where points aren't banked).
+    clearTimeout(badge._spendTimer);
+    if (total < prev) {
+      badge.classList.add('is-spend');
+      badge._spendTimer = setTimeout(() => badge.classList.remove('is-spend'), 1000);
+    } else {
+      badge.classList.remove('is-spend');
+    }
     restartAnimation(badge, 'points-bump');
   });
 }

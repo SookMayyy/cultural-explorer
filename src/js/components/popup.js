@@ -12,6 +12,7 @@ function injectStyles() {
   const css = `
   .ce-popup-overlay{
     position:fixed; inset:0; z-index:9999;
+    zoom:var(--app-zoom, 1);  /* match the desktop up-scale (see style.css --app-zoom) */
     display:flex; align-items:center; justify-content:center;
     padding:24px; background:rgba(20,12,8,0.55);
     opacity:0; transition:opacity .18s ease;

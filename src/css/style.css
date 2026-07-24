@@ -96,6 +96,8 @@
   --shadow-card: 0 3px 14px rgba(44,24,16,0.10);
 
   /* ── Layout ── */
+  /* Desktop up-scale factor; 1 = base size, raised to 1.3 by html.big-ui (see ui.js). */
+  --app-zoom:        1;
   --game-w:          1227px;
   --game-h:          650px;
   --game-max-w:      1227px;
@@ -120,9 +122,27 @@
   padding: 0;
 }
 
+/* Global keyboard-focus ring — visible on every interactive element. Per-screen
+   overrides (map paths, tic-tac-toe pills) still win where they set their own. */
+button:focus-visible,
+a:focus-visible,
+[tabindex]:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid var(--clr-gold);
+  outline-offset: 2px;
+}
+
 html, body {
   height: 100%;
   overflow-x: hidden;
+}
+
+/* Below the 360px frame floor, let the viewport scroll horizontally instead of
+   clipping — otherwise the overflowing right edge (topbar points pill + avatar)
+   is hidden and unreachable on a ~320px screen or once text-zoom kicks in. */
+@media (max-width: 359px) {
+  html, body { overflow-x: auto; }
 }
 
 /* Body — center the fixed game canvas */
@@ -464,8 +484,10 @@ body {
   width: 100%;
   min-width: 360px;       /* matches the body floor — frame never shrinks past a phone */
   max-width: var(--game-max-w);
-  height: 100vh;          /* fallback */
-  height: 100dvh;         /* bounded shell: header pins, center scrolls */
+  /* Desktop up-scale: zoom the frame, dividing height by the same factor so it stays exactly one viewport tall. */
+  zoom: var(--app-zoom);
+  height: calc(100vh / var(--app-zoom));   /* fallback */
+  height: calc(100dvh / var(--app-zoom));  /* bounded shell: header pins, center scrolls */
   overflow: hidden;
   margin: 0 auto;
   display: flex;
@@ -528,12 +550,31 @@ body {
   max-width: var(--game-max-w);
 }
 
+/* Short/landscape screens: the shell is in whole-page-scroll mode (see the
+   max-height:640px block above), so a fixed nav would permanently cover the
+   bottom ~64px of an already-short screen. Let it flow at the end instead —
+   reached by scrolling down, never overlapping content. Placed after the fixed
+   rule so it wins at equal specificity. */
+@media (max-height: 640px) {
+  .app-container > .navbar,
+  .app-container > .bottom-nav {
+    position: static;
+    transform: none;
+    left: auto;
+    margin: 0 auto;
+  }
+}
+
 @media (min-width: 520px) {
   .app-container > .topbar {
     transform: none;
     left: auto;
   }
 }
+
+/* Desktop up-scale (added by html.big-ui in ui.js when screen.width ≥ 1500): the frame's base width is derived from the viewport so its 30%-larger contents never overflow, keeping a 240px total gutter. */
+html.big-ui { --app-zoom: 1.30; }
+html.big-ui .app-container { max-width: calc((100vw - 240px) / var(--app-zoom)); }
 
 /* ─── MPA bottom nav (purple bar + yellow active pill) ─── */
 .bottom-nav {
@@ -618,11 +659,11 @@ button {
    play or selection. Class-styled buttons that already define their own :hover
    (e.g. .btn-primary) keep it — those selectors out-rank this element rule. */
 @media (prefers-reduced-motion: no-preference) and (hover: hover) {
-  button:not(:disabled):not(.quiz-option):not(.scr-tile):not(.guess-option):not(.icon-pick):not(.avatar-item):not(.grade-btn):not(.tab-btn):not(.mn-spot-dot),
+  button:not(:disabled):not(.quiz-option):not(.scr-tile):not(.guess-option):not(.icon-pick):not(.avatar-item):not(.grade-btn):not(.tab-btn):not(.mn-spot-dot):not(.auth-pw-toggle),
   a.btn-primary {
     transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.12s ease;
   }
-  button:hover:not(:disabled):not(.quiz-option):not(.scr-tile):not(.guess-option):not(.icon-pick):not(.avatar-item):not(.grade-btn):not(.tab-btn):not(.mn-spot-dot),
+  button:hover:not(:disabled):not(.quiz-option):not(.scr-tile):not(.guess-option):not(.icon-pick):not(.avatar-item):not(.grade-btn):not(.tab-btn):not(.mn-spot-dot):not(.auth-pw-toggle),
   a.btn-primary:hover {
     transform: translateY(-3px);
     box-shadow: var(--shadow-md);
@@ -951,6 +992,8 @@ input {
 /* ─── Toast / Snack notifications ─── */
 .toast {
   position: fixed;
+  /* Appended to <body> outside the frame, so scale it to match. */
+  zoom: var(--app-zoom);
   bottom: calc(var(--navbar-h) + var(--sp-md));
   left: 50%;
   transform: translateX(-50%) translateY(20px);
