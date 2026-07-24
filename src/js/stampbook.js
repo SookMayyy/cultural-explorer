@@ -3,6 +3,7 @@
 import Storage from './utils/storage.js';
 import { renderTopbar, renderNavbar, requireAuth, showToast } from './ui.js';
 import { STATES_DATA, stampImgFor } from './data/states.js';
+import { MISSION_COUNT } from './data/missions.js';
 import { assetImg } from './utils/assetImg.js';
 import { showPopup } from './components/popup.js';
 
@@ -42,6 +43,20 @@ function slotHTML(state) {
               <span class="sb-slot-check" aria-hidden="true">✓</span>
             </div>`;
   }
+  // Not earned yet, but some missions done → an "almost there" progress ring +
+  // count badge, a stronger pull-to-complete than a bare "?" mystery slot.
+  const done = Storage.getMissions(state.id).length;
+  if (done > 0 && done < MISSION_COUNT) {
+    const pct = Math.round((done / MISSION_COUNT) * 100);
+    return `<div class="sb-slot in-progress" data-state="${state.id}" data-name="${state.name}"
+                 style="--stamp-clr:${state.color}; --prog:${pct}%"
+                 role="button" tabindex="0"
+                 aria-label="${state.name} — ${done} of ${MISSION_COUNT} missions done, keep going!" title="${state.name}">
+              <div class="sb-slot-circle">?</div>
+              <span class="sb-slot-progress" aria-hidden="true">${done}/${MISSION_COUNT}</span>
+            </div>`;
+  }
+
   return `<div class="sb-slot locked" data-state="${state.id}" data-name="${state.name}"
                role="button" tabindex="0" aria-label="${state.name} — not collected yet" title="${state.name}">
             <div class="sb-slot-circle">?</div>
@@ -79,13 +94,20 @@ async function handle(slot) {
     return;
   }
 
+  // Partway through → nudge toward the finish line; otherwise the plain invite.
+  const done    = Storage.getMissions(id).length;
+  const partway = done > 0 && done < MISSION_COUNT;
+  const left    = MISSION_COUNT - done;
+
   const choice = await showPopup({
-    title: 'Not collected yet',
-    emoji: '🔒',
-    message: `Explore <strong>${name}</strong> and finish all its missions to earn this stamp!`,
+    title:   partway ? 'Almost there!' : 'Not collected yet',
+    emoji:   partway ? '⭐' : '🔒',
+    message: partway
+      ? `You've finished <strong>${done} of ${MISSION_COUNT}</strong> missions in <strong>${name}</strong> — just ${left} more to earn this stamp!`
+      : `Explore <strong>${name}</strong> and finish all its missions to earn this stamp!`,
     actions: [
-      { label: `Explore ${name}`, value: 'go',  style: 'primary' },
-      { label: 'Maybe later',     value: null, style: 'ghost'   },
+      { label: partway ? `Finish ${name}` : `Explore ${name}`, value: 'go',  style: 'primary' },
+      { label: 'Maybe later',                                  value: null, style: 'ghost'   },
     ],
   });
 

@@ -95,6 +95,11 @@ export const FESTIVAL_MISSIONS = {
 
   kelantan: {
     festival: 'Wayang Kulit',
+    // Wayang Kulit is a shadow-puppet SHOW, not a festival — `kind` names the real
+    // category so the derived Word Scramble hint follows the category-word rule
+    // (docs/CULTURAL_CONTENT_REVIEW.md §3) instead of calling it "a festival".
+    kind: 'shadow-puppet show',
+    emoji: '🎭',
     image: '../assets/content/Kelantan/wayang_kulit.jpg',
     // Wayang Kulit taught as a sequence of image CARDS (shown in the spotlight card
     // stage, no hotspots): what it is → how the lamp makes moving shadows → the

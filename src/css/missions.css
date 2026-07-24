@@ -4,11 +4,6 @@
    Warm storybook panel, chunky rows, Word Force–style check/lock states.
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* Purple topbar override (same pattern as narrative / activities). */
-.topbar.missions-topbar {
-  background: var(--clr-purple) !important;
-}
-
 .mi-main {
   --state-color:       var(--clr-purple);
   --state-color-light: #F0ECFB;

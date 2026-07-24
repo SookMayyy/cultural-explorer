@@ -1,7 +1,7 @@
 /* settings.js — My Profile page */
 
 import Storage from './utils/storage.js';
-import { requireAuth, applyProfileColor } from './ui.js';
+import { requireAuth, applyProfileColor, renderNavbar } from './ui.js';
 import { STATES_DATA } from './data/states.js';
 import { avatarStackHTML } from './utils/avatarDisplay.js';
 import { confirmPopup, showPopup } from './components/popup.js';
@@ -15,6 +15,7 @@ const session = requireAuth();
 if (!session) throw new Error('Not logged in');
 
 applyProfileColor();   // theme topbar + profile avatar with the chosen colour
+renderNavbar('settings');
 
 /* Profile data */
 const completed = Storage.completedCount();
@@ -116,14 +117,56 @@ logoutBtn?.addEventListener('click', async () => {
   window.location.href = 'home.html';
 });
 
-/* Reset progress (double-confirmed) */
-// Wipes this account's stamps, points and costumes (server + local cache).
+/* Reset progress (hold-to-confirm) */
+// Wipes this account's stamps, points and costumes (server + local cache). A plain
+// OK dialog is too easy to tap through for a young child, so confirming requires a
+// deliberate ~1.4s press-and-hold (works with a pointer or by holding Enter/Space).
+function confirmReset() {
+  const HOLD_MS = 1400;
+  const promise = showPopup({
+    title:   'Reset progress?',
+    emoji:   '⚠️',
+    message: 'This erases your stamps, points and costumes. It cannot be undone.',
+    cls:     'reset-popup',
+    bodyHtml:
+      `<button type="button" id="reset-hold" class="reset-hold" aria-label="Press and hold to reset progress">
+         <span class="reset-hold-fill" aria-hidden="true"></span>
+         <span class="reset-hold-label">Hold to reset</span>
+       </button>`,
+    actions: [
+      { label: 'Keep my progress', value: false, style: 'ghost'   },
+      // Hidden (see settings.css) — fired only when the hold completes.
+      { label: 'Reset',            value: true,  style: 'primary' },
+    ],
+  });
+
+  // The overlay is in the DOM synchronously, so we can wire the hold button now.
+  const hold       = document.getElementById('reset-hold');
+  const confirmBtn = document.querySelector('.reset-popup .ce-popup-btn--primary');
+  let timer = null;
+
+  const start = e => {
+    if (e.type === 'keydown' && e.repeat) return;   // ignore key auto-repeat
+    e.preventDefault();
+    hold.classList.add('holding');
+    timer = setTimeout(() => confirmBtn?.click(), HOLD_MS);   // resolves the popup with true
+  };
+  const cancel = () => { clearTimeout(timer); timer = null; hold?.classList.remove('holding'); };
+
+  hold?.addEventListener('pointerdown', start);
+  hold?.addEventListener('pointerup', cancel);
+  hold?.addEventListener('pointerleave', cancel);
+  hold?.addEventListener('pointercancel', cancel);
+  hold?.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') start(e); });
+  hold?.addEventListener('keyup',   e => { if (e.key === 'Enter' || e.key === ' ') cancel(); });
+  setTimeout(() => hold?.focus(), 220);   // land focus on the hold button, not Cancel
+
+  return promise;
+}
+
 const resetBtn = document.getElementById('btn-reset');
 resetBtn?.addEventListener('click', async () => {
-  const yes = await confirmPopup(
-    'This erases your stamps, points and costumes. This cannot be undone.',
-    { title: 'Reset progress?', emoji: '⚠️', confirmText: 'Reset everything', cancelText: 'Keep my progress' },
-  );
+  const yes = await confirmReset();
   if (!yes) return;
 
   resetBtn.disabled = true;

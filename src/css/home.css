@@ -155,10 +155,95 @@ body {
   box-shadow: 0 9px 9px 2px rgba(0,0,0,0.25);
 }
 
-.pb-how   { 
+.pb-how   {
   top: 490px;
-  background: #02A2F8; 
-  box-shadow: 0 9px 9px 2px rgba(0,0,0,0.25); 
+  background: #02A2F8;
+  box-shadow: 0 9px 9px 2px rgba(0,0,0,0.25);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   RESPONSIVE LANDING (< 700px)
+   The exact 1104×682 frame above is kept for tablet/desktop. On narrow
+   phones, uniform-scaling it renders everything at ~32% (unreadable text,
+   tiny hit targets). Below 700px we stop the JS scale and reflow the same
+   elements into a stacked, legible card: logo → subtitle → mascot →
+   description → buttons, all at real sizes with 44px+ touch targets.
+   ═══════════════════════════════════════════════════════════════════ */
+@media (max-width: 700px) {
+  .proto-viewport {
+    align-items: center;
+    overflow-y: auto;
+    padding: 24px 0;
+  }
+
+  /* Defeat the inline transform:scale() the fit() script sets. */
+  .proto-stage {
+    transform: none !important;
+    width: min(92vw, 460px);
+    height: auto;
+    margin: auto;
+    padding: 30px 22px 38px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    background: rgba(255, 255, 255, 0.88);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    border-radius: 32px;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
+  }
+
+  /* The full-bleed scene art is dropped here — the viewport's cover
+     background still shows around the card, so the page stays themed. */
+  .pb-bg { display: none; }
+
+  /* Reset the absolutely-positioned frame children to normal flow. */
+  .pb-logo,
+  .pb-subtitle,
+  .pb-desc,
+  .pb-illus,
+  .pb-btn {
+    position: static;
+    left: auto;
+    top: auto;
+    margin: 0;
+  }
+
+  .pb-logo {
+    order: 1;
+    width: auto;
+    font-size: clamp(34px, 11vw, 56px);
+    text-align: center;
+    -webkit-text-stroke-width: 3px;
+  }
+  .pb-subtitle {
+    order: 2;
+    width: auto;
+    font-size: 18px;
+    line-height: 1.3;
+    text-align: center;
+  }
+  .pb-illus {
+    order: 3;
+    width: 150px;
+    height: auto;
+  }
+  .pb-desc {
+    order: 4;
+    width: 100%;
+    max-width: 360px;
+    font-size: 16px;
+    line-height: 1.45;
+  }
+  .pb-btn {
+    order: 5;
+    width: min(88%, 300px);
+    height: 56px;          /* comfortably above the 44px min target */
+    font-size: 22px;
+  }
+  .pb-how { order: 6; }
 }
 
 

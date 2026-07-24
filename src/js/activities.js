@@ -18,7 +18,7 @@ const stateId = getStateParam();
 const state   = getState(stateId);
 
 /* Shared chrome */
-// color:null keeps the purple .activities-topbar override (in activities.css).
+// The topbar is transparent by design (base .topbar in style.css).
 renderTopbar({
   title:      'Activities',
   showBack:   true,

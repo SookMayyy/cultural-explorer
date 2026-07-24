@@ -15,11 +15,8 @@
 }
 
 /* ── Topbar: transparent so it floats over the sky scene ─────────────────── */
-.map-topbar {
-  background: transparent !important;
-  box-shadow: none;
-}
-
+/* The bar is transparent (base default); the map only needs a darker title
+   colour so it stays legible over the light sky background. */
 .map-topbar .topbar-title { color: #1c5fb8; text-shadow: 0 1px 2px rgba(255,255,255,0.6); }
 
 /* ── Map main area: sky → green-hills scene (matches the design reference) ── */

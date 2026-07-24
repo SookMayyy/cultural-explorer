@@ -40,7 +40,7 @@ renderTopbar({
   showBack:   true,
   backHref:   `narrative.html?state=${stateId}`,
   showPoints: true,
-  color:      null,   // .missions-topbar CSS forces purple
+  color:      null,   // no-op; the bar is transparent by design
 });
 renderNavbar('');
 

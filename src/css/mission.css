@@ -4,8 +4,6 @@
    Warm storybook cards on a soft backdrop; one stage visible at a time.
    ═══════════════════════════════════════════════════════════════════════════ */
 
-.topbar.mission-topbar { background: var(--clr-purple) !important; }
-
 .mn-main {
   --state-color:       var(--clr-purple);
   --state-color-light: #F0ECFB;

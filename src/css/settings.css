@@ -5,10 +5,6 @@
 /* Full-screen background: fills the body (letterbox margins) AND the frame. */
 :root { --screen-bg: #f0f7e6 url('../assets/images/ui/setting_background.png') center / cover no-repeat; }
 
-.topbar--purple {
-  background: linear-gradient(to right, #7b4dff, #5a7dff);
-}
-
 /* ── Main content with nature background ── */
 .settings-main {
   flex: 1;
@@ -275,3 +271,38 @@
 @media (max-width: 460px) {
   .menu-grid { grid-template-columns: 1fr; }
 }
+
+/* ── Reset-progress hold-to-confirm ──
+   The confirm action in the reset popup is hidden; the only way to fire it is to
+   press and hold the button below for ~1.4s (settings.js), so a child can't wipe
+   their stamps with a single reflexive tap. */
+.reset-popup .ce-popup-btn--primary { display: none; }
+
+.reset-hold {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  padding: 14px 16px;
+  border: none;
+  border-radius: 999px;
+  background: #e0596a;                 /* light red base — label stays readable */
+  color: #fff;
+  font-family: inherit;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  user-select: none;
+  touch-action: none;                  /* hold gesture, not a scroll */
+}
+.reset-hold-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--clr-red);          /* darker red fill grows as it's held */
+  transform: scaleX(0);
+  transform-origin: left center;
+  z-index: 0;
+}
+/* Functional progress feedback (how long left to hold), so it runs even under
+   reduced-motion — it isn't decorative. */
+.reset-hold.holding .reset-hold-fill { transform: scaleX(1); transition: transform 1.4s linear; }
+.reset-hold-label { position: relative; z-index: 1; }

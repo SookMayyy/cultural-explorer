@@ -8,17 +8,15 @@
    on #story-entry. Everything falls back gracefully.
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* ── Topbar: always purple here ─────────────────────────────────────────────
-   Overrides the colour renderTopbar() would set, via the .narrative-topbar
-   modifier on the header. !important beats the inline style. */
+/* ── Topbar: pinned to the very top of the story-entry scene ─────────────────
+   The bar itself is transparent (the base .topbar default); this only overrides
+   its position so the back button sits at the top of the scene. */
 .narrative-topbar {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   z-index: 100;
-  background: transparent !important;
-  box-shadow: none !important;
 }
 
 /* ── Screen shell ───────────────────────────────────────────────────────────

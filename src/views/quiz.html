@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quiz Time! — Cultural Explorer MY</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,9 +14,8 @@
 
 <div class="app-container">
 
-  <!-- Topbar — rendered by quiz.js.
-       The .quiz-topbar modifier forces purple, same pattern as .narrative-topbar. -->
-  <header id="topbar" class="topbar quiz-topbar"></header>
+  <!-- Topbar — rendered by quiz.js (transparent bar; controls float over the page). -->
+  <header id="topbar" class="topbar"></header>
 
   <!-- Progress strip — question counter + animated fill bar + pts earned -->
   <div class="quiz-progress-strip">
@@ -104,6 +103,10 @@
           </div>
         </div>
       </div>
+
+      <!-- Advance button — sits below the feedback panel; the child taps to
+           move on, so there's time to read the explanation at their own pace -->
+      <button class="quiz-next-btn hidden" id="quiz-next-btn" type="button">Next →</button>
 
     </div><!-- end #quiz-question-view -->
 

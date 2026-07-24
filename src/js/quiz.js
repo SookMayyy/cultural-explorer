@@ -36,7 +36,7 @@ const { fromActivities, fromMission, missionId, missionsHref, missionsDoneHref }
   launchContext(stateId);
 const activitiesHref = `activities.html?state=${stateId}`;
 
-/* Shared chrome (color:null keeps quiz.css's purple override) */
+/* Shared chrome (the topbar is transparent — see base .topbar in style.css) */
 renderTopbar({
   title:    state.name + ' Quiz',
   showBack: true,
@@ -45,7 +45,7 @@ renderTopbar({
           : fromActivities ? 'activity-states.html?game=quiz'
           : `narrative.html?state=${stateId}`,
   showPoints: true,
-  color:    null,   // keeps purple override in quiz.css intact
+  color:    null,   // no-op; the bar is transparent by design
 });
 
 renderNavbar('activities');
@@ -63,6 +63,10 @@ if (stateFlagEl) stateFlagEl.innerHTML = state.emoji;
 
 /* Build question pool — per-state only (inline question + this state's bank) */
 const POINTS_PER_Q = 10;
+
+// In the mission flow the reward is a flat +25 (not per question), so points
+// shown here are "practice" only — label them so kids don't total them up.
+const practicePoints = fromMission;
 
 // Shuffled so a replay surfaces different questions from the bank each time.
 const stateQs = shuffle(QUIZ_QUESTIONS.filter(q => q.stateId === stateId));
@@ -188,6 +192,7 @@ const qNumEl        = document.getElementById('quiz-q-num');
 const optionBtns    = document.querySelectorAll('.quiz-option');
 const feedbackEl    = document.getElementById('quiz-feedback');
 const feedbackIcon  = document.getElementById('feedback-icon');
+const nextBtn       = document.getElementById('quiz-next-btn');
 const mascotEl      = document.getElementById('quiz-mascot-text');
 const scoreEl       = document.getElementById('quiz-score-display');
 
@@ -259,6 +264,7 @@ function loadQuestion(idx) {
   });
 
   feedbackEl.className = 'quiz-feedback hidden';
+  nextBtn?.classList.add('hidden');   // button lives outside the panel now
 }
 
 loadQuestion(0);
@@ -289,7 +295,9 @@ function evaluate(chosen) {
   if (correct) {
     feedbackEl.className = 'quiz-feedback correct-fb';
     if (feedbackIcon)    feedbackIcon.textContent = '✅';
-    resultEl.textContent  = `Correct! +${POINTS_PER_Q} pts`;
+    resultEl.textContent  = practicePoints
+      ? `Correct! +${POINTS_PER_Q} practice pts`
+      : `Correct! +${POINTS_PER_Q} pts`;
     explainEl.textContent = q.explain;
 
     Sound.correct();
@@ -321,20 +329,26 @@ function evaluate(chosen) {
     if (mascotEl) mascotEl.textContent = randomOf(ENCOURAGEMENT);
   }
 
-  // Pause on the feedback panel before advancing.
-  setTimeout(() => {
-    qIdx++;
-    if (qIdx < pool.length) {
-      loadQuestion(qIdx);
-    } else {
-      finish();
-    }
-  }, 1600);
+  // Advance only when the child taps Next, so the explanation can be read at
+  // any pace. The button is part of the feedback panel, so it appears with it.
+  if (nextBtn) {
+    nextBtn.textContent = qIdx < pool.length - 1 ? 'Next →' : 'See Results →';
+    nextBtn.classList.remove('hidden');
+    nextBtn.focus();
+  }
+}
+
+// Advance to the next question, or the completion screen after the last one.
+function advance() {
+  qIdx++;
+  if (qIdx < pool.length) loadQuestion(qIdx);
+  else finish();
 }
 
 optionBtns.forEach(btn => {
   btn.addEventListener('click', () => evaluate(parseInt(btn.dataset.idx, 10)));
 });
+nextBtn?.addEventListener('click', advance);
 
 /* Finish (in-page completion screen: mascot + score tally + stamp banner) */
 function finish() {
@@ -386,15 +400,22 @@ function finish() {
     }
   }
 
-  // Show the stamp banner only on a pass.
+  // Show the stamp banner only if the stamp is actually held. Passing a quiz
+  // never earns a stamp (only completing all four missions does), so gating on
+  // `pass` alone promised a stamp the child wouldn't find in the stamp book.
   if (completeStampBanner && completeStampSub) {
-    if (pass) {
+    if (Storage.getStamps().includes(stateId)) {
       completeStampBanner.classList.remove('hidden');
-      completeStampSub.textContent = `You've unlocked the ${state.name} stamp!`;
+      completeStampSub.textContent = `You've earned the ${state.name} stamp!`;
     } else {
       completeStampBanner.classList.add('hidden');
     }
   }
+
+  // Mission-flow points are practice only (flat +25 is the real reward), so the
+  // tally reads "practice points" rather than implying banked points.
+  const ptsTextEl = document.querySelector('.complete-pts-text');
+  if (ptsTextEl && practicePoints) ptsTextEl.textContent = ' practice points';
 
   // CTA: replay from the hub → Activities; linear journey → reward.html.
   const ctaBtn = document.getElementById('complete-cta-btn');

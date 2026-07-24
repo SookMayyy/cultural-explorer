@@ -75,14 +75,21 @@ export function scrambleWordsFor(state) {
   }
 
   // 🎉 FESTIVAL — the state's festival name, plus its festival/celebration card.
+  // Most slots are true festivals; a `kind` on the mission (e.g. Kelantan's Wayang
+  // Kulit = a shadow-puppet show) names the real category so the hint follows the
+  // category-word rule instead of mislabelling a performance as "a festival".
   const fest = festivalMissionFor(state.id);
   const festCard = (state.cards || []).find(c => c.category === 'Festival');
   if (fest?.festival) {
+    const festHint = fest.kind ? `A ${fest.kind} from ${stateName}`
+                               : `A festival celebrated in ${stateName}`;
     add(fest.festival, {
       category: 'festival',
-      hint:  `A festival celebrated in ${stateName}`,
-      desc:  festCard?.funFact || `${fest.festival} — a festival celebrated in ${stateName}.`,
-      emoji: festCard?.icon || '🎉',
+      hint:  festHint,
+      desc:  festCard?.funFact || (fest.kind
+        ? `${fest.festival} — a ${fest.kind} from ${stateName}.`
+        : `${fest.festival} — a festival celebrated in ${stateName}.`),
+      emoji: fest.emoji || festCard?.icon || '🎉',
     });
   }
   if (festCard) {

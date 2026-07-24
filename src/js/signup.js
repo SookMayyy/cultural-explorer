@@ -39,8 +39,12 @@ function clearError()   { errorEl?.classList.add('hidden'); }
 /* Grade selector */
 gradeWrap.querySelectorAll('.grade-btn').forEach(btn => {
   btn.addEventListener('click', () => {
-    gradeWrap.querySelectorAll('.grade-btn').forEach(b => b.classList.remove('selected'));
+    gradeWrap.querySelectorAll('.grade-btn').forEach(b => {
+      b.classList.remove('selected');
+      b.setAttribute('aria-checked', 'false');
+    });
     btn.classList.add('selected');
+    btn.setAttribute('aria-checked', 'true');
     signupGrade = btn.dataset.grade;
     clearError();
 

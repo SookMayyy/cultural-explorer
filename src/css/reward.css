@@ -12,7 +12,12 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(160deg, #6e8ed4 0%, var(--clr-purple) 55%, var(--clr-purple-deep) 100%);
+  /* Dark vignette scrim (top layer) dims the backdrop — deeper toward the edges so
+     it reads as a shadow while the centred celebration stays bright — and keeps the
+     gold headline + card text legible. Image sits over the gradient fallback. */
+  background:
+    radial-gradient(ellipse at center, rgba(26, 14, 55, 0.55) 0%, rgba(12, 6, 30, 0.82) 100%),
+    linear-gradient(160deg, #6e8ed4 0%, var(--clr-purple) 55%, var(--clr-purple-deep) 100%);
   padding: var(--sp-lg) var(--sp-md) calc(var(--sp-xl) + env(safe-area-inset-bottom, 0px));
   position: relative;
   overflow: hidden;

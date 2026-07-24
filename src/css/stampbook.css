@@ -7,8 +7,6 @@
    instead of cool/lavender. */
 :root { --screen-bg: #F0EAFC url('../assets/images/ui/batick_background.png') center / cover no-repeat; }
 
-.topbar--purple { background: #6b50ce; }
-
 /* ── Main content area ── */
 .sb-main {
   flex: 1;
@@ -175,13 +173,48 @@
   overflow: hidden;
 }
 /* Not-yet-earned: dashed "?" mystery circle */
-.sb-slot.locked .sb-slot-circle {
+.sb-slot.locked .sb-slot-circle,
+.sb-slot.in-progress .sb-slot-circle {
   background: transparent;
   border: 2px dashed #D6CBB6;
   color: #C2B084;
   font-family: var(--font-display);
   font-size: 34px;
   line-height: 1;
+}
+
+/* In progress: a conic ring (drawn on .sb-slot, which isn't clipped) shows how
+   many missions are done, in the state colour, with a count badge — a stronger
+   pull-to-complete than the bare "?" slot. */
+.sb-slot.in-progress::before {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  background: conic-gradient(var(--stamp-clr, #ccc) var(--prog, 0%), rgba(214, 203, 182, 0.4) 0);
+  -webkit-mask: radial-gradient(closest-side, transparent 86%, #000 87%);
+          mask: radial-gradient(closest-side, transparent 86%, #000 87%);
+  z-index: 0;
+}
+.sb-slot.in-progress .sb-slot-circle { position: relative; z-index: 1; }
+.sb-slot-progress {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  min-width: 24px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 10px;
+  background: var(--stamp-clr, #999);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 12px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 /* Earned: coloured circle with the state's flag + a green ✓ badge */
 .sb-slot.earned .sb-slot-circle {

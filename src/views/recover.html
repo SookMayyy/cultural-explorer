@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Forgot Password — Cultural Explorer MY</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -35,9 +35,9 @@
                placeholder="Type your name" autocomplete="username" required>
 
         <label class="rec-label">Your grade</label>
-        <div class="grade-select" id="recover-grade" role="group" aria-label="Select your grade">
-          <button type="button" class="grade-btn" data-grade="1-3">Grade 1&ndash;3</button>
-          <button type="button" class="grade-btn" data-grade="4-6">Grade 4&ndash;6</button>
+        <div class="grade-select" id="recover-grade" role="radiogroup" aria-label="Select your grade">
+          <button type="button" class="grade-btn" role="radio" aria-checked="false" data-grade="1-3">Grade 1&ndash;3</button>
+          <button type="button" class="grade-btn" role="radio" aria-checked="false" data-grade="4-6">Grade 4&ndash;6</button>
         </div>
 
         <!-- ── Step 2: tap the 2 secret icons in order ── -->

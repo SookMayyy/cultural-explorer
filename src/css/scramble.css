@@ -9,10 +9,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--sp-lg);
+  gap: var(--sp-md);
   /* Top padding clears the floating topbar, whose contents hang below its 20px
      layout box (see --topbar-overflow in style.css). */
-  padding: calc(var(--sp-lg) + var(--topbar-overflow)) var(--sp-md) calc(var(--navbar-h) + var(--sp-xl));
+  padding: calc(var(--sp-md) + var(--topbar-overflow)) var(--sp-md) calc(var(--navbar-h) + var(--sp-md));
   background: linear-gradient(180deg, #FFF6E0, #F3E8C8);
   overflow-y: auto;
 }
@@ -40,14 +40,16 @@
   color: var(--clr-green);
 }
 
-/* ── Game column ── */
+/* ── Game column ──
+   Compact gaps so the answer slots, letter tiles and the Hint/Clear buttons all
+   fit on one screen without scrolling (the buttons used to fall below the fold). */
 .scr-game {
   width: 100%;
   max-width: 480px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--sp-lg);
+  gap: var(--sp-sm);
 }
 
 /* ── Hint card ── */
@@ -55,7 +57,7 @@
   width: 100%;
   background: #fff;
   border-radius: var(--r-lg);
-  padding: var(--sp-lg);
+  padding: var(--sp-md);
   text-align: center;
   box-shadow: var(--shadow-sm);
   border: 2px solid #E8D8A0;

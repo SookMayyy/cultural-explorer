@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Log In — LokaLearn</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -42,9 +42,9 @@
                  placeholder="Type your name" autocomplete="username" required>
 
           <label class="auth-label">Your grade</label>
-          <div class="grade-select" id="login-grade" role="group" aria-label="Select your grade">
-            <button type="button" class="grade-btn" data-grade="1-3">Grade 1&ndash;3</button>
-            <button type="button" class="grade-btn" data-grade="4-6">Grade 4&ndash;6</button>
+          <div class="grade-select" id="login-grade" role="radiogroup" aria-label="Select your grade">
+            <button type="button" class="grade-btn" role="radio" aria-checked="false" data-grade="1-3">Grade 1&ndash;3</button>
+            <button type="button" class="grade-btn" role="radio" aria-checked="false" data-grade="4-6">Grade 4&ndash;6</button>
           </div>
 
           <label class="auth-label" for="login-password">Password</label>

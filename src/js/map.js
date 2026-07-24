@@ -81,24 +81,22 @@ STATES_DATA.forEach(state => {
   if (!paths.length) return;
 
   const ns     = nodeState(state.id);
-  const locked = ns === 'locked';
   const done   = ns === 'completed';
-  const isNext = nextUp && nextUp.id === state.id && !locked;
+  const isNext = nextUp && nextUp.id === state.id;
 
   paths.forEach(path => {
     path.classList.add(`map-state--${ns}`);
     if (isNext) path.classList.add('map-state--next');
-    // Unlocked/done wear the state's brand colour; locked stay grey (CSS).
-    if (state.color && !locked) path.style.fill = state.color;
+    if (state.color) path.style.fill = state.color;
 
+    // The map is free-exploration — every state is open, so all paths are
+    // focusable buttons with no locked/disabled state.
     path.setAttribute('role', 'button');
-    path.setAttribute('tabindex', locked ? '-1' : '0');
-    if (locked) path.setAttribute('aria-disabled', 'true');
-    path.setAttribute('aria-label',
-      locked ? `${state.name} — locked` : `${state.name} — ${done ? 'completed' : 'explore'}`);
+    path.setAttribute('tabindex', '0');
+    path.setAttribute('aria-label', `${state.name} — ${done ? 'completed' : 'explore'}`);
   });
 
-  const pinChar = done ? '✓' : locked ? '🔒' : isNext ? '⭐' : '';
+  const pinChar = done ? '✓' : isNext ? '⭐' : '';
   if (pinChar) {
     // Pin sits on the primary (first) path — the mainland for Penang.
     const box = paths[0].getBBox();
@@ -118,12 +116,12 @@ svgEl.appendChild(pinsEl);
 // Tap (or keyboard Enter/Space) a state path → open its popup.
 svgEl.addEventListener('click', e => {
   const path = e.target.closest('path[data-state]');
-  if (path && !path.hasAttribute('aria-disabled')) openPopup(path.dataset.state);
+  if (path) openPopup(path.dataset.state);
 });
 svgEl.addEventListener('keydown', e => {
   if (e.key !== 'Enter' && e.key !== ' ') return;
   const path = e.target.closest('path[data-state]');
-  if (path && !path.hasAttribute('aria-disabled')) {
+  if (path) {
     e.preventDefault();
     openPopup(path.dataset.state);
   }
@@ -208,8 +206,7 @@ function openPopup(stateId) {
   if (!state) return;
 
   // Completed missions — a badge ticks once its mission id is here.
-  const done     = Storage.getMissions(stateId);
-  const isLocked = !unlocked.includes(stateId);
+  const done = Storage.getMissions(stateId);
 
   const emojiEl = document.getElementById('popup-emoji');
   if (emojiEl) emojiEl.innerHTML = state.emoji || '🏳️';
@@ -228,17 +225,10 @@ function openPopup(stateId) {
   `).join('');
 
   const exploreBtn = document.getElementById('popup-explore');
-  if (isLocked) {
-    exploreBtn.href = '#';
-    exploreBtn.className = 'popup-explore-btn popup-explore-btn--locked';
-    exploreBtn.textContent = '🔒 Locked';
-    exploreBtn.onclick = e => e.preventDefault();
-  } else {
-    exploreBtn.href = `narrative.html?state=${stateId}`;
-    exploreBtn.className = 'popup-explore-btn';
-    exploreBtn.textContent = 'Explore Now ›';
-    exploreBtn.onclick = () => Storage.setCurrentState(stateId);
-  }
+  exploreBtn.href = `narrative.html?state=${stateId}`;
+  exploreBtn.className = 'popup-explore-btn';
+  exploreBtn.textContent = 'Explore Now ›';
+  exploreBtn.onclick = () => Storage.setCurrentState(stateId);
 
   document.getElementById('map-popup').classList.remove('hidden');
   document.getElementById('map-popup').scrollTop = 0;
@@ -252,9 +242,18 @@ document.getElementById('popup-close')?.addEventListener('click', closePopup);
 document.getElementById('map-popup')?.addEventListener('click', e => {
   if (e.target === document.getElementById('map-popup')) closePopup();
 });
+// Escape closes the popup, alongside the ✕ button and backdrop click.
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !document.getElementById('map-popup')?.classList.contains('hidden')) {
+    closePopup();
+  }
+});
 
-/* Calibration mode (map.html?calibrate=1) — tap to read left%/top% */
-if (new URLSearchParams(location.search).get('calibrate') === '1') {
+/* Calibration mode (map.html?calibrate=1) — tap to read left%/top%.
+   Dev-only: gated to localhost so it never activates on a deployed host, even if
+   someone appends the query param. (No bundler here to strip it at build time.) */
+const isLocalDev = ['localhost', '127.0.0.1', ''].includes(location.hostname);
+if (isLocalDev && new URLSearchParams(location.search).get('calibrate') === '1') {
   const wrap = document.getElementById('map-image-wrap');
   const cal  = document.getElementById('map-cal');
   cal.classList.remove('hidden');

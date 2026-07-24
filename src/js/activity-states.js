@@ -30,7 +30,7 @@ if (!game) {
 }
 
 /* Chrome */
-// color:null keeps the purple .activities-topbar override (shared CSS).
+// The topbar is transparent by design (base .topbar in style.css).
 renderTopbar({
   title:      game.label,
   showBack:   true,

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Profile</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -91,28 +91,8 @@
     </div>
   </main>
 
-  <nav class="bottom-nav">
-    <a href="dashboard.html" class="map-nav-item">
-      <img src="../assets/images/ui/home-icon.png"   alt="" class="nav-icon">
-      <span>Home</span>
-    </a>
-    <a href="map.html" class="map-nav-item">
-      <img src="../assets/images/ui/my-map-icon.png" alt="" class="nav-icon">
-      <span>Map</span>
-    </a>
-    <a href="stampbook.html" class="map-nav-item">
-      <img src="../assets/images/ui/stamp-icon.png"  alt="" class="nav-icon">
-      <span>Stamps</span>
-    </a>
-    <a href="activities.html" class="map-nav-item">
-      <img src="../assets/images/ui/quiz-icon.png"   alt="" class="nav-icon">
-      <span>Activities</span>
-    </a>
-    <a href="settings.html" class="map-nav-item active">
-      <img src="../assets/images/ui/setting-icon.png" alt="" class="nav-icon">
-      <span>Me</span>
-    </a>
-  </nav>
+  <!-- Bottom navigation bar — rendered by settings.js via renderNavbar() -->
+  <nav id="navbar"></nav>
 
 </div>
 <script type="module" src="../js/settings.js"></script>

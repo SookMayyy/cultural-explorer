@@ -11,14 +11,6 @@
   background: var(--clr-bg);
 }
 
-/* ── Topbar: always purple on the quiz screen ────────────────────────────────
-   Overrides whatever colour quiz.js passes via renderTopbar().
-   Same pattern as .narrative-topbar in narrative.css.
-   !important beats the inline style set by renderTopbar(). */
-.quiz-topbar {
-  background: var(--clr-purple) !important;
-  box-shadow: 0 3px 0 var(--clr-purple-deep), 0 4px 12px rgba(107,80,206,0.30) !important;
-}
 
 /* ═══════════════════════════════════════════════════════════════════════════
    PROGRESS STRIP
@@ -116,11 +108,16 @@
 
 /* Active question view — stack the question card, options grid and feedback
    panel with a consistent gap between them (the mascot row is display:none, so
-   it adds no space). */
+   it adds no space). Capped + centred so the card and 2×2 options don't stretch
+   into ~1180px bars inside the wide desktop frame (the completion view already
+   caps its own children). */
 #quiz-question-view {
   display: flex;
   flex-direction: column;
   gap: var(--sp-md);
+  width: 100%;
+  max-width: 720px;
+  margin-inline: auto;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -516,6 +513,30 @@
 
 .quiz-feedback.wrong-fb .quiz-feedback-result {
   color: var(--clr-red);
+}
+
+/* "Next" button — advances the quiz on the child's tap (replaces auto-advance),
+   so there's unhurried time to read q.explain. Sits below the feedback panel.
+   Tactile 3-D press like .btn-primary. */
+.quiz-next-btn {
+  display: block;
+  width: 100%;
+  margin-top: var(--sp-sm);
+  border: none;
+  border-radius: var(--r-md);
+  padding: 12px var(--sp-md);
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  color: #fff;
+  background: #e8602c;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+  min-height: 48px;
+}
+
+.quiz-next-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.18);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════

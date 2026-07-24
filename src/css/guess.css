@@ -8,10 +8,6 @@
   background: #f5f0ff;
 }
 
-/* ── Topbar gradient (purple) ── */
-.topbar--purple {
-  background: linear-gradient(to right, #7c3aed, #9f67fa);
-}
 
 /* ══════════════════════════════════════════
    PROGRESS STRIP
@@ -52,6 +48,7 @@
 
 .guess-strip-fill {
   height: 100%;
+  width: 0;   /* starts empty; guess.js sets the round percentage on load */
   background: linear-gradient(90deg, #7c3aed, #9f67fa);
   border-radius: var(--r-pill);
   /* Smooth progress bar animation when advancing rounds */

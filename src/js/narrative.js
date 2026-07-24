@@ -33,7 +33,7 @@ Storage.setCurrentState(stateId);
 Storage.incrementVisit(stateId);
 Storage.markCompleted(stateId, 'story');
 
-/* Topbar — .narrative-topbar CSS forces purple (color:null = no inline bg) */
+/* Topbar — transparent bar, pinned to the top by .narrative-topbar CSS */
 renderTopbar({
   title:      state.name,
   showBack:   true,

@@ -29,8 +29,12 @@ function clearError() { errorEl.classList.add('hidden'); }
 /* Grade selector */
 gradeWrap.querySelectorAll('.grade-btn').forEach(btn => {
   btn.addEventListener('click', () => {
-    gradeWrap.querySelectorAll('.grade-btn').forEach(b => b.classList.remove('selected'));
+    gradeWrap.querySelectorAll('.grade-btn').forEach(b => {
+      b.classList.remove('selected');
+      b.setAttribute('aria-checked', 'false');
+    });
     btn.classList.add('selected');
+    btn.setAttribute('aria-checked', 'true');
     recoverGrade = btn.dataset.grade;
     clearError();
     // Grade 1–3 gets an auto-generated password — no field needed.

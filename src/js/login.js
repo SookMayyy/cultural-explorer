@@ -26,8 +26,12 @@ function enterGame() { window.location.href = 'dashboard.html'; }
 /* Grade selector */
 gradeWrap.querySelectorAll('.grade-btn').forEach(btn => {
   btn.addEventListener('click', () => {
-    gradeWrap.querySelectorAll('.grade-btn').forEach(b => b.classList.remove('selected'));
+    gradeWrap.querySelectorAll('.grade-btn').forEach(b => {
+      b.classList.remove('selected');
+      b.setAttribute('aria-checked', 'false');
+    });
     btn.classList.add('selected');
+    btn.setAttribute('aria-checked', 'true');
     loginGrade = btn.dataset.grade;
     clearError(loginError);
   });

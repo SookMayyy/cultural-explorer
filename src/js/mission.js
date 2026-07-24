@@ -76,7 +76,7 @@ renderTopbar({
   showBack:   true,
   backHref:   hubHref,
   showPoints: true,
-  color:      null,   // .mission-topbar CSS forces purple
+  color:      null,   // no-op; the bar is transparent by design
 });
 
 document.getElementById('mn-badge').textContent = flow.badge;
